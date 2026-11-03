@@ -1,0 +1,44 @@
+name: Tạo audio Gemini
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "buoi-*/audio/words.txt"
+      - "tools/gemini_tts.py"
+      - ".github/workflows/gemini-audio.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: gemini-audio
+  cancel-in-progress: false
+
+jobs:
+  audio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - run: pip install -q google-genai
+      - name: Gọi Gemini tạo audio
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python tools/gemini_tts.py
+      - name: Lưu audio vào repo
+        run: |
+          git config user.name "ivy-audio-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add buoi-*/audio/*.mp3
+          if ! git diff --cached --quiet; then
+            git commit -m "Thêm audio Gemini" && git pull --rebase && git push
+            gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
