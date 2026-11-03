@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IVY Ôn Chuyên – Phương trình nghiệm nguyên</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] } };
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+  :root {
+    --bg: #f7f5f0; --card: #ffffff; --ink: #1f2933; --muted: #5f6b7a;
+    --accent: #2f5d8a; --accent-soft: #e6eef6; --ok: #2e7d4f; --bad: #b3412f; --line: #e3e0d8;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.65; }
+  header { background: var(--accent); color: #fff; padding: 18px 24px; }
+  header .brand { font-weight: 700; font-size: 1.25rem; letter-spacing: .5px; }
+  header nav { margin-top: 6px; font-size: .92rem; opacity: .9; }
+  main { max-width: 820px; margin: 0 auto; padding: 28px 20px 60px; }
+  h1 { font-size: 1.8rem; margin: 0 0 4px; }
+  .meta { color: var(--muted); margin-bottom: 24px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px; margin-bottom: 20px; }
+  h2 { font-size: 1.25rem; margin-top: 0; color: var(--accent); }
+  .box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 6px; margin: 12px 0; }
+  details { margin-top: 10px; }
+  summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+  .q { padding: 14px 0; border-top: 1px solid var(--line); }
+  .q:first-of-type { border-top: none; }
+  .q p { margin: 0 0 8px; font-weight: 600; }
+  .q label { display: block; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+  .q label:hover { background: var(--accent-soft); }
+  .q .fb { margin-top: 6px; font-size: .95rem; }
+  .ok { color: var(--ok); } .bad { color: var(--bad); }
+  button { background: var(--accent); color: #fff; border: 0; padding: 10px 22px; border-radius: 8px; font-size: 1rem; cursor: pointer; }
+  button:hover { opacity: .9; }
+  #score { font-size: 1.1rem; font-weight: 700; margin-left: 14px; }
+  footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 20px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">IVY ÔN CHUYÊN</div>
+  <nav>Toán chuyên › Số học › Phương trình nghiệm nguyên</nav>
+</header>
+
+<main>
+  <h1>Phương trình nghiệm nguyên</h1>
+  <div class="meta">Bài 1 · Toán chuyên vào lớp 10 · Khoảng 30 phút</div>
+
+  <section>
+    <h2>1. Khái niệm</h2>
+    <p>Giải phương trình nghiệm nguyên là tìm tất cả các bộ số <b>nguyên</b> thỏa mãn phương trình. Ví dụ: tìm \(x, y \in \mathbb{Z}\) sao cho \(2x + 3y = 7\).</p>
+    <p>Khác với phương trình thông thường, ta thường có vô số nghiệm thực nhưng chỉ một số hữu hạn (hoặc một họ) nghiệm nguyên. Các phương pháp dưới đây là "bộ đồ nghề" quen thuộc trong đề thi chuyên.</p>
+  </section>
+
+  <section>
+    <h2>2. Các phương pháp thường gặp</h2>
+
+    <h3>a) Đưa về phương trình tích</h3>
+    <div class="box">Biến đổi về dạng \(A \cdot B = c\) với \(c\) là số nguyên, rồi xét các cặp ước của \(c\).</div>
+    <p><b>Ví dụ.</b> Tìm \(x, y \in \mathbb{Z}\) thỏa mãn \(xy - x - y = 2\).</p>
+    <details><summary>Xem lời giải</summary>
+      <p>\(xy - x - y + 1 = 3 \Leftrightarrow (x-1)(y-1) = 3\).</p>
+      <p>Các cặp \((x-1, y-1)\) là \((1,3), (3,1), (-1,-3), (-3,-1)\), suy ra \((x,y) \in \{(2,4), (4,2), (0,-2), (-2,0)\}\).</p>
+    </details>
+
+    <h3>b) Xét số dư (đồng dư)</h3>
+    <div class="box">Xét hai vế theo một modulo phù hợp (thường là 3, 4, 8, 9…) để chỉ ra phương trình vô nghiệm hoặc thu hẹp khả năng.</div>
+    <p><b>Ví dụ.</b> Chứng minh phương trình \(x^2 + y^2 = 2023\) không có nghiệm nguyên.</p>
+    <details><summary>Xem lời giải</summary>
+      <p>Số chính phương chia 4 dư 0 hoặc 1, nên \(x^2 + y^2\) chia 4 dư 0, 1 hoặc 2.</p>
+      <p>Mà \(2023 = 4 \cdot 505 + 3\) chia 4 dư 3. Vậy phương trình vô nghiệm nguyên.</p>
+    </details>
+
+    <h3>c) Đánh giá (bất đẳng thức)</h3>
+    <div class="box">Dùng bất đẳng thức để chặn miền giá trị của ẩn, rồi thử các trường hợp còn lại.</div>
+    <p><b>Ví dụ.</b> Tìm các số nguyên dương \(x \le y\) thỏa mãn \(\dfrac{1}{x} + \dfrac{1}{y} = \dfrac{1}{2}\).</p>
+    <details><summary>Xem lời giải</summary>
+      <p>Vì \(x \le y\) nên \(\dfrac{1}{2} \le \dfrac{2}{x}\), suy ra \(x \le 4\). Đồng thời \(\dfrac{1}{x} < \dfrac{1}{2}\) nên \(x \ge 3\).</p>
+      <p>\(x = 3 \Rightarrow y = 6\); \(x = 4 \Rightarrow y = 4\). Nghiệm: \((3,6), (4,4)\).</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>3. Luyện tập trắc nghiệm</h2>
+    <form id="quiz">
+      <div class="q" data-answer="b">
+        <p>Câu 1. Phương trình \((x-2)(y+1) = 5\) có bao nhiêu nghiệm nguyên \((x, y)\)?</p>
+        <label><input type="radio" name="q1" value="a"> 2</label>
+        <label><input type="radio" name="q1" value="b"> 4</label>
+        <label><input type="radio" name="q1" value="c"> 6</label>
+        <label><input type="radio" name="q1" value="d"> Vô số</label>
+        <div class="fb" data-explain="5 có 4 cặp ước nguyên: (1,5), (5,1), (−1,−5), (−5,−1), mỗi cặp cho đúng một nghiệm."></div>
+      </div>
+      <div class="q" data-answer="c">
+        <p>Câu 2. Số chính phương chia cho 3 có thể có số dư nào?</p>
+        <label><input type="radio" name="q2" value="a"> 0, 1, 2</label>
+        <label><input type="radio" name="q2" value="b"> Chỉ 1</label>
+        <label><input type="radio" name="q2" value="c"> 0 hoặc 1</label>
+        <label><input type="radio" name="q2" value="d"> 1 hoặc 2</label>
+        <div class="fb" data-explain="Nếu n ≡ 0 thì n² ≡ 0; nếu n ≡ ±1 thì n² ≡ 1 (mod 3)."></div>
+      </div>
+      <div class="q" data-answer="a">
+        <p>Câu 3. Với \(x, y\) nguyên thỏa mãn \(3x^2 + 1 = y^2\), số \(y^2\) chia 3 dư bao nhiêu?</p>
+        <label><input type="radio" name="q3" value="a"> 1</label>
+        <label><input type="radio" name="q3" value="b"> 0</label>
+        <label><input type="radio" name="q3" value="c"> 2</label>
+        <label><input type="radio" name="q3" value="d"> Không xác định</label>
+        <div class="fb" data-explain="Vế trái 3x² + 1 luôn chia 3 dư 1, nên y² ≡ 1 (mod 3)."></div>
+      </div>
+      <div class="q" data-answer="d">
+        <p>Câu 4. Nghiệm nguyên dương của \(x + y + xy = 7\) là:</p>
+        <label><input type="radio" name="q4" value="a"> Chỉ (1, 3)</label>
+        <label><input type="radio" name="q4" value="b"> (2, 2)</label>
+        <label><input type="radio" name="q4" value="c"> Vô nghiệm</label>
+        <label><input type="radio" name="q4" value="d"> (1, 3) và (3, 1)</label>
+        <div class="fb" data-explain="(x+1)(y+1) = 8, với x, y ≥ 1 thì mỗi thừa số ≥ 2, nên chỉ có (2,4), (4,2), tức (x,y) = (1,3), (3,1)."></div>
+      </div>
+      <div style="margin-top:16px">
+        <button type="submit">Nộp bài</button><span id="score"></span>
+      </div>
+    </form>
+  </section>
+</main>
+
+<footer>© IVY Ôn Chuyên · Bài học mẫu</footer>
+
+<script>
+  document.getElementById('quiz').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var qs = document.querySelectorAll('.q'), right = 0;
+    qs.forEach(function (q, i) {
+      var picked = q.querySelector('input:checked');
+      var fb = q.querySelector('.fb');
+      var ok = picked && picked.value === q.dataset.answer;
+      if (ok) right++;
+      fb.className = 'fb ' + (ok ? 'ok' : 'bad');
+      fb.textContent = (ok ? '✓ Đúng. ' : (picked ? '✗ Chưa đúng. ' : '✗ Chưa chọn đáp án. ')) + fb.dataset.explain;
+    });
+    document.getElementById('score').textContent = 'Điểm: ' + right + '/' + qs.length;
+  });
+</script>
+</body>
+</html>
