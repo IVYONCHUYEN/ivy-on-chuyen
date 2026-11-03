@@ -60,29 +60,24 @@ print(f"Cần tạo {len(jobs)} file audio")
 if not jobs:
     sys.exit(0)
 
-model = None
-for m in MODELS:
-    try:
-        tts("hello", m); model = m; break
-    except Exception as e:
-        print("Bỏ qua", m, "→", str(e)[:150])
-if not model:
-    sys.exit("Không model Gemini TTS nào dùng được với API key này.")
-print("Dùng model:", model, "| giọng:", VOICE)
-
+models = list(MODELS)
 fail = 0
 for w, out in jobs:
+    done = False
     for attempt in range(8):
+        if not models:
+            print("Mọi model đều hết lượt miễn phí hôm nay, lần chạy tự động sau sẽ làm tiếp.")
+            sys.exit(0)
+        model = models[0]
         try:
-            to_mp3(tts(w, model, attempt), out); print("✓", out); break
+            to_mp3(tts(w, model, attempt), out); print("✓", out, "|", model); done = True; break
         except Exception as e:
             msg = str(e)
-            print("…thử lại", w, msg[:150])
-            if "429" in msg and ("PerDay" in msg or "per day" in msg.lower()):
-                print("Hết lượt miễn phí trong ngày, lần chạy tự động sau sẽ làm tiếp.")
-                sys.exit(0)
+            print("…thử lại", w, model, msg[:200])
+            if "404" in msg or "NOT_FOUND" in msg or ("429" in msg and ("PerDay" in msg or "per day" in msg.lower())):
+                print("Chuyển model khác (bỏ", model, ")"); models.pop(0); continue
             time.sleep(65 if "429" in msg else 5)
-    else:
+    if not done:
         fail += 1; print("✗ Không tạo được", w)
     time.sleep(21)
 print(f"Xong. Lỗi: {fail}")
