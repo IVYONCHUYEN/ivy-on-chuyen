@@ -376,7 +376,9 @@ const W=[
 ];
 const exHTML=i=>W[i][5].replace("___","<b>"+W[i][0]+"</b>");
 const famHTML=i=>`<div class="fam">${W[i][4].map(f=>`<span><i>${f[0]}</i>${f[1]}</span>`).join("")}</div>`;
-function say(t){try{const u=new SpeechSynthesisUtterance(t);u.lang="en-GB";u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function tts(t){try{const u=new SpeechSynthesisUtterance(t);u.lang="en-GB";u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+let _au=null;
+function say(t){try{const slug=t.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");if(_au){_au.pause()}try{speechSynthesis.cancel()}catch(e){}_au=new Audio("audio/"+slug+".mp3");_au.play().catch(()=>tts(t))}catch(e){tts(t)}}
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const pad=n=>String(n).padStart(2,"0");
 const mmss=s=>pad(Math.floor(s/60))+":"+pad(Math.floor(s%60));
