@@ -14,9 +14,8 @@ if not API_KEY:
     sys.exit("Thiếu GEMINI_API_KEY trong Settings → Secrets → Actions.")
 
 VOICE = os.environ.get("TTS_VOICE", "Kore")
-STYLE = ("Say this English word or phrase clearly and naturally, like a friendly "
-         "British English teacher pronouncing a vocabulary item for students. "
-         "Say it only once, with no extra words:")
+STYLES = ["Read aloud in a clear, warm, natural British English teacher voice:",
+          "Say clearly in British English:"]
 MODELS = ["gemini-3.1-flash-tts-preview", "gemini-2.5-flash-preview-tts",
           "gemini-2.5-flash-tts", "gemini-2.5-pro-preview-tts"]
 
@@ -27,10 +26,10 @@ def slug(t):
     return re.sub(r"[^a-z0-9]+", "-", t.lower()).strip("-")
 
 
-def tts(text, model):
+def tts(text, model, style=0):
     r = client.models.generate_content(
         model=model,
-        contents=f"{STYLE} {text}",
+        contents=f"{STYLES[style % len(STYLES)]} {text}",
         config=types.GenerateContentConfig(
             response_modalities=["AUDIO"],
             speech_config=types.SpeechConfig(
@@ -73,12 +72,17 @@ print("Dùng model:", model, "| giọng:", VOICE)
 
 fail = 0
 for w, out in jobs:
-    for attempt in range(4):
+    for attempt in range(8):
         try:
-            to_mp3(tts(w, model), out); print("✓", out); break
+            to_mp3(tts(w, model, attempt), out); print("✓", out); break
         except Exception as e:
-            print("…thử lại", w, str(e)[:150]); time.sleep(10 * (attempt + 1))
+            msg = str(e)
+            print("…thử lại", w, msg[:150])
+            if "429" in msg and ("PerDay" in msg or "per day" in msg.lower()):
+                print("Hết lượt miễn phí trong ngày, lần chạy tự động sau sẽ làm tiếp.")
+                sys.exit(0)
+            time.sleep(65 if "429" in msg else 5)
     else:
         fail += 1; print("✗ Không tạo được", w)
-    time.sleep(3)
+    time.sleep(21)
 print(f"Xong. Lỗi: {fail}")
