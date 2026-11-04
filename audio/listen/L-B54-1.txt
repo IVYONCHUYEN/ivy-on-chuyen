@@ -1,0 +1,13 @@
+#speakers: Clerk=Charon, Mother=Kore
+Clerk: Riverside Youth Centre, good morning.
+Mother: Hello, I'd like to book my son onto one of your weekend courses.
+Clerk: Of course. We have three this term. 'Beat Exam Stress' runs on Saturday mornings and costs forty-five pounds for the whole course.
+Mother: And the others?
+Clerk: 'Confident Speaking' is on Sunday afternoons. That one's a little more expensive, fifty-two pounds, because the groups are smaller – only eight students. And the third is 'Mindfulness for Teens', which is on Saturday afternoons and costs thirty-eight pounds.
+Mother: My son gets very anxious before tests, so the first one, please.
+Clerk: Fine. Can I take his name?
+Mother: It's Daniel Whitcombe. That's W-H-I-T-C-O-M-B-E.
+Clerk: Thank you. And how old is he?
+Mother: He's fifteen.
+Clerk: Good, the course is for thirteen- to sixteen-year-olds. The first session is on the twelfth of October. Please ask him to bring a notebook – everything else is provided.
+Mother: Great, thanks.
