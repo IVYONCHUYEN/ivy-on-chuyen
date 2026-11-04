@@ -617,3 +617,61 @@ counter-argument
 concise
 proofread
 word count
+strike a chord
+steal the show
+masterpiece
+exhibition
+heritage
+critically acclaimed
+get a standing ovation
+be all the rage
+have an eye for
+preserve tradition
+festival
+folk music
+craftsman
+performance
+admission
+workshop
+sculpture
+contemporary
+audience
+traditional
+artefact
+curator
+restore
+authentic
+intangible
+revival
+virtual tour
+patron
+immersive
+globalisation
+cultural identity
+assimilate
+diverse
+custom
+ritual
+ethnic minority
+handicraft
+pass down
+melting pot
+weakness
+strength
+target
+consistent
+review
+track progress
+fill the gaps
+intensive
+set a goal
+stay on track
+opera
+playwright
+orchestra
+rehearsal
+premiere
+box office
+genre
+plot
+cast

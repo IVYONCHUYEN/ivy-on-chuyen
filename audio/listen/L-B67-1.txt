@@ -1,0 +1,10 @@
+#speakers: Man=Charon, Woman=Kore
+Woman: Hello, I'd like some information about the Old Quarter Arts Festival.
+Man: Certainly. The festival runs from the third to the ninth of June.
+Woman: What can we see?
+Man: On the main stage there's traditional music every evening at eight. Tickets cost one hundred and fifty thousand dong.
+Woman: And the workshops?
+Man: There's a lantern-making workshop at the Community House. It's at ten a.m. and costs seventy thousand dong, including materials. And there's a calligraphy workshop in the afternoon, which is free, but you need to book.
+Woman: How do I book?
+Man: Just send an email to the festival office. The contact person is Mr Quang, that's Q-U-A-N-G.
+Woman: Thanks!

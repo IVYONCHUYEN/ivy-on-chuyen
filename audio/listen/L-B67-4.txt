@@ -1,0 +1,8 @@
+#speakers: Lan=Kore, Tuan=Puck
+Lan: Did you enjoy the exhibition, Tuan?
+Tuan: The paintings were amazing, but the sculptures were a bit strange for me.
+Lan: Really? I thought the sculptures were the best part. I took loads of photos.
+Tuan: Fair enough. But we both agree the tickets were too expensive, don't we?
+Lan: Definitely. Two hundred thousand for students is too much.
+Tuan: Next month there's a free exhibition of contemporary photography. Shall we go?
+Lan: Sure, as long as it's not on a Saturday – I have extra classes.
