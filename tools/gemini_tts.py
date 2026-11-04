@@ -26,6 +26,28 @@ MANY = ("Read the following English vocabulary items aloud, one by one, in a cle
         "silently for two full seconds before the next one. Do not say numbers or any other words.\n\n")
 
 client = genai.Client(api_key=API_KEY)
+_made = 0
+
+
+def checkpoint(force=False):
+    """Lưu audio lên repo định kỳ để không mất kết quả nếu lần chạy bị dừng."""
+    global _made
+    if not force and _made < 30:
+        return
+    _made = 0
+    try:
+        subprocess.run(["git", "add", "-A", "*.mp3"], check=True)
+        if subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode == 0:
+            return
+        subprocess.run(["git", "commit", "-q", "-m", "Thêm audio Gemini"], check=True)
+        subprocess.run(["git", "pull", "-q", "--rebase"], check=True)
+        subprocess.run(["git", "push", "-q"], check=True)
+        if os.environ.get("REPO"):
+            subprocess.run(["gh", "api", "-X", "POST", f"repos/{os.environ['REPO']}/pages/builds"],
+                           capture_output=True)
+        print("— đã lưu audio lên repo —")
+    except Exception as e:
+        print("  không lưu được:", e)
 T0 = time.time()
 
 
@@ -115,7 +137,10 @@ def one(word, out):
             with tempfile.TemporaryDirectory() as d:
                 w = os.path.join(d, "a.wav"); write_wav(call(f"{ONE[k % 2]} {word}"), w)
                 encode(w, out)
-            print("✓", out); return True
+            print("✓", out)
+            global _made
+            _made += 1
+            return True
         except OutOfQuota:
             raise
         except Exception as e:
@@ -134,6 +159,8 @@ def batch(items):
             return False
         for (a, b), (word, out) in zip(segs, items):
             encode(w, out, a, b); print("✓", out)
+            global _made
+            _made += 1
     return True
 
 
@@ -168,6 +195,9 @@ def do_listen(txt):
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", w, "-af", "loudnorm=I=-16",
                         "-ar", "44100", "-b:a", "64k", txt[:-4] + ".mp3"], check=True)
     print("✓", txt[:-4] + ".mp3")
+    global _made
+    _made += 10
+    checkpoint()
 
 try:
     for t in listen:
@@ -197,9 +227,11 @@ try:
             for w, out in grp:
                 one(w, out); time.sleep(6)
         i += len(grp)
+        checkpoint()
         time.sleep(8)
 except OutOfQuota:
     print("Mọi model đều hết lượt miễn phí hôm nay, lần chạy tự động sau sẽ làm tiếp.")
+checkpoint(force=True)
 left = sum(1 for _, o in jobs if not os.path.exists(o))
 left2 = sum(1 for t in listen if not os.path.exists(t[:-4] + ".mp3"))
 print(f"Còn thiếu {left} file từ vựng, {left2} bài nghe.")
