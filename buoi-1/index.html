@@ -1,0 +1,484 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Buổi 1 · MT0 chẩn đoán</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: lesson header → 4 step tabs (Pre / Lý thuyết / Practice / Báo cáo); each step is one dark game card on the purple stage */
+:root{
+  --stage-a:#5b6fd6; --stage-b:#9a5cc7; --stage-c:#c983d9;
+  --card:#17161c; --card-2:#22202b; --line:#3a3647;
+  --fg:#f2eff8; --muted:#b4adc4; --dim:#857e96;
+  --btn-a:#7b83f0; --btn-b:#6a4fd6;
+  --pink:#ff6f9f; --orange:#ff9a3c; --green:#4fd18b; --red:#ff5d6c; --yellow:#ffd166; --cyan:#53c9e8;
+  --font:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);color:var(--fg);background:linear-gradient(120deg,var(--stage-a),var(--stage-b) 55%,var(--stage-c));min-height:100%;font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:#b9c0ff}
+button{font-family:inherit}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#121117;border-radius:14px;padding:10px 16px;margin-bottom:22px}
+.brand{font-weight:800;font-size:18px;background:linear-gradient(90deg,#9fa8ff,#e39bff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.crumb{color:var(--muted);font-size:13px}
+.demo{margin-left:auto;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--orange);color:#2a1400;padding:3px 10px;border-radius:99px}
+h1{font-size:clamp(24px,4vw,38px);line-height:1.2;margin:0 0 6px;text-align:center;text-wrap:balance;text-shadow:0 2px 12px rgba(40,10,80,.35)}
+.sub{text-align:center;color:#efe8ff;margin:0 auto 18px;max-width:70ch}
+.tabs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:22px}
+.tab{border:0;border-radius:99px;padding:10px 18px;font-weight:700;font-size:15px;background:rgba(255,255,255,.18);color:#fff;cursor:pointer}
+.tab .k{font-family:var(--mono);font-size:11px;opacity:.8;margin-right:6px}
+.tab[aria-selected="true"]{background:#121117;box-shadow:0 0 0 2px #ffd16655}
+.panel{background:var(--card);border:2px solid #2b2836;border-radius:20px;padding:22px;box-shadow:0 10px 30px rgba(30,10,60,.35)}
+.ph{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.icon{width:58px;height:58px;border-radius:16px;display:grid;place-items:center;font-size:30px;flex:none}
+.ph h2{margin:0;font-size:22px}
+.ph p{margin:0;color:var(--muted);font-size:14px}
+.pill{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--card-2);color:var(--muted);border:1px solid var(--line)}
+.btn{border:0;border-radius:12px;padding:10px 18px;font-weight:700;font-size:15px;color:#fff;background:linear-gradient(180deg,var(--btn-a),var(--btn-b));cursor:pointer;box-shadow:0 4px 0 #3e2c8f}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #3e2c8f}
+.btn.ghost{background:var(--card-2);box-shadow:none;border:1px solid var(--line)}
+.btn.good{background:linear-gradient(180deg,#5fe09c,#2ea865);box-shadow:0 4px 0 #1d6b41;color:#06200f}
+.btn.bad{background:linear-gradient(180deg,#ff8590,#e0475a);box-shadow:0 4px 0 #8c2532}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* ---------- Flashcards ---------- */
+.fc-grid{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:22px}
+@media (max-width:820px){.fc-grid{grid-template-columns:minmax(0,1fr)}}
+.stagebox{display:flex;flex-direction:column;align-items:center;gap:16px}
+.flip{width:min(100%,520px);aspect-ratio:3/2;perspective:1200px;cursor:pointer;border:0;background:none;padding:0;color:inherit}
+.flip-in{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.flip.on .flip-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:22px;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:20px;text-align:center}
+.front{background:linear-gradient(160deg,#2f5fe0,#4f8df5);box-shadow:inset 0 0 0 4px #ffffff22}
+.back{background:linear-gradient(160deg,#2a2638,#1d1b26);transform:rotateY(180deg);box-shadow:inset 0 0 0 2px var(--line)}
+.emo{font-size:clamp(40px,8vw,64px);line-height:1}
+.word{font-size:clamp(24px,4.5vw,38px);font-weight:800;line-height:1.15}
+.pos{font-family:var(--mono);font-size:13px;background:#ffffff26;padding:2px 10px;border-radius:99px}
+.vi{font-size:clamp(20px,3.6vw,28px);font-weight:700;color:var(--yellow)}
+.ex{color:var(--muted);font-size:15px;max-width:44ch}
+.ex b{color:var(--fg)}
+.hint{font-size:12px;color:#ffffffb0}
+.speak{position:absolute;top:12px;right:12px;border:0;border-radius:12px;background:#ffffff2a;color:#fff;font-size:20px;width:44px;height:44px;cursor:pointer}
+.prog{width:min(100%,520px)}
+.bar{height:10px;border-radius:99px;background:var(--card-2);overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));width:0;transition:width .4s}
+.prog small{display:flex;justify-content:space-between;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}
+.side h3{margin:0 0 10px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.wl{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:440px;overflow:auto}
+.wl li{display:flex;gap:8px;align-items:center;background:var(--card-2);border-radius:10px;padding:6px 10px;font-size:14px}
+.wl li .st{margin-left:auto;font-size:12px;font-weight:700}
+.wl li.ok .st{color:var(--green)} .wl li.no .st{color:var(--orange)} .wl li .st{color:var(--dim)}
+.done{text-align:center;padding:24px}
+.done .big{font-size:48px}
+
+/* ---------- Theory ---------- */
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.ritem{background:var(--card-2);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.ritem .tag{font-size:12px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.05em}
+.ritem a{font-weight:700;text-decoration:none}
+.ritem a:hover{text-decoration:underline}
+.ritem p{margin:0;color:var(--muted);font-size:14px}
+.blue{margin-top:18px;background:var(--card-2);border-radius:14px;padding:14px;overflow-x:auto}
+.blue table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
+.blue th,.blue td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left}
+.blue th{color:var(--muted);font-weight:600}
+.blue td.n{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* ---------- Paper mode ---------- */
+.pm{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px}
+@media (max-width:900px){.pm{grid-template-columns:minmax(0,1fr)}}
+.qbox{background:var(--card-2);border-radius:16px;padding:18px;min-width:0}
+.qmeta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.qn{font-family:var(--mono);font-weight:700;background:var(--yellow);color:#2a1d00;border-radius:8px;padding:2px 8px}
+.passage{background:#15141b;border-radius:12px;padding:12px 14px;font-size:14px;color:#d8d2e6;max-height:220px;overflow:auto;margin-bottom:12px;border:1px solid var(--line)}
+.passage mark{background:#ffd16633;color:var(--yellow);border-radius:4px;padding:0 3px}
+.stem{font-size:18px;font-weight:600;margin:0 0 12px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;background:#15141b;border:2px solid var(--line);border-radius:12px;padding:9px 12px}
+.opt .L{font-family:var(--mono);font-weight:700;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex:none;color:#111}
+.opt.right{border-color:var(--green);background:#123224}
+.opt .cnt{margin-left:auto;font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.LA{background:#ff8a65}.LB{background:#4fc3f7}.LC{background:#aed581}.LD{background:#ffd54f}
+.scan{background:var(--card-2);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.cam{position:relative;border-radius:12px;background:radial-gradient(circle at 50% 40%,#2a2840,#101018);padding:12px;overflow:hidden}
+.cam .lbl{position:absolute;top:8px;left:10px;font-size:11px;font-weight:700;letter-spacing:.08em;color:#ff7a8a;display:flex;align-items:center;gap:6px;z-index:2}
+.cam .lbl i{width:8px;height:8px;border-radius:50%;background:#ff4d5e;display:inline-block}
+.cam.live .lbl i{animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.2}}
+.laser{position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#5cf2ff,transparent);top:0;opacity:0;z-index:2}
+.cam.live .laser{opacity:1;animation:sweep 1.4s linear infinite}
+@keyframes sweep{from{top:0}to{top:100%}}
+@media (prefers-reduced-motion:reduce){.cam.live .laser,.cam.live .lbl i{animation:none}.flip-in{transition:none}}
+.seats{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin-top:18px}
+@media (max-width:480px){.seats{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.seat{border:0;border-radius:8px;background:#2b2838;color:var(--muted);font-family:var(--mono);font-size:12px;padding:6px 0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:background .2s}
+.seat b{font-size:15px;color:var(--fg);min-height:18px}
+.seat.got{background:#3a3560}
+.seat.got.ok{background:#2e9e63;color:#e9fff2}.seat.got.wr{background:#c23a4d;color:#ffe9ec}
+.seat.none b{color:var(--dim)}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{flex:1 1 90px;background:#15141b;border-radius:12px;padding:8px 10px}
+.stat small{display:block;color:var(--muted);font-size:12px}
+.stat b{font-size:20px;font-variant-numeric:tabular-nums}
+.qnav{display:flex;gap:4px;flex-wrap:wrap;margin-top:14px}
+.qdot{border:0;width:30px;height:28px;padding:0;line-height:1;display:grid;place-items:center;border-radius:7px;background:#2b2838;color:var(--muted);font-family:var(--mono);font-size:11px;cursor:pointer}
+.qdot.cur{outline:2px solid var(--yellow)}
+.qdot.done{background:#3a3560;color:#fff}
+.cardinfo{display:flex;gap:14px;align-items:center;background:#15141b;border-radius:12px;padding:10px 12px}
+.cardinfo svg{flex:none}
+.cardinfo p{margin:0;font-size:13px;color:var(--muted)}
+.note{font-size:12px;color:var(--dim)}
+
+/* ---------- Report ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--card-2);border-radius:14px;padding:12px 14px}
+.kpi small{color:var(--muted);font-size:13px}
+.kpi b{display:block;font-size:26px;font-variant-numeric:tabular-nums}
+.chart{background:var(--card-2);border-radius:14px;padding:14px;margin-bottom:18px;overflow-x:auto}
+.chart h3,.weak h3,.tblw h3{margin:0 0 10px;font-size:15px}
+.cols{display:flex;align-items:flex-end;gap:4px;height:160px;min-width:560px;border-bottom:1px solid var(--line);padding-top:16px}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
+.col i{display:block;width:100%;border-radius:5px 5px 0 0}
+.col span{position:absolute;bottom:-20px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.col em{font-style:normal;font-family:var(--mono);font-size:10px;color:var(--fg);margin-bottom:2px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+@media (max-width:860px){.two{grid-template-columns:minmax(0,1fr)}}
+.weak,.tblw{background:var(--card-2);border-radius:14px;padding:14px;min-width:0}
+.weak ol{margin:0;padding-left:18px;display:grid;gap:8px;font-size:14px}
+.weak ol li span{color:var(--muted)}
+.tblw{overflow-x:auto}
+.tblw table{border-collapse:collapse;width:100%;min-width:420px;font-size:13px;font-variant-numeric:tabular-nums}
+.tblw th,.tblw td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right}
+.tblw th:first-child,.tblw td:first-child{text-align:left}
+.tblw th{color:var(--muted);font-weight:600;position:sticky;top:0;background:var(--card-2)}
+.lv{font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px}
+.empty{color:var(--muted);text-align:center;padding:30px}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <span class="brand">IVY Ôn Chuyên</span>
+    <span class="crumb">Lộ trình 90 buổi › Buổi 1</span>
+    <span class="demo">Bản demo</span>
+  </div>
+
+  <h1>Buổi 1 · Mock Test 0 – chẩn đoán đầu vào</h1>
+  <p class="sub">Chủ đề từ vựng: <b>Education &amp; learning</b>. Đề chẩn đoán dùng Đề chuyên Anh Hưng Yên 2026–2027, chấm bằng thẻ giấy A/B/C/D.</p>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="t-pre" aria-controls="p-pre" aria-selected="true"><span class="k">PRE</span>Thẻ lật · 15 từ</button>
+    <button class="tab" role="tab" id="t-lt" aria-controls="p-lt" aria-selected="false"><span class="k">LÝ THUYẾT</span>Cấu trúc đề</button>
+    <button class="tab" role="tab" id="t-pr" aria-controls="p-pr" aria-selected="false"><span class="k">PRACTICE</span>Chế độ giấy</button>
+    <button class="tab" role="tab" id="t-rp" aria-controls="p-rp" aria-selected="false"><span class="k">POST</span>Báo cáo chẩn đoán</button>
+  </div>
+
+  <!-- PRE: Flashcards -->
+  <section class="panel" id="p-pre" role="tabpanel" aria-labelledby="t-pre">
+    <div class="ph">
+      <div class="icon" style="background:linear-gradient(160deg,#2f5fe0,#4f8df5)">🃏</div>
+      <div style="min-width:0;flex:1">
+        <h2>Thẻ lật – Thẻ học nhóm</h2>
+        <p>Bấm thẻ để lật. Nghe phát âm, đọc ví dụ, rồi tự đánh giá. Thẻ “Chưa thuộc” sẽ quay lại cuối bộ đến khi thuộc hết.</p>
+      </div>
+      <div class="row">
+        <button class="btn ghost" id="fcMode" type="button">Chiều: Anh → Việt</button>
+        <button class="btn ghost" id="fcReset" type="button">Học lại từ đầu</button>
+      </div>
+    </div>
+    <div class="fc-grid">
+      <div class="stagebox" id="fcStage">
+        <button class="flip" id="flip" type="button" aria-label="Lật thẻ">
+          <div class="flip-in">
+            <div class="face front" id="fFront"></div>
+            <div class="face back" id="fBack"></div>
+          </div>
+        </button>
+        <div class="row" style="justify-content:center">
+          <button class="btn bad" id="fcNo" type="button">✗ Chưa thuộc</button>
+          <button class="btn good" id="fcYes" type="button">✓ Đã thuộc</button>
+        </div>
+        <div class="prog"><div class="bar"><i id="fcBar"></i></div><small><span id="fcTxt">0/15 đã thuộc</span><span id="fcLeft"></span></small></div>
+      </div>
+      <aside class="side">
+        <h3>Danh sách 15 từ</h3>
+        <ul class="wl" id="wl"></ul>
+        <p class="note" style="margin-top:10px">Bài tập kèm: <a href="https://drive.google.com/file/d/1qg3mFNCOnXKVOm_vRhfwNtVtbYmZkj45/view" target="_blank" rel="noopener">English Vocabulary in Use – Advanced, Unit 1–2 (tr.8–11)</a>. Đáp án ở tr.210–275 cùng file.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- THEORY -->
+  <section class="panel" id="p-lt" role="tabpanel" aria-labelledby="t-lt" hidden>
+    <div class="ph">
+      <div class="icon" style="background:linear-gradient(160deg,#e07b2f,#f5b14f)">📘</div>
+      <div><h2>Làm quen cấu trúc đề chuyên 2026–2027</h2><p>Đọc trước khi làm Mock Test 0, để biết mỗi phần chiếm bao nhiêu điểm.</p></div>
+    </div>
+    <div class="res">
+      <div class="ritem"><span class="tag">File lý thuyết</span><a href="https://drive.google.com/file/d/1XD-lmcEHDKIMjhCnYRAHk8bhZqGcf3QA/view" target="_blank" rel="noopener">[IVY-GIFTED] Placement Test</a><p>Nghe + đọc + ngữ pháp, dùng làm bài khởi động.</p></div>
+      <div class="ritem"><span class="tag">File lý thuyết</span><a href="https://drive.google.com/file/d/16H_-LmcKSHyd8jIlLeAiJN1B-URVFYSO/view" target="_blank" rel="noopener">Specialized English Exam Blueprint</a><p>Đọc cấu trúc đề 2026–27 và tự chấm năng lực.</p></div>
+      <div class="ritem"><span class="tag">Web</span><a href="https://learnenglish.britishcouncil.org/free-resources/reading/b2" target="_blank" rel="noopener">British Council – B2 reading</a><p>Làm quen các dạng đọc ở trình độ B2.</p></div>
+      <div class="ritem"><span class="tag">Đề làm trên lớp</span><a href="https://drive.google.com/file/d/1-jsiR3Jf01W3PeGGD2Lf5k4PdUplx0TB/view" target="_blank" rel="noopener">Đề chuyên Anh Hưng Yên 2026–2027</a><p>Làm đủ 150 phút theo đúng thứ tự. <a href="https://drive.google.com/file/d/1Izjv1H1I9NlaWsulQaETmp7kvbB2hcjp/view" target="_blank" rel="noopener">Đáp án</a></p></div>
+    </div>
+    <div class="blue">
+      <table>
+        <thead><tr><th>Section</th><th>Phần</th><th>Dạng bài</th><th>Câu</th><th>Điểm</th><th>Chấm bằng thẻ giấy?</th></tr></thead>
+        <tbody>
+          <tr><td>I. Listening</td><td>P1–P2</td><td>Điền 1 từ / ≤3 từ</td><td class="n">1–15</td><td class="n">1.5</td><td>Không</td></tr>
+          <tr><td></td><td>P3</td><td>MCQ</td><td class="n">16–20</td><td class="n">0.5</td><td>Có (cần audio)</td></tr>
+          <tr><td></td><td>P4</td><td>T / F / NG</td><td class="n">21–25</td><td class="n">0.5</td><td>Có (A=T, B=F, C=NG)</td></tr>
+          <tr><td>II. Vocab &amp; Grammar</td><td>P1</td><td>MCQ</td><td class="n">26–35</td><td class="n">1.0</td><td><b>Có – trong demo</b></td></tr>
+          <tr><td></td><td>P2–P3</td><td>Word form, sửa lỗi</td><td class="n">36–45</td><td class="n">1.0</td><td>Không</td></tr>
+          <tr><td>III. Reading</td><td>P1</td><td>Open cloze</td><td class="n">46–50</td><td class="n">0.5</td><td>Không</td></tr>
+          <tr><td></td><td>P2</td><td>Guided cloze MCQ</td><td class="n">51–55</td><td class="n">0.5</td><td><b>Có – trong demo</b></td></tr>
+          <tr><td></td><td>P3</td><td>Đọc hiểu MCQ</td><td class="n">56–65</td><td class="n">1.0</td><td><b>Có – trong demo</b></td></tr>
+          <tr><td></td><td>P4–P5</td><td>Gapped text, headings</td><td class="n">66–75</td><td class="n">1.0</td><td>Không</td></tr>
+          <tr><td>IV. Writing</td><td>P1–P3</td><td>Viết lại câu, luận 250 từ</td><td class="n">76–80 + luận</td><td class="n">2.5</td><td>Không</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PRACTICE: Paper mode -->
+  <section class="panel" id="p-pr" role="tabpanel" aria-labelledby="t-pr" hidden>
+    <div class="ph">
+      <div class="icon" style="background:#1d2a5a">🔳</div>
+      <div style="min-width:0;flex:1"><h2>Chế độ giấy – chấm trắc nghiệm cả lớp</h2><p>Chiếu câu hỏi, cả lớp giơ thẻ, giáo viên quét bằng camera. 25 câu trắc nghiệm của MT0: câu 26–35 và 51–65.</p></div>
+      <span class="pill">Lớp demo · 32 HS</span>
+    </div>
+    <div class="pm">
+      <div class="qbox">
+        <div class="qmeta"><span class="qn" id="qNum"></span><span class="pill" id="qPart"></span></div>
+        <div class="passage" id="qPass" hidden></div>
+        <p class="stem" id="qStem"></p>
+        <div class="opts" id="qOpts"></div>
+        <div class="qnav" id="qNav"></div>
+      </div>
+      <div class="scan">
+        <div class="cam" id="cam">
+          <div class="lbl"><i></i><span id="camTxt">CAMERA · CHỜ QUÉT</span></div>
+          <div class="laser"></div>
+          <div class="seats" id="seats"></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><small>Đã quét</small><b id="sGot">0/32</b></div>
+          <div class="stat"><small>Trả lời đúng</small><b id="sOk">–</b></div>
+          <div class="stat"><small>Tỉ lệ đúng</small><b id="sPct">–</b></div>
+        </div>
+        <div class="row">
+          <button class="btn" id="bScan" type="button">📷 Quét thẻ</button>
+          <button class="btn ghost" id="bReveal" type="button" disabled>Hiện đáp án</button>
+          <button class="btn ghost" id="bNext" type="button">Câu tiếp →</button>
+        </div>
+        <div class="cardinfo">
+          <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+            <rect x="2" y="2" width="60" height="60" rx="6" fill="#ffffff"/>
+            <rect x="16" y="16" width="32" height="32" fill="#111"/>
+            <rect x="22" y="22" width="10" height="10" fill="#fff"/>
+            <rect x="34" y="34" width="8" height="8" fill="#fff"/>
+            <text x="32" y="12" font-size="9" text-anchor="middle" font-family="monospace" font-weight="700" fill="#e0475a">A</text>
+            <text x="58" y="35" font-size="9" text-anchor="middle" font-family="monospace" font-weight="700" fill="#111">B</text>
+            <text x="32" y="60" font-size="9" text-anchor="middle" font-family="monospace" font-weight="700" fill="#111">C</text>
+            <text x="6" y="35" font-size="9" text-anchor="middle" font-family="monospace" font-weight="700" fill="#111">D</text>
+          </svg>
+          <p>Mỗi HS có 1 thẻ in mã riêng. Xoay thẻ để chữ cần chọn nằm <b>trên cùng</b> rồi giơ lên; camera đọc cả lớp trong vài giây. Bấm vào ô số của HS để sửa đáp án bằng tay.</p>
+        </div>
+        <p class="note">Trong bản demo, nút “Quét thẻ” mô phỏng câu trả lời của 32 HS mẫu (không dùng camera thật). Khi chạy trên web của lớp, phần này thay bằng camera của máy giáo viên.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORT -->
+  <section class="panel" id="p-rp" role="tabpanel" aria-labelledby="t-rp" hidden>
+    <div class="ph">
+      <div class="icon" style="background:linear-gradient(160deg,#2ea865,#5fe09c)">📊</div>
+      <div style="min-width:0;flex:1"><h2>Báo cáo chẩn đoán MT0</h2><p>Tổng hợp từ các câu đã quét ở Chế độ giấy. Câu yếu được gắn sẵn buổi học sẽ chữa trong lộ trình.</p></div>
+      <button class="btn ghost" id="bAll" type="button">Quét nhanh cả 25 câu (demo)</button>
+    </div>
+    <div id="rp"></div>
+  </section>
+</div>
+
+<script>
+(function(){
+/* ---------------- Data ---------------- */
+const WORDS=[
+ ["compulsory education","n","giáo dục bắt buộc","🏫","In Viet Nam, <b>compulsory education</b> now covers primary and lower secondary school."],
+ ["curriculum","n","chương trình học","📚","The new <b>curriculum</b> gives students more time for projects."],
+ ["rote learning","n","học vẹt","🦜","<b>Rote learning</b> may help you pass a test, but you soon forget everything."],
+ ["critical thinking","n","tư duy phản biện","🧠","Good essays show <b>critical thinking</b>, not just memorised facts."],
+ ["academic performance","n","kết quả học tập","📈","Sleeping well can improve your <b>academic performance</b>."],
+ ["tuition fee","n","học phí","💰","Many families struggle to pay university <b>tuition fees</b>."],
+ ["extracurricular","adj","ngoại khoá","🎭","She joined three <b>extracurricular</b> clubs this year."],
+ ["drop out (of)","phr v","bỏ học","🚪","He <b>dropped out of</b> school to support his family."],
+ ["cram (for)","v","học nhồi","⏰","Don't <b>cram for</b> the exam the night before."],
+ ["lifelong learning","n","học tập suốt đời","♾️","<b>Lifelong learning</b> keeps your skills up to date."],
+ ["gifted","adj","có năng khiếu","🌟","Specialist schools select <b>gifted</b> students through a tough exam."],
+ ["enrol (in)","v","ghi danh","📝","She <b>enrolled in</b> an online English course."],
+ ["well-rounded","adj","phát triển toàn diện","⚖️","Schools should produce <b>well-rounded</b> students, not just good test-takers."],
+ ["hands-on experience","n","trải nghiệm thực tế","🔧","Science labs give students <b>hands-on experience</b>."],
+ ["peer pressure","n","áp lực đồng trang lứa","👥","<b>Peer pressure</b> can push teenagers to make poor choices."]
+];
+const MEM="Although our memory has to cope with an enormous amount of information, we often criticise it for letting us down when we <mark>(51)</mark> to recall names, passwords or appropriate quotations at crucial moments. We tend to assume that others are naturally more gifted, with above-average memories. In reality, however, everyone has similar potential, and the difference lies in how effectively individuals train and use their memory. The reason we are out of the habit is partly to do with technology. Today's computers and digital devices serve as our external hard drives, <mark>(52)</mark>. Our phones keep our to-do lists and alert us of upcoming appointments, while our computers store any number of pertinent facts that can be retrieved at the touch of a key.<br><br>Six hundred years ago, a trained memory was not just a handy tool; it was a pre-requisite for a cultured mind. Since books were thin on the ground, memorizing the <mark>(53)</mark> contained in them was the only way to maintain access to it. It was not uncommon to find learned scholars <mark>(54)</mark>. Such people became walking libraries, albeit libraries with a fairly limited stock. They were able to do this because they read intensively rather than extensively, <mark>(55)</mark>.";
+const FOMO="<b>(1)</b> The Fear of Missing Out (FOMO), once a minor psychological observation, has now been <mark>crystallized</mark> as a key force driving the digital economy. At its heart, FOMO is not simply a personal anxiety but a predictable outcome of what might be called “algorithmic sociality”. Digital platforms are built to showcase success and idealized lives while concealing everyday struggles, producing a distorted picture of reality. Within this environment, stepping back from constant participation is treated as a kind of social irrelevance, and the imagined cost of logging off feels far greater than any genuine benefit of simply being present – a reversal of priorities that is increasingly accepted without question.<br><br><b>(2)</b> Modern marketing has skillfully taken advantage of this weakness, moving well beyond traditional advertising into subtler forms of “social proofing.” Influencers, who serve as the primary messengers, routinely blur the line between authentic personal choices and paid promotions, making a “missed opportunity” feel like a personal shortcoming rather than a commercial manipulation. The growing phenomenon of “<mark>green-FOMO</mark>” adds another layer, with sustainability messaging making consumers feel morally inadequate if they fail to keep up with the latest eco-conscious trends.<br><br><b>(3)</b> The consequences for how organizations are run are just as notable. The modern workplace, now deeply embedded with digital communication tools to enhance efficiency, has unintentionally built a culture of “constant availability”. <mark>This trend</mark> pulls workers in too many directions at once, making sustained, deep thinking increasingly difficult. Managers find themselves caught in a contradiction: they expect high-quality output while operating in environments that reward quick, surface-level responses. The result is a workforce that is perpetually connected yet progressively cut off from genuinely meaningful deep work.<br><br><b>(4)</b> In response, the idea of JOMO – the Joy of Missing Out – has gained traction as a way of reclaiming control over one's own attention and inner life. Where FOMO looks outward with envy, JOMO turns inward, valuing the quality of personal experience over the volume of external engagement. That said, embracing JOMO is not simply a matter of personal resolve; it demands a deliberate withdrawal from the attention-driven systems that surround us, and a broader rethinking of how society values rest in a culture that equates ceaseless activity with professional and social worth.";
+// [num, part, passage, stem, options, answerIndex, focus, sessions, difficulty]
+const P1="Section II · Part 1 – Lexico MCQ", P2="Section III · Part 2 – Guided cloze", P3="Section III · Part 3 – Đọc hiểu";
+const Q=[
+ [26,P1,null,"We all have to follow the rules – none of us is ____ the law.",["beyond","over","above","onto"],2,"Giới từ / cụm cố định","Buổi 25, 36",.10],
+ [27,P1,null,"The defendant answered every question from the judge, ____ he had no prior knowledge of the incident whatsoever.",["in that","as if","as such","in case"],1,"Liên từ / MĐ trạng ngữ","Buổi 30",.25],
+ [28,P1,null,"By the time I reached the station, the last train had already departed. I ____ in such a panic after all.",["didn't need to leave","mustn't have left","couldn't have left","needn't have left"],3,"Modal hoàn thành","Buổi 29",.30],
+ [29,P1,null,"Widely regarded as one of the most innovative architects of the twentieth century, ____.",["critics have long admired the buildings of Le Corbusier","it was Le Corbusier's buildings that inspired a whole generation","Le Corbusier's influence can still be felt in modern urban design","Le Corbusier left an indelible mark on the history of architecture"],3,"Phân từ (dangling modifier)","Buổi 16",.35],
+ [30,P1,null,"After the scandal broke, the politician's reputation was so ____ damaged that even his closest allies began to distance themselves from him.",["inadvertently","irreparably","inherently","intrusively"],1,"Collocation trạng từ","Buổi 42",.30],
+ [31,P1,null,"The ethics committee has demanded that all submitted research data ____ by an independent body before publication.",["has been verified","is verified","be verified","was verified"],2,"Câu giả định + bị động","Buổi 11, 13",.25],
+ [32,P1,null,"She always intended to start meditating but never ____ it because of her daily commitments.",["went in for","got round to","came down with","looked out for"],1,"Phrasal verb","Buổi 40–41",.20],
+ [33,P1,null,"The witness's testimony provided ____ proof of the suspect's involvement in the international smuggling ring.",["thick","heavy","stiff","concrete"],3,"Collocation","Buổi 10, 42",.15],
+ [34,P1,null,"Her speech about the importance of family really ____ with the audience, moving many to tears.",["hit the nail on the head","struck a chord","beat the clock","rang a bell"],1,"Idiom","Buổi 43–44",.20],
+ [35,P1,null,"Anna: “I didn't expect the exam to be that difficult.”  Ben: “____”",["I couldn't care less. I tried my best.","Tell me about it. I barely finished on time.","Why are you always complaining?","No problem, I can help you next time."],1,"Giao tiếp","Buổi 44",.05],
+ [51,P2,MEM,"Choose the best option for blank (51).",["struggle","manage","remember","promise"],0,"Guided cloze – từ vựng","Buổi 42, 56",.10],
+ [52,P2,MEM,"Choose the best option for blank (52).",["helping to increase the capacity of our brains","giving us access to limited online knowledge","storing useful information outside our brains","encouraging dependence on modern technology"],2,"Guided cloze – mệnh đề","Buổi 42, 56",.20],
+ [53,P2,MEM,"Choose the best option for blank (53).",["wisdom","detail","culture","message"],0,"Guided cloze – từ vựng","Buổi 42, 56",.25],
+ [54,P2,MEM,"Choose the best option for blank (54).",["whose expertise was only appreciated by the general public","whose intellectual achievements were widely admired across Europe","who could recite by heart whole tracts of religious or philosophical works","who depended largely on their relationship for their reputation"],2,"Guided cloze – MĐQH","Buổi 15, 56",.25],
+ [55,P2,MEM,"Choose the best option for blank (55).",["deliberately ignoring factual information","becoming distracted by digital media","putting value on quality over quantity","developing increasingly shorter attention spans"],2,"Guided cloze – logic đoạn","Buổi 42, 56",.20],
+ [56,P3,FOMO,"According to paragraph 1, what causes FOMO in the digital age?",["The inability of individuals to perceive the reality of social status","The deliberate design of platforms to exploit social belonging","The actual loss of social benefits when one chooses to disconnect","The human preference for physical interactions over digital ones"],1,"Đọc hiểu – chi tiết","Buổi 19, 57",.25],
+ [57,P3,FOMO,"The word “crystallized” in paragraph 1 is CLOSEST in meaning to ____.",["focused completely","identified clearly","simplified significantly","obscured gradually"],1,"Từ vựng trong ngữ cảnh","Buổi 19, 57",.30],
+ [58,P3,FOMO,"What does “green-FOMO” in paragraph 2 primarily illustrate?",["A condition caused by overexposure to nature-themed content online","A strategy using environmental guilt to drive consumer behavior","A corporate initiative holding employees accountable for sustainability","A reward system for environmentally responsible purchasing"],1,"Đọc hiểu – chi tiết","Buổi 19, 57",.20],
+ [59,P3,FOMO,"Which best summarizes the argument in paragraph 2?",["Marketing blurs the line between genuine recommendations and paid promotions through influencers.","Green-FOMO reframes sustainability as a moral standard overriding personal failure.","Influencers reconcile genuine lifestyle choices with sustainability obligations.","Marketing uses social anxiety and ethical pressure to sustain consumer engagement."],3,"Ý chính đoạn","Buổi 33, 57",.40],
+ [60,P3,FOMO,"How does the modern consumption model maintain momentum?",["Purchases relieve feelings of personal ethical inadequacy.","Influencers promote authentic lifestyles for self-improvement.","Consumers recognize manipulative social proofing strategies.","Buying products resolves permanent concerns about sustainability."],0,"Suy luận","Buổi 33, 57",.45],
+ [61,P3,FOMO,"What challenge limits adopting JOMO?",["It focuses on maximizing external engagement.","It requires a broader shift in people's mindset.","It encourages rejecting all productive activities.","It depends mainly on individual willpower."],1,"Đọc hiểu – chi tiết","Buổi 19, 57",.35],
+ [62,P3,FOMO,"The phrase “This trend” in paragraph 3 refers to ____.",["workplace integration","cognitive fragmentation","digital communication tools","constant availability"],3,"Quy chiếu","Buổi 19, 57",.25],
+ [63,P3,FOMO,"What does the author imply about deep work in paragraph 3?",["It is sustained cognitive effort eroded by constant connectivity.","It is a management system rewarding rapid-response behavior.","It is a benchmark successfully enabled by digital infrastructure.","It is the shallow communication style preferred by modern organizations."],0,"Suy luận","Buổi 33, 57",.30],
+ [64,P3,FOMO,"Which of the following can be inferred from the passage?",["The attention economy is designed to support individuals reclaiming cognitive sovereignty.","Achieving JOMO depends mainly on personal self-discipline.","Digital tools meant to boost productivity may actually undermine it.","Ethical consumption trends have successfully eliminated FOMO-related anxiety."],2,"Suy luận","Buổi 33, 57",.35],
+ [65,P3,FOMO,"Which of the following best serves as the main idea for the entire passage?",["How workplaces use FOMO and JOMO to maintain productivity","How digital structures exploit FOMO and the emergence of JOMO","How influencers promoting JOMO resolve anxiety caused by social proofing","How FOMO reshaped marketing by enabling influencers to exploit consumers"],1,"Ý chính toàn bài","Buổi 33, 57",.30]
+];
+const L="ABCD";
+
+/* ---------------- Tabs ---------------- */
+const tabs=[...document.querySelectorAll('.tab')];
+function show(id){tabs.forEach(t=>{const on=t.id===id;t.setAttribute('aria-selected',on);document.getElementById(t.getAttribute('aria-controls')).hidden=!on});if(id==='t-rp')report();try{localStorage.setItem('b1tab',id)}catch(e){}}
+tabs.forEach(t=>t.addEventListener('click',()=>show(t.id)));
+try{const s=localStorage.getItem('b1tab');if(s&&document.getElementById(s))show(s)}catch(e){}
+
+/* ---------------- Flashcards ---------------- */
+let queue=[],known=new Set(),seen=new Set(),dir='en',cur=0;
+const flip=document.getElementById('flip'),fF=document.getElementById('fFront'),fB=document.getElementById('fBack');
+function tts(t){try{const u=new SpeechSynthesisUtterance(t);u.lang='en-GB';u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+let _au=null;
+function say(t){t=t.replace(/\(.*?\)/g,'').trim();try{const slug=t.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');if(_au){_au.pause()}try{speechSynthesis.cancel()}catch(e){}_au=new Audio('audio/'+slug+'.mp3');_au.play().catch(()=>tts(t))}catch(e){tts(t)}}
+function initFc(){queue=WORDS.map((_,i)=>i);known=new Set();seen=new Set();renderFc()}
+function renderFc(){
+  const wl=document.getElementById('wl');wl.innerHTML='';
+  WORDS.forEach((w,i)=>{const li=document.createElement('li');const k=known.has(i);li.className=k?'ok':(seen.has(i)?'no':'');li.innerHTML=`<span>${w[3]}</span><span>${w[0]}</span><span class="st">${k?'Đã thuộc':(seen.has(i)?'Ôn lại':'Mới')}</span>`;wl.appendChild(li)});
+  document.getElementById('fcBar').style.width=(known.size/WORDS.length*100)+'%';
+  document.getElementById('fcTxt').textContent=`${known.size}/${WORDS.length} đã thuộc`;
+  document.getElementById('fcLeft').textContent=queue.length?`còn ${queue.length} thẻ trong lượt`:'';
+  flip.classList.remove('on');
+  const box=document.getElementById('fcStage');
+  if(!queue.length){
+    flip.hidden=true;document.getElementById('fcNo').hidden=true;document.getElementById('fcYes').hidden=true;
+    if(!document.getElementById('fcDone')){const d=document.createElement('div');d.className='done';d.id='fcDone';d.innerHTML='<div class="big">🎉</div><h3>Thuộc cả 15 từ!</h3><p class="ex">Chuyển sang tab Lý thuyết để làm quen cấu trúc đề.</p>';box.insertBefore(d,box.firstChild)}
+    return;
+  }
+  const dn=document.getElementById('fcDone');if(dn)dn.remove();
+  flip.hidden=false;document.getElementById('fcNo').hidden=false;document.getElementById('fcYes').hidden=false;
+  cur=queue[0];const w=WORDS[cur];
+  const en=`<button class="speak" type="button" aria-label="Nghe phát âm" data-say="1">🔊</button><div class="emo">${w[3]}</div><div class="word">${w[0]}</div><span class="pos">${w[1]}</span>`;
+  const vi=`<div class="emo">${w[3]}</div><div class="vi">${w[2]}</div>`;
+  if(dir==='en'){fF.innerHTML=en+'<span class="hint">Bấm để lật</span>';fB.innerHTML=`<button class="speak" type="button" aria-label="Nghe phát âm" data-say="1">🔊</button><div class="word" style="font-size:22px">${w[0]}</div><div class="vi">${w[2]}</div><p class="ex">${w[4]}</p>`}
+  else{fF.innerHTML=vi+'<span class="hint">Nhớ ra từ tiếng Anh rồi bấm để lật</span>';fB.innerHTML=en.replace('class="speak"','class="speak"')+`<p class="ex">${w[4]}</p>`}
+}
+flip.addEventListener('click',e=>{if(e.target.closest('[data-say]')){e.stopPropagation();say(WORDS[cur][0]);return}flip.classList.toggle('on');if(flip.classList.contains('on')&&dir==='vi')say(WORDS[cur][0])});
+document.getElementById('fcYes').addEventListener('click',()=>{seen.add(cur);known.add(cur);queue.shift();renderFc()});
+document.getElementById('fcNo').addEventListener('click',()=>{seen.add(cur);queue.push(queue.shift());renderFc()});
+document.getElementById('fcMode').addEventListener('click',e=>{dir=dir==='en'?'vi':'en';e.target.textContent=dir==='en'?'Chiều: Anh → Việt':'Chiều: Việt → Anh';renderFc()});
+document.getElementById('fcReset').addEventListener('click',initFc);
+initFc();
+
+/* ---------------- Paper mode ---------------- */
+let seed=20262027;function rnd(){seed=(seed*1103515245+12345)%2147483648;return seed/2147483648}
+const N=32, ability=Array.from({length:N},()=>.38+rnd()*.5);
+const ans=Q.map(()=>Array(N).fill(null)); // student answers per question
+const state=Q.map(()=>({scanned:false,revealed:false}));
+let qi=0, scanning=false;
+function simulate(q){
+  const [, , , , , a, , , d]=Q[q];const lure=(a+1+Math.floor(rnd()*3))%4;
+  for(let s=0;s<N;s++){
+    if(rnd()<.03){ans[q][s]=null;continue}
+    const p=Math.max(.08,Math.min(.97,ability[s]-d+.28));
+    if(rnd()<p)ans[q][s]=a;else ans[q][s]=rnd()<.6?lure:[0,1,2,3].filter(x=>x!==a)[Math.floor(rnd()*3)];
+  }
+}
+const seatsEl=document.getElementById('seats');
+for(let s=0;s<N;s++){const b=document.createElement('button');b.type='button';b.className='seat';b.dataset.s=s;b.innerHTML=`${String(s+1).padStart(2,'0')}<b></b>`;b.setAttribute('aria-label','Học sinh '+(s+1));seatsEl.appendChild(b)}
+seatsEl.addEventListener('click',e=>{const b=e.target.closest('.seat');if(!b||scanning)return;const s=+b.dataset.s;const v=ans[qi][s];ans[qi][s]=v===null?0:(v===3?null:v+1);state[qi].scanned=true;renderQ()});
+const nav=document.getElementById('qNav');
+Q.forEach((q,i)=>{const b=document.createElement('button');b.type='button';b.className='qdot';b.textContent=q[0];b.addEventListener('click',()=>{if(scanning)return;qi=i;renderQ()});nav.appendChild(b)});
+function counts(q){const c=[0,0,0,0];let got=0;ans[q].forEach(v=>{if(v!==null){c[v]++;got++}});return{c,got}}
+function renderQ(){
+  const q=Q[qi],st=state[qi],{c,got}=counts(qi);
+  document.getElementById('qNum').textContent='Câu '+q[0];
+  document.getElementById('qPart').textContent=q[1];
+  const pass=document.getElementById('qPass');if(q[2]){pass.hidden=false;pass.innerHTML=q[2]}else pass.hidden=true;
+  document.getElementById('qStem').textContent=q[3];
+  const o=document.getElementById('qOpts');o.innerHTML='';
+  q[4].forEach((t,i)=>{const d=document.createElement('div');d.className='opt'+(st.revealed&&i===q[5]?' right':'');d.innerHTML=`<span class="L L${L[i]}">${L[i]}</span><span>${t}</span>${st.scanned?`<span class="cnt">${c[i]} HS</span>`:''}`;o.appendChild(d)});
+  [...seatsEl.children].forEach((b,s)=>{const v=ans[qi][s];b.className='seat'+(v!==null?' got':'')+(st.revealed&&v!==null?(v===q[5]?' ok':' wr'):'')+(st.scanned&&v===null?' none':'');b.querySelector('b').textContent=v===null?(st.scanned?'–':''):L[v]});
+  document.getElementById('sGot').textContent=`${got}/${N}`;
+  document.getElementById('sOk').textContent=st.revealed?c[q[5]]:'–';
+  document.getElementById('sPct').textContent=st.revealed?Math.round(c[q[5]]/N*100)+'%':'–';
+  document.getElementById('bReveal').disabled=!st.scanned||st.revealed;
+  document.getElementById('bScan').textContent=st.scanned?'↻ Quét lại':'📷 Quét thẻ';
+  document.getElementById('bNext').textContent=qi===Q.length-1?'Xem báo cáo →':'Câu tiếp →';
+  [...nav.children].forEach((b,i)=>b.className='qdot'+(i===qi?' cur':'')+(state[i].revealed?' done':''));
+}
+const cam=document.getElementById('cam'),camTxt=document.getElementById('camTxt');
+document.getElementById('bScan').addEventListener('click',()=>{
+  if(scanning)return;scanning=true;state[qi].revealed=false;state[qi].scanned=false;
+  simulate(qi);const final=ans[qi].slice();ans[qi].fill(null);renderQ();
+  cam.classList.add('live');camTxt.textContent='CAMERA · ĐANG QUÉT';
+  const order=[...Array(N).keys()].sort(()=>rnd()-.5);let k=0;
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const step=()=>{const n=reduce?N:3;for(let j=0;j<n&&k<N;j++,k++){const s=order[k];ans[qi][s]=final[s]}state[qi].scanned=true;renderQ();
+    if(k<N)setTimeout(step,90);else{scanning=false;cam.classList.remove('live');camTxt.textContent='CAMERA · ĐÃ QUÉT XONG';renderQ()}};
+  step();
+});
+document.getElementById('bReveal').addEventListener('click',()=>{state[qi].revealed=true;renderQ()});
+document.getElementById('bNext').addEventListener('click',()=>{if(scanning)return;if(qi<Q.length-1){qi++;renderQ()}else show('t-rp')});
+renderQ();
+
+/* ---------------- Report ---------------- */
+document.getElementById('bAll').addEventListener('click',()=>{Q.forEach((_,i)=>{if(!state[i].scanned){simulate(i);state[i].scanned=true}state[i].revealed=true});renderQ();report()});
+function report(){
+  const el=document.getElementById('rp');
+  const done=Q.map((_,i)=>i).filter(i=>state[i].revealed);
+  if(!done.length){el.innerHTML='<p class="empty">Chưa có câu nào được chấm. Vào tab <b>Practice</b>, quét thẻ và bấm “Hiện đáp án” cho từng câu, hoặc bấm “Quét nhanh cả 25 câu (demo)” ở trên.</p>';return}
+  const pct=i=>{const c=counts(i).c;return c[Q[i][5]]/N};
+  const avgPct=done.reduce((a,i)=>a+pct(i),0)/done.length;
+  const per=Array.from({length:N},(_,s)=>{let ok=0,secs={[P1]:[0,0],[P2]:[0,0],[P3]:[0,0]};done.forEach(i=>{const r=ans[i][s]===Q[i][5];if(r)ok++;secs[Q[i][1]][1]++;if(r)secs[Q[i][1]][0]++});return{s,ok,secs}});
+  const lv=r=>r>=.8?['Vững','#4fd18b']:r>=.6?['Khá','#53c9e8']:r>=.4?['Trung bình','#ffd166']:['Cần bù gấp','#ff5d6c'];
+  const secPct=sec=>{const ids=done.filter(i=>Q[i][1]===sec);return ids.length?Math.round(ids.reduce((a,i)=>a+pct(i),0)/ids.length*100)+'%':'–'};
+  let h=`<div class="kpis">
+    <div class="kpi"><small>Câu đã chấm</small><b>${done.length}/25</b></div>
+    <div class="kpi"><small>Tỉ lệ đúng trung bình</small><b>${Math.round(avgPct*100)}%</b></div>
+    <div class="kpi"><small>Lexico MCQ (26–35)</small><b>${secPct(P1)}</b></div>
+    <div class="kpi"><small>Guided cloze (51–55)</small><b>${secPct(P2)}</b></div>
+    <div class="kpi"><small>Đọc hiểu (56–65)</small><b>${secPct(P3)}</b></div></div>`;
+  h+=`<div class="chart"><h3>Tỉ lệ đúng theo câu</h3><div class="cols">`;
+  Q.forEach((q,i)=>{const on=state[i].revealed;const p=on?pct(i):0;const col=p>=.7?'var(--green)':p>=.5?'var(--yellow)':'var(--red)';h+=`<div class="col">${on?`<em>${Math.round(p*100)}</em>`:''}<i style="height:${on?Math.max(p*100,2):0}%;background:${col}"></i><span>${q[0]}</span></div>`});
+  h+=`</div><div class="legend"><span><i style="background:var(--green)"></i>≥ 70%</span><span><i style="background:var(--yellow)"></i>50–69%</span><span><i style="background:var(--red)"></i>&lt; 50% – cần chữa kỹ</span></div></div>`;
+  const weak=done.slice().sort((a,b)=>pct(a)-pct(b)).slice(0,6);
+  h+=`<div class="two"><div class="weak"><h3>6 câu lớp làm yếu nhất → chữa ở buổi nào</h3><ol>`;
+  weak.forEach(i=>{const q=Q[i];h+=`<li><b>Câu ${q[0]}</b> – ${q[6]} · ${Math.round(pct(i)*100)}% đúng<br><span>Đáp án ${L[q[5]]}. Học lại ở ${q[7]} trong lộ trình.</span></li>`});
+  h+=`</ol></div><div class="tblw"><h3>Kết quả từng học sinh</h3><table><thead><tr><th>HS</th><th>Đúng</th><th>Lexico</th><th>Cloze</th><th>Đọc</th><th>Mức</th></tr></thead><tbody>`;
+  per.sort((a,b)=>b.ok-a.ok).forEach(p=>{const r=p.ok/done.length;const [t,c]=lv(r);const f=x=>x[1]?`${x[0]}/${x[1]}`:'–';h+=`<tr><td>HS ${String(p.s+1).padStart(2,'0')}</td><td>${p.ok}/${done.length}</td><td>${f(p.secs[P1])}</td><td>${f(p.secs[P2])}</td><td>${f(p.secs[P3])}</td><td><span class="lv" style="background:${c};color:#111">${t}</span></td></tr>`});
+  h+=`</tbody></table></div></div><p class="note" style="margin-top:12px">Số liệu là dữ liệu mô phỏng của lớp demo 32 HS. Phần Listening, word form, sửa lỗi, open cloze và Writing của MT0 chấm trên giấy theo <a href="https://drive.google.com/file/d/1Izjv1H1I9NlaWsulQaETmp7kvbB2hcjp/view" target="_blank" rel="noopener">đáp án</a>.</p>`;
+  el.innerHTML=h;
+}
+})();
+</script>
+
+</body></html>
