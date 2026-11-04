@@ -42,7 +42,7 @@ practice:[
 {type:"fix",title:"Lexico P3 · Sửa lỗi",items:[
 ["The [number] of fans [who] [attend] matches [have] increased.",3,["has"],"The number of → has."],
 ["The club signed three new players, [two of] [them] [are] from [Brazil].",1,["whom"],"two of whom."],
-["Training hard, [eating] well and [to sleep] enough [are] all important.",1,["sleeping"],"Song hành V-ing."]
+["[Training] hard, [eating] well and [to sleep] enough [are] all important.",2,["sleeping"],"Song hành V-ing."]
 ]},
 {type:"gap",title:"Reading P1 · Open cloze",passage:"Football is (1) ___ far the most popular sport in Viet Nam. When the national team won the regional title, millions of fans poured (2) ___ the streets. Such moments create a strong sense (3) ___ national pride.",items:[
 ["(1)",["by"],"by far."],["(2)",["into","onto"],"poured into the streets."],["(3)",["of"],"a sense of."]
