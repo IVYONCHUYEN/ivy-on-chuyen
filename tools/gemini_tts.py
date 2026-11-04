@@ -33,15 +33,22 @@ def slug(t):
     return re.sub(r"[^a-z0-9]+", "-", t.lower()).strip("-")
 
 
-def tts(prompt, model):
+def voice(name):
+    return types.VoiceConfig(prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=name))
+
+
+def tts(prompt, model, speakers=None):
+    if speakers:
+        sc = types.SpeechConfig(multi_speaker_voice_config=types.MultiSpeakerVoiceConfig(
+            speaker_voice_configs=[types.SpeakerVoiceConfig(speaker=k, voice_config=voice(v))
+                                   for k, v in speakers]))
+    else:
+        sc = types.SpeechConfig(voice_config=voice(VOICE))
     r = client.models.generate_content(
         model=model, contents=prompt,
-        config=types.GenerateContentConfig(
-            response_modalities=["AUDIO"],
-            speech_config=types.SpeechConfig(
-                voice_config=types.VoiceConfig(
-                    prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=VOICE)))))
-    return r.candidates[0].content.parts[0].inline_data.data
+        config=types.GenerateContentConfig(response_modalities=["AUDIO"], speech_config=sc))
+    return b"".join(p.inline_data.data for p in r.candidates[0].content.parts
+                    if getattr(p, "inline_data", None))
 
 
 def write_wav(pcm, path):
@@ -83,7 +90,7 @@ class OutOfQuota(Exception):
 models = list(MODELS)
 
 
-def call(prompt):
+def call(prompt, speakers=None):
     """Gọi Gemini, tự đợi khi bị giới hạn theo phút, đổi model khi hết lượt trong ngày."""
     last = ""
     for attempt in range(8):
@@ -91,7 +98,7 @@ def call(prompt):
             raise OutOfQuota()
         m = models[0]
         try:
-            return tts(prompt, m)
+            return tts(prompt, m, speakers)
         except Exception as e:
             last = str(e)
             print("  …", m, last[:160])
@@ -138,9 +145,41 @@ for wl in sorted(glob.glob("**/audio/words.txt", recursive=True)):
         out = os.path.join(d, slug(w) + ".mp3")
         if w and out not in seen and not os.path.exists(out):
             seen.add(out); jobs.append((w, out))
-print(f"Cần tạo {len(jobs)} file audio | giọng {VOICE}")
+listen = [t for t in sorted(glob.glob("audio/listen/*.txt"))
+          if not os.path.exists(t[:-4] + ".mp3")]
+print(f"Cần tạo {len(jobs)} file audio từ vựng, {len(listen)} bài nghe | giọng {VOICE}")
+
+
+def do_listen(txt):
+    lines = open(txt, encoding="utf-8").read().strip().splitlines()
+    speakers = None
+    if lines and lines[0].startswith("#speakers:"):
+        speakers = [tuple(x.strip().split("=")) for x in lines[0][10:].split(",")]
+        lines = lines[1:]
+    body = "\n".join(lines)
+    if speakers:
+        prompt = ("TTS the following conversation between " + " and ".join(k for k, _ in speakers) +
+                  ". Speak naturally, at a normal pace, like a real recorded English listening test:\n" + body)
+    else:
+        prompt = ("Read the following aloud naturally, at a normal pace, like a real recorded "
+                  "English listening test (British English):\n" + body)
+    with tempfile.TemporaryDirectory() as d:
+        w = os.path.join(d, "l.wav"); write_wav(call(prompt, speakers), w)
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", w, "-af", "loudnorm=I=-16",
+                        "-ar", "44100", "-b:a", "64k", txt[:-4] + ".mp3"], check=True)
+    print("✓", txt[:-4] + ".mp3")
 
 try:
+    for t in listen:
+        if time.time() - T0 > MAX_MIN * 60:
+            break
+        try:
+            do_listen(t)
+        except OutOfQuota:
+            raise
+        except Exception as e:
+            print("  bài nghe lỗi", t, str(e)[:150])
+        time.sleep(8)
     i = 0
     while i < len(jobs):
         if time.time() - T0 > MAX_MIN * 60:
@@ -162,4 +201,5 @@ try:
 except OutOfQuota:
     print("Mọi model đều hết lượt miễn phí hôm nay, lần chạy tự động sau sẽ làm tiếp.")
 left = sum(1 for _, o in jobs if not os.path.exists(o))
-print(f"Còn thiếu {left} file.")
+left2 = sum(1 for t in listen if not os.path.exists(t[:-4] + ".mp3"))
+print(f"Còn thiếu {left} file từ vựng, {left2} bài nghe.")

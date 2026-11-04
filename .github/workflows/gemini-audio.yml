@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "**/audio/words.txt"
+      - "audio/listen/*.txt"
       - "tools/gemini_tts.py"
       - ".github/workflows/gemini-audio.yml"
   workflow_dispatch:

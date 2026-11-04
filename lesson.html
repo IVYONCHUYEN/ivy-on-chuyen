@@ -251,7 +251,7 @@ function practice(L){
   const el=document.getElementById("p-p");
   let total=0;const graders=[];
   const html=L.practice.map((sec,si)=>{
-    const head=`<div class="ex-sec" data-sec="${si}"><h3>${sec.title}</h3>${sec.intro?`<p class="intro">${sec.intro}</p>`:""}${sec.passage?`<div class="passage">${sec.passage}</div>`:""}`;
+    const head=`<div class="ex-sec" data-sec="${si}"><h3>${sec.title}</h3>${sec.intro?`<p class="intro">${sec.intro}</p>`:""}${sec.audio?`<div class="passage"><audio controls preload="none" style="width:100%" src="audio/listen/${sec.audio}.mp3" onerror="this.outerHTML='<p class=note>Audio bài nghe đang được tạo tự động, em đọc lời thoại bên dưới thay cho nghe nhé.</p>'"></audio><details${sec.audioOpen?" open":""}><summary>Lời thoại (chỉ mở sau khi làm xong)</summary><div style="white-space:pre-line;margin-top:8px">${esc(sec.script||"").replace(/^(\w+):/gm,"<b>$1:</b>")}</div></details></div>`:""}${sec.passage?`<div class="passage">${sec.passage}</div>`:""}`;
     const items=sec.items.map((it,qi)=>{total++;const id=`q${si}_${qi}`;const n=total;
       if(sec.type==="mcq"){const opts=sec.options||it[1];const stem=sec.options?it[0]:it[0];const ans=sec.options?it[1]:it[2];const ex=sec.options?it[2]:it[3];
         graders.push({id,type:"mcq",ans,ex,opts});
