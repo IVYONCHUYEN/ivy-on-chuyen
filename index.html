@@ -1,12 +1,594 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!doctype html><html><head><meta charset=utf8><title>IVY Ôn Chuyên Anh</title><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>IVY Ôn Chuyên Anh</title>
-<meta http-equiv="refresh" content="0; url=buoi-2/">
-</head>
-<body>
-<p>Đang chuyển đến <a href="buoi-2/">Buổi 2 · Từ loại</a>…</p>
-</body>
-</html>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: sticky top nav + one main column (max 1080px); "answer sheet" bubble grid is the signature element */
+:root{
+  --paper:#f5f6fa; --sheet:#ffffff; --ink:#1a2140; --muted:#5d6584; --line:#dfe3ee;
+  --pen:#2b55d9; --pen-soft:#e7edfd; --red:#d9472b; --red-soft:#fcebe6; --ok:#1f8a5b; --ok-soft:#e3f4ec;
+  --f-display:"Bricolage Grotesque", "Be Vietnam Pro", system-ui, sans-serif;
+  --f-body:"Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#11141f; --sheet:#181c2b; --ink:#e8ebf5; --muted:#9aa2c0; --line:#2a3046;
+  --pen:#7d9bff; --pen-soft:#1f2848; --red:#ff7a5c; --red-soft:#3a1f1a; --ok:#4fd19a; --ok-soft:#173326; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#11141f; --sheet:#181c2b; --ink:#e8ebf5; --muted:#9aa2c0; --line:#2a3046;
+  --pen:#7d9bff; --pen-soft:#1f2848; --red:#ff7a5c; --red-soft:#3a1f1a; --ok:#4fd19a; --ok-soft:#173326; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sheet)}
+a{color:var(--pen)}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--sheet);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-block:12px}
+.brand{font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;margin-right:auto}
+.brand i{width:18px;height:18px;border-radius:50%;border:2.5px solid var(--pen);display:inline-block;position:relative}
+.brand i::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--pen)}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav a{text-decoration:none;color:var(--muted);font-weight:600;font-size:14px;padding:7px 12px;border-radius:999px}
+nav a[aria-current="page"]{background:var(--pen-soft);color:var(--pen)}
+nav a:focus-visible,button:focus-visible,.chip:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+main{padding-block:28px 56px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.015em}
+h1{font-size:clamp(28px,4.2vw,42px);font-weight:800;line-height:1.1}
+h2{font-size:24px;font-weight:700}
+h3{font-size:17px;font-weight:700}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lead{color:var(--muted);max-width:62ch;margin:8px 0 0}
+.stack{display:grid;gap:20px}
+.panel{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:20px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:20px}
+@media (max-width:820px){.grid2{grid-template-columns:1fr}}
+.tag{font-family:var(--f-mono);font-size:12px;font-weight:700;padding:3px 8px;border-radius:6px;background:var(--pen-soft);color:var(--pen);white-space:nowrap}
+.tag.mt{background:var(--red-soft);color:var(--red)}
+.tag.done{background:var(--ok-soft);color:var(--ok)}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:13px}
+.tasks{display:grid;gap:10px;margin-top:14px}
+.task{display:grid;grid-template-columns:84px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px dashed var(--line)}
+.task:first-child{border-top:0}
+.task b{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;text-decoration:none;padding:5px 10px;border-radius:999px;border:1px solid var(--line);color:var(--ink);background:var(--sheet)}
+.chip:hover{border-color:var(--pen);color:var(--pen)}
+.chip.key{color:var(--red);border-color:color-mix(in srgb,var(--red) 35%,var(--line))}
+.chip.audio::before{content:"♪";font-size:12px}
+button{font:inherit;cursor:pointer}
+.btn{font-weight:600;font-size:14px;padding:9px 14px;border-radius:10px;border:1px solid var(--pen);background:var(--pen);color:#fff}
+.btn.ghost{background:transparent;color:var(--pen)}
+.btn.isdone{background:var(--ok);border-color:var(--ok)}
+.count{font-family:var(--f-display);font-weight:800;font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+/* answer-sheet bubbles */
+.sheet-phase{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;align-items:start;padding:14px 0;border-top:1px solid var(--line)}
+.sheet-phase:first-of-type{border-top:0}
+@media (max-width:620px){.sheet-phase{grid-template-columns:1fr}}
+.bubbles{display:flex;flex-wrap:wrap;gap:6px}
+.bub{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--muted);background:transparent;color:var(--muted);font-family:var(--f-mono);font-size:10px;font-weight:700;display:grid;place-items:center;padding:0}
+.bub.done{background:var(--ink);border-color:var(--ink);color:var(--sheet)}
+.bub.now{border:2.5px solid var(--red);color:var(--red)}
+.bub.mt{border-style:dashed;border-color:var(--red);color:var(--red);width:auto;padding:0 8px;border-radius:15px}
+.bub.sel{box-shadow:0 0 0 3px var(--pen-soft);border-color:var(--pen)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:8px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--muted);display:inline-block}
+.legend i.d{background:var(--ink);border-color:var(--ink)}
+.legend i.n{border:2.5px solid var(--red)}
+.progress{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:10px}
+.progress span{display:block;height:100%;background:var(--ok)}
+/* tables */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--sheet)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;background:var(--paper)}
+tr:last-child td{border-bottom:0}
+td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filters button{border:1px solid var(--line);background:var(--sheet);color:var(--ink);padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.topics{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.topic{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:8px;align-content:start}
+.topic.cur{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
+.topic .wk{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.soon{font-size:13px;color:var(--muted);font-style:italic}
+.note{font-size:13px;color:var(--muted);border-left:3px solid var(--red);padding-left:12px;max-width:70ch}
+.strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:620px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.strip div{border-top:3px solid var(--ink);padding-top:8px}
+.strip b{display:block;font-family:var(--f-display);font-size:22px}
+.strip span{font-size:13px;color:var(--muted)}
+.lpick{position:sticky;top:64px;z-index:4}
+.lrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#lsel{font:inherit;font-weight:600;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--sheet);color:var(--ink);flex:1 1 320px;min-width:0}
+.lbtns{display:flex;gap:6px;flex-wrap:wrap}
+#lframe{width:100%;border:0;border-radius:16px;display:block;min-height:70vh;background:#7a66cf}
+.mtbox{text-align:center;padding:36px 20px}
+footer{border-top:1px solid var(--line);padding-block:20px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:no-preference){.bub{transition:transform .12s}.bub:hover{transform:scale(1.08)}}
+</style>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand"><i aria-hidden="true"></i>IVY Ôn Chuyên Anh</div>
+    <nav aria-label="Điều hướng">
+      <a href="#hom-nay" data-view="hom-nay">Hôm nay</a>
+      <a href="#hoc" data-view="hoc">Vào học</a>
+      <a href="#lo-trinh" data-view="lo-trinh">Lộ trình</a>
+      <a href="#nghe" data-view="nghe">Listening</a>
+      <a href="#tu-vung" data-view="tu-vung">Vocab</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- HÔM NAY -->
+  <section id="v-hom-nay" class="stack">
+    <div>
+      <div class="eyebrow" id="today-label">Hôm nay</div>
+      <h1 id="today-title">Buổi học tiếp theo</h1>
+      <p class="lead">Mỗi buổi có nội dung trên lớp, bài nghe và từ vựng tự học của tuần. Làm xong thì bấm "Đánh dấu đã học" để tô ô trên phiếu tiến độ.</p>
+    </div>
+    <div class="grid2">
+      <article class="panel" id="next-card"></article>
+      <div class="stack">
+        <div class="panel">
+          <div class="eyebrow">Đếm ngược kỳ thi (dự kiến 24/5/2027)</div>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><span class="count" id="days-left">—</span><span>ngày</span></div>
+          <p class="meta" style="margin:8px 0 0">Mốc tạm theo lịch thi 2026 (24–26/5). Sẽ cập nhật khi Sở công bố.</p>
+        </div>
+        <div class="panel">
+          <div class="eyebrow">Tiến độ của em</div>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><span class="count" id="done-count">0</span><span>/ 90 buổi</span></div>
+          <div class="progress"><span id="done-bar" style="width:0%"></span></div>
+          <p class="meta" style="margin:8px 0 0">Lưu trên trình duyệt của máy này.</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Đề chuyên Anh Hưng Yên có gì</h3>
+      <div class="strip" style="margin-top:14px">
+        <div><b>2,5</b><span>Listening · 4 phần, 25 câu</span></div>
+        <div><b>2,0</b><span>Lexico &amp; Grammar · 20 câu</span></div>
+        <div><b>3,0</b><span>Reading · 5 phần, 30 câu</span></div>
+        <div><b>2,5</b><span>Writing · 5 câu + luận 250 từ</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LỘ TRÌNH -->
+  <section id="v-lo-trinh" class="stack" hidden>
+    <div>
+      <div class="eyebrow">90 buổi · 5 giai đoạn · 9 Mock Test</div>
+      <h1>Phiếu tiến độ cả khoá</h1>
+      <p class="lead">Mỗi ô tròn là một buổi học. Bấm vào ô để mở bài học của buổi đó.</p>
+      <div class="legend"><span><i></i>Chưa học</span><span><i class="d"></i>Đã học</span><span><i class="n"></i>Buổi tiếp theo</span><span><i style="border-style:dashed;border-color:var(--red)"></i>Mock Test</span></div>
+    </div>
+    <div class="panel" id="sheet"></div>
+    <article class="panel" id="detail-card"></article>
+  </section>
+
+  <!-- HỌC -->
+  <section id="v-hoc" class="stack" hidden>
+    <div class="panel lpick">
+      <div class="lrow">
+        <label class="eyebrow" for="lsel">Chọn buổi học</label>
+        <select id="lsel"></select>
+        <div class="lbtns">
+          <button class="btn ghost" id="lprev" type="button" aria-label="Buổi trước">← Trước</button>
+          <button class="btn ghost" id="lnext" type="button" aria-label="Buổi sau">Sau →</button>
+          <button class="btn" id="ldone" type="button">Đánh dấu đã học</button>
+          <a class="btn ghost" id="lopen" href="#" target="_blank" rel="noopener" style="text-decoration:none">Mở toàn màn hình ↗</a>
+        </div>
+      </div>
+      <div class="meta" id="lmeta" style="margin-top:8px"></div>
+    </div>
+    <div id="lbox"></div>
+  </section>
+
+  <!-- LISTENING -->
+  <section id="v-nghe" class="stack" hidden>
+    <div>
+      <div class="eyebrow">Kho bài nghe trên Drive</div>
+      <h1>Listening theo lộ trình</h1>
+      <p class="lead">Bài nghe được xếp theo giai đoạn, từ dễ đến khó. Làm bài trước, chấm bằng file KEY, rồi ghi câu sai vào sổ lỗi.</p>
+    </div>
+    <div class="filters" id="lis-filter" role="group" aria-label="Lọc theo dạng bài"></div>
+    <div class="tbl"><table><thead><tr><th>Giai đoạn</th><th>Tuần</th><th>Bài</th><th>Dạng bài trong đề</th><th>Tài liệu</th></tr></thead><tbody id="lis-body"></tbody></table></div>
+  </section>
+
+  <!-- VOCAB -->
+  <section id="v-tu-vung" class="stack" hidden>
+    <div>
+      <div class="eyebrow">15 chủ đề · 3 tuần mỗi chủ đề</div>
+      <h1>Vocab theo chủ đề</h1>
+      <p class="lead">Mỗi ngày làm 1 bài Wordwall và gửi ảnh kết quả từ 80% trở lên. Từ học ngày 1 được ôn lại vào ngày 3, ngày 7 và ngày 21.</p>
+    </div>
+    <div class="panel" id="lexico-panel"></div>
+    <div class="topics" id="topics"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">IVY Ôn Chuyên Anh · Lộ trình 90 buổi ôn thi vào lớp 10 chuyên Anh. Các file Listening nằm trên Google Drive của trung tâm, học sinh cần được chia sẻ quyền xem mới mở được. Ngày học giả định: thứ Ba và thứ Năm.</div>
+</footer>
+
+<script>
+(function(){
+const D = id => "https://drive.google.com/file/d/"+id+"/view";
+const G = id => "https://docs.google.com/document/d/"+id+"/edit";
+
+/* ---------- PHASES & SESSIONS ---------- */
+const PHASES = [
+ {n:0, name:"Chẩn đoán & định hướng", short:"GĐ0", goal:"Xếp Mức 1–5 từng kỹ năng", lexico:"Lập sổ từ cá nhân: ghi từ theo cụm, kèm họ từ và ví dụ."},
+ {n:1, name:"Nền B2: ngữ pháp lõi + dạng bài cơ bản", short:"GĐ1", goal:"≥ 4,5 điểm", lexico:"Collocation động từ + danh từ; họ từ với hậu tố và tiền tố phủ định."},
+ {n:2, name:"Chuyên đề nâng cao + Lexico", short:"GĐ2", goal:"≥ 5,5 điểm", lexico:"10 phrasal verb hoặc idiom mỗi ngày; collocation trạng từ + tính từ."},
+ {n:3, name:"Luyện sâu dạng bài chuẩn C1", short:"GĐ3", goal:"≥ 6,5 điểm", lexico:"Ôn vòng toàn bộ cụm đã học; cấu tạo từ khó (involuntarily, resilient…)."},
+ {n:4, name:"Luyện đề & tối ưu điểm", short:"GĐ4", goal:"≥ 7,0 ổn định", lexico:"Lexico sprint: 300 cụm hay ra trong đề các tỉnh."}
+];
+// [code, phase, content, exam task]  — "MTx" rows are Mock Tests (Sunday, not a lesson)
+const S = [
+["B00",0,"Mock Test 0: đề Hưng Yên năm gần nhất, đủ 150 phút","Xếp Mức 1–5 từng kỹ năng"],
+["B01",0,"Giới thiệu đề, cách chấm, chiến lược; lập sổ lỗi và sổ từ","Sổ lỗi, sổ từ cá nhân"],
+["B02",0,"Từ loại & phân tích cấu trúc câu dài","Nền cho Word Form và sửa lỗi"],
+["B03",0,"Kỹ năng paraphrase trong Nghe và Đọc","Nền cho Listening, Reading"],
+["B04",1,"Thì 1: hiện tại, hoàn thành","Listening P2 điền ≤ 3 từ"],
+["B05",1,"Thì 2: quá khứ, tương lai, by the time","Lexico P3 sửa lỗi (lỗi thì)"],
+["B06",1,"Hoà hợp chủ – vị","Lexico P3"],
+["B07",1,"Cấu tạo từ 1: hậu tố, vị trí từ loại","Lexico P2 cấu tạo từ trong đoạn"],
+["B08",1,"Cấu tạo từ 2: tiền tố phủ định, từ ghép","Reading P1 điền 1 từ"],
+["B09",1,"Dạng động từ 1: to V / V-ing","Listening P1 hoàn thành bảng"],
+["B10",1,"Dạng động từ 2 + thể sai khiến","Collocation 1: động từ + danh từ"],
+["B11",1,"Bị động, bị động kép","Writing P1 viết lại câu"],
+["B12",1,"Câu điều kiện 0–3, hỗn hợp","Writing P1"],
+["B13",1,"Câu ước & giả định","Lexico P1 trắc nghiệm"],
+["B14",1,"Câu gián tiếp + động từ tường thuật","Writing P1–P2"],
+["B15",1,"Mệnh đề quan hệ","Lexico P3, Reading P2"],
+["B16",1,"Rút gọn mệnh đề, phân từ","Reading P2 chọn cụm/mệnh đề"],
+["B17",1,"So sánh","Writing P1"],
+["B18",1,"Viết đoạn: câu chủ đề, ý hỗ trợ","Viết đoạn 150 từ"],
+["B19",1,"Đọc hiểu 1: chi tiết, từ trong ngữ cảnh","Reading P3"],
+["B20",1,"True/False/Not Given","Listening P4"],
+["B21",1,"Bài luận Opinion 1: bố cục 4 đoạn","Writing P3"],
+["MT1",1,"Mock Test 1","Đủ 150 phút"],
+["B22",1,"Chữa MT1: Listening + Lexico","Chữa đề 4 vòng"],
+["B23",1,"Chữa MT1: Reading + Writing","Cập nhật sổ lỗi"],
+["B24",1,"Mạo từ & lượng từ","Reading P1"],
+["B25",1,"Giới từ 1: giới từ đi kèm","Lexico P1"],
+["B26",1,"Bài luận Problems & Solutions 1","Writing P3"],
+["B27",1,"Ôn giai đoạn 1","Mini test + làm lại câu sai"],
+["B28",2,"Động từ khuyết thiếu: khả năng, bắt buộc, suy đoán","Lexico P1"],
+["B29",2,"Modal hoàn thành (must/can't/needn't have)","Writing P1"],
+["B30",2,"Mệnh đề trạng ngữ & liên từ","Reading P4 điền câu"],
+["B31",2,"Nhượng bộ (Adj/Adv + as), song hành","Lexico P3"],
+["B32",2,"Nối tiêu đề 1: câu chủ đề, tiêu đề bẫy","Reading P5"],
+["B33",2,"Đọc hiểu 2: suy luận, quy chiếu, ý chính","Reading P3"],
+["MT2",2,"Mock Test 2","Đủ 150 phút"],
+["B34",2,"Chữa MT2: Listening + Lexico","Chữa đề 4 vòng"],
+["B35",2,"Chữa MT2: Reading + Writing","Cập nhật sổ lỗi"],
+["B36",2,"Giới từ 2: cụm giới từ cố định","Reading P1"],
+["B37",2,"Đảo ngữ 1: Only / Not until / Hardly / No sooner","Writing P1"],
+["B38",2,"Đảo ngữ 2: điều kiện đảo, so/such, but for","Writing P1"],
+["B39",2,"Câu chẻ, nhấn mạnh, mệnh đề danh ngữ","Writing P1"],
+["B40",2,"Phrasal verb 1: theo động từ gốc","Writing P2 viết lại với từ khoá"],
+["B41",2,"Phrasal verb 2: theo tiểu từ","Lexico P1"],
+["B42",2,"Collocation 2: trạng từ + tính từ, tính từ + danh từ","Reading P2 chọn từ điền đoạn"],
+["B43",2,"Idiom 1","Writing P2"],
+["B44",2,"Idiom 2 + câu giao tiếp, câu hỏi đuôi","Lexico P1"],
+["B45",2,"Cấu tạo từ nâng cao","Lexico P2"],
+["B46",2,"Listening trắc nghiệm: bẫy, thái độ người nói","Listening P3"],
+["B47",2,"Bài luận Opinion 2: lập luận, phản đề","Writing P3"],
+["MT3",2,"Mock Test 3","Đủ 150 phút"],
+["B48",2,"Chữa MT3: Listening + Lexico","Chữa đề 4 vòng"],
+["B49",2,"Chữa MT3: Reading + Writing","Cập nhật sổ lỗi"],
+["B50",2,"Điền câu 2: liên kết ngầm, mức C1","Reading P4"],
+["B51",2,"Bài luận Problems & Solutions 2","Writing P3"],
+["B52",2,"Lexico tổng hợp từ đề các tỉnh","Lexico P1–P3"],
+["B53",2,"Ôn giai đoạn 2","Làm lại câu sai trong sổ lỗi"],
+["B54",3,"Listening P1–P2 chuyên sâu","Nghe 2 lần như đề thật"],
+["B55",3,"Listening P3–P4 chuyên sâu","Câu NOT TRUE, ý kiến từng người"],
+["B56",3,"Reading P1–P2 chuẩn C1","Đề CAE + đề các tỉnh"],
+["B57",3,"Reading P3 bài học thuật","Suy luận, tóm tắt đoạn"],
+["B58",3,"Nối tiêu đề 2","Bài dài, 8 tiêu đề"],
+["B59",3,"Writing P1–P2 tổng hợp 1","50 câu viết lại"],
+["MT4",3,"Mock Test 4","Đủ 150 phút"],
+["B60",3,"Chữa MT4","Chữa đề 4 vòng"],
+["B61",3,"Chữa MT4 + giao bài Tết","2 đề full + 2 bài luận"],
+["B62",3,"Chữa bài Tết + Lexico P1","Sau Tết"],
+["B63",3,"Lexico P2–P3 nâng cao","Cấu tạo từ + sửa lỗi"],
+["B64",3,"Reading P4–P5 bấm giờ","20 phút cho hai phần"],
+["B65",3,"Bài luận: dàn ý nhanh 15 chủ đề","5 phút mỗi dàn ý"],
+["B66",3,"Writing P1–P2 tổng hợp 2","50 câu viết lại"],
+["B67",3,"Listening đủ 4 phần, bấm giờ","25 câu"],
+["B68",3,"Reading đủ 5 phần, 55 phút","30 câu"],
+["MT5",3,"Mock Test 5","Đủ 150 phút"],
+["B69",3,"Chữa MT5","Chữa đề 4 vòng"],
+["B70",3,"Chữa MT5 + chia nhóm theo điểm yếu","Nhóm Nghe / Đọc / Lexico / Viết"],
+["B71",3,"Ôn ngữ pháp nền qua sửa lỗi","Thì, bị động, S–V, MĐQH"],
+["B72",3,"Bài luận 35 phút + viết lại bản 2","Writing P3"],
+["B73",3,"Đề Hưng Yên năm gần nhất, đủ 150 phút","So với Mock Test 0"],
+["B74",4,"Chữa đề Hưng Yên","Phân tích từng câu theo dạng"],
+["B75",4,"Đề chuyên tỉnh khác: Listening + Lexico","Nam Định, Hải Dương, Bắc Ninh…"],
+["B76",4,"Đề chuyên tỉnh khác: Reading + Writing","Bấm giờ"],
+["MT6",4,"Mock Test 6","Đủ 150 phút"],
+["B77",4,"Chữa MT6","Chữa đề 4 vòng"],
+["B78",4,"Lấp lỗ hổng theo nhóm 1","Theo sổ lỗi"],
+["B79",4,"Lexico sprint 1: 300 cụm hay ra","Kiểm tra nhanh 100 câu"],
+["B80",4,"Listening sprint","2 đề"],
+["B81",4,"Reading sprint","55 phút"],
+["B82",4,"Bài luận bấm giờ + chấm chéo","35 phút"],
+["MT7",4,"Mock Test 7","Đủ 150 phút"],
+["B83",4,"Chữa MT7","Chữa đề 4 vòng"],
+["B84",4,"Làm lại câu sai sau 7–14 ngày","Từ sổ lỗi MT6–MT7"],
+["B85",4,"Đề dự đoán 1","Đủ 150 phút"],
+["B86",4,"Chữa đề dự đoán + Lexico sprint 2","—"],
+["MT8",4,"Mock Test 8 – tổng duyệt","Đúng giờ thi thật"],
+["B87",4,"Chữa MT8","—"],
+["B88",4,"Chiến lược phòng thi, phân bổ 150 phút","—"],
+["B89",4,"Tổng kết, ôn nhẹ","Giữ sức trước thi"]
+];
+
+/* ---------- DATES: Tue/Thu from 30/6/2026, skip Tết weeks ---------- */
+const START = new Date(2026,5,30); // Tue
+const SKIP_WEEKS = [31,32]; // week index of 2/2 and 9/2/2027
+const EXAM = new Date(2027,4,24);
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+const sessions=[]; let lessonIdx=0, week=0, slot=0;
+S.forEach(r=>{
+  const isMT = r[0].startsWith("MT");
+  if(isMT){
+    // Sunday after the previous lesson
+    const prev = sessions.filter(s=>!s.mt).slice(-1)[0];
+    const d = addDays(prev.date, 7 - prev.date.getDay()); // next Sunday
+    sessions.push({code:r[0],phase:r[1],title:r[2],task:r[3],mt:true,date:d,week:prev.week});
+    return;
+  }
+  while(SKIP_WEEKS.includes(week)){week++;}
+  const d = addDays(START, week*7 + (slot?2:0));
+  sessions.push({code:r[0],phase:r[1],title:r[2],task:r[3],mt:false,date:d,week:week,idx:lessonIdx});
+  lessonIdx++; slot++; if(slot===2){slot=0;week++;}
+});
+const lessons = sessions.filter(s=>!s.mt);
+const fmt = d => d.getDate()+"/"+(d.getMonth()+1);
+const WD = ["CN","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
+
+/* ---------- LISTENING MATERIALS ---------- */
+const B2 = {
+ 1:{gf:"1ZJ8TmVfAQ5hTJigGjA5nCxLWAOqswuZwrLpjCiHw_K0"},
+ 9:{gf:"13IAEm1vhbWZ1IfdS9fK-jDyAfV1kx3gAVk6ttyFX_7Y",kgf:"1Zf5nEZHRz25EvzuRwTt07uBbhFqz4QPX2xPltvXR0MA"},
+ 10:{mcq:"1wit8C9nV_VNMF6553rmwCsTYhF9aoAxj366em6sgAEk",kmcq:"1pU6sR5zw_lLr719MhWzpqRG9fM0Ml8xkx7BFr986JJ0",kgf:"1fqG34WHoJMXx1r4c9QyQ6ByM854IYw4VrfQ7iN6a2Ug"},
+ 17:{gf:"1_dJ3M_CCSPPRL7SM5H3YXBUS2hVujUfOt7GglWPGNQc",mcq:"1Xzai4YiDKIIqPbbqLp2vaPwTwVSAaCSoHYCMZz2fD7U",kgf:"1uNjWC6aJFr0KEpFVmlYqsj1GxBxs8pz57T12mDROsUE",kmcq:"15qWnj8-bM04KXa3sE3SwUORr5mR9RhZl0kB2chignvI"},
+ 18:{gf:"1jH-2keNQpvIrPjsfNC--sQR8kH7bCao7MAv6PKImDqQ",mcq:"1JarXcV4XZITnj6ODi2KZibHEaAbICKw00lFyFWdIGJo",kgf:"1_9MkHS_T6RH7CH6-ZbGKhuELqZ4_MjH70XnW8Jo_zr4",kmcq:"1KymTEuCxoV2LaPNNDz44oJlQYWYTlsXTVJfFHh0fg7U"},
+ 19:{gf:"1GJrLvZu1BmPFKpCDqLN-2dpTQnazJ866_r0WkxEjMEQ",mcq:"1bO9geCI9j6J6PX6DYL8fN3diPWFYgn-l4XhUh9UNMYQ",kgf:"1UQexrim7yBED9_HEb3JSwkhDWnJ_Xyo3y6O6nTGr8qc",kmcq:"1qmCYUmgVsYEiFohtw-NUcz_x2PDYh5tdTJ_zI9xUdA4"},
+ 20:{gf:"1q1lBH22aQHDV-OobiBcOv-wPXPZgDXNd77KuY95gLkE",mcq:"1VAEMTxU_-A8VxUBmgMda7J6BkgNBmE_D_KlTKO6V0sg",kgf:"1YpDam7DdOCkNO009-7BXIcgJAkHZdFU6CQSyCSc7MZ4",kmcq:"1r52HUk3mJU1Nh4r6Uh3jyeXBBXyYhG_LAcSdzvZu87s"},
+ 21:{gf:"1t59jfgqscrRmoVsdB-jz94y7xGZAVpwLtGVriMnr408",mcq:"1i59bdIbLCC3GRABfpPhr--Np1JwtjRaZwc6eMS61XMI",kgf:"1hnzmhTL2tjBHII27t5kBc3kKbB0gLcysvGn0n1CCXK4",kmcq:"1Jsya6D9hf75yr5-GcrRnYJxBRTr-BqTZ34qfcQBrl20"},
+ 22:{gf:"1qS4yieKSJ9GtkrVJp3C4Yk7SnDgUrnjaoVa8lMMKoWo",mcq:"1St7miFIAh8L-X2FsHuAb0yT7iFREu5yrt5cSLFPhFz8",kgf:"1oSj4w4AoLtsP16cfBsgX0Yo2LeEZv_qQtokFyE-0oRs",kmcq:"1y494anm2d9G2XCz4XoHZpCjaP1HWjBW76DV0ZQMuWVY"},
+ 23:{gf:"1oNb4jqUr6pKH4OqVHmHCwqogsUBtwsfmEOplxthYQtI",mcq:"1BZsN0Iar98cfZA6bYGyD5xsnFB4fY_JYh9kjnw0_5A8",kgf:"1sFOF9cFXr8TkjJO0c1bje1OUpU8bW0BmyXH_wtRBqNA",kmcq:"1RZ2eE83qmbMty8uLWh9hmTLh7DVzzNR8qBKqkYgBmVU"},
+ 24:{gf:"1XGtGDr-YCqvZNFX1Zz5EBE3KUK3Sjq5ujSb0qfvcjPE",mcq:"1bc5ZaPQo76MJhhZrp5h-rRYXZQPEMFmk2JFHPJH4whw",kgf:"1Y2MXotqgmMmodz2E_Un-NQoidGP3HZSV22hpDTjXI2w",kmcq:"1mPnmNkpSd9VCIhBRuXHK-gQQmSc9AhGpANZEEc04xvE"},
+ 25:{gf:"1DlCMxpCO8ObtkW123rVyvWIEWcwbsDb0j3sICDS3eQM",mcq:"1ahs4poM__eYjHcjhXXAIzMBfjCyXWDxHhY32FSODlEo",kgf:"1Gs_IAV-_4NVaz6aEmbYTrrwfK8T93iyqN599MVUoLqU",kmcq:"1TkagIbCcB3Uy_kXP52xO9tGX38aKUj-65wLx8XjVqXA"},
+ 26:{gf:"1Zvo1LL64Q9jCDlAL88EHwkmwafyscdqzv2C7mVQU4F0",mcq:"1qPL2D1dZo0aFMPUmeghI7bGrKbL22J5TAlL4tfV0od0",kgf:"1Up-WkU71LTwxZr0QmJFq1ekm8_LzkRrfZIX-YTsKRnA",kmcq:"1Y-rjqsxmWLECNlX3GbeOp4NHARPdg9ZoDqpOvBnr4w0"},
+ 27:{gf:"1RGD8Qd_Adpm-te7BWK3mN9lDlxbICrB4VvW98GXj_uM",mcq:"1fntea1hZ6J5LjkvND9o54Ziz6p9-lf-73Tf0XZstFTQ",kgf:"1b03dQc5yAWhNTHyz6IOAIE1YiB_gFiX-XkDh6Z4cyO8",kmcq:"1PvTKgqG-zFSyPc_0Raorrw6D6Jhf0fJ9kJQanDOXpho"},
+ 28:{gf:"1VZ5TcgWpReeZIw4eEezY3oxRNtrL97wmDAsWRv7fY3I",mcq:"1t-ztIzgBmxgTtgErhTuwK8vfX850b1vF0U9iSWZEPxo",kgf:"1Aex5Bv6DsgVfGK-1E12zGEBsvOmmXWG2yKyIF5v_iZk",kmcq:"1zIcjvyySSDWON0q1NBYeBes7iGNnyVsfTPL5OSI_wts"},
+ 29:{gf:"1YoG99jLo9GH2zMVjRcIZe5ICZ4NzzQxMPqp01wNZ85Y",mcq:"14bxebzCXczoBMwhNMEG_iRHTqVLSZIVt8ntqQKi0t3A",kgf:"1crZKEqZRx_FG4r7ywPXuesnuTKi2TwVAxdmCYx4nVUI",kmcq:"1k7QUEt11e-McmyzS3pI02VAdBTlJ_lbsQwb96CnxIeQ"},
+ 30:{gf:"1N-8MSlg3uN-HyGBiQoIUEj1fri2BFvNY6J6vWnfGswg",mcq:"1ZE4rq6gQwcGDruLrjlf4sWALgkNb-zuy8a8FjwCJF60",kgf:"1BZP3HWZe6BpNnA-qk79zfh509zSTc2sF8vxI-NFRfrg",kmcq:"1UbNQmJAqeKM3QEn0Ie04_a6RrWdxqAzlBfjyp_UD0I8"},
+ 31:{gf:"1Oa27oL8sjT3tPWb5Pf5Fhv-Bst1vTZX9IOQT8nflaHI",mcq:"1eQrmyO0co6XOvhqlsFhfuhgaj_bj08m3ZyyHpliQbiU",kgf:"1-sbcszdSksJOTTt9l_ygL-iuhqcoV5urwaMzJkN31ps",kmcq:"1WDkoE0M5JAtIsIQr6PIVAggpHZVhWh4UV4S4eL0wjaE"},
+ 32:{gf:"1K4UccPKyLl50lmYrjkYVLVJGGvdNBbyoHijZtz0C3xs",mcq:"1Fks37nJxtverzoKgE_He5ugWyapGPsvk6F3k7ZGQbZU",kgf:"10vaYU9ufDBjJMmlQ0we7e6RXyxazoTdU7YoCnGt0AYE",kmcq:"19YzUnBHwS0hXaEvEd9No439cWBr1CtV_7wX6b7FneWQ"},
+ 33:{gf:"1UjT_vmWaf-z-9g82X6wxISPBcfXTPqXH6o0ZuSxZNrs",mcq:"1nmfSkYN5bOn6J240JHt3zIjpBlWprZW2ZEn-H1G1ps4",kgf:"1FMbqurMdI6WfNwdbVbNXpOUy9PZd13g5O1S48Q_eJrI",kmcq:"1dfGoa6HVCDRIWN7VjigDXhCYRNOuIq2GVZwxyLx-HW0"}
+};
+function b2Item(n){
+  const x=B2[n], L=[];
+  if(x.gf) L.push({t:"Gap filling",u:G(x.gf)});
+  if(x.mcq) L.push({t:"MCQ",u:G(x.mcq)});
+  if(x.kgf) L.push({t:"KEY Gap filling",u:G(x.kgf),key:1});
+  if(x.kmcq) L.push({t:"KEY MCQ",u:G(x.kmcq),key:1});
+  const types=[]; if(x.gf||x.kgf) types.push("gf"); if(x.mcq||x.kmcq) types.push("mcq");
+  return {name:"B2-Practice "+n, types, part:(types.includes("gf")?"P2 điền ≤ 3 từ":"")+(types.length>1?" · ":"")+(types.includes("mcq")?"P3 trắc nghiệm":""), links:L};
+}
+const DICT = [
+ ["Dictation – Gold B1 Unit 2","1VA5NH6S-Zpu2C0238L9oRgzdIYjL7Xti"],
+ ["Dictation – Gold B1 Unit 3","147FSGfWIoiPWrjSjTuaVhxmlzkf_xXNn"],
+ ["Dictation – Gold B1 Unit 4","1IRpwq_b876PQbRiZvSxhSzhaDxQxYVD8"],
+ ["Dictation – Gold B1 Unit 5","1GXG4jeL562VFVbRysjck9yppJVNZX6ai"],
+ ["Dictation – Gold B1 Unit 8","1mhVVWpdZo8sXhlp5407Wk2LMgmjxgzpP"],
+ ["Dictation – Gold B1 Unit 9","1UxhP9apm3tLN8rFA44tZ-JiRiSIifC5a"],
+ ["Dictation – Gold Experience B2 Unit 5","1K3Z6WbbS2Q9JKABOxPn5tC99_WqDSqyi"]
+].map(d=>({name:d[0],types:["dict"],part:"Nền cho P1–P2 (chép chính tả)",links:[{t:"Nghe audio",u:D(d[1]),audio:1}]}));
+const ONEWORD = {name:"Listening: ONE WORD ONLY",types:["gf"],part:"P1 hoàn thành bảng ≤ 1 từ",links:[{t:"Bài tập",u:G("1wcawRpn4yfjsQveZy2lIAj950HxEDHnV9u1AKnstvyo")}]};
+const TF = {name:"B1-Practice 11: True/False",types:["tf"],part:"P4 True/False/Not Given",links:[{t:"Bài tập",u:G("1L7GXUOEIAcImYonjeVum-kVywEOuofrG7zwrYru3-FA")},{t:"KEY",u:G("10ys57Ka5lgQa5Tx3Pzcmscl6KYywYabB8ZEMKyIxStA"),key:1}]};
+const FULL = [
+ {name:"Đề đầu vào Chuyên 1",types:["full"],part:"Đủ 4 phần Listening",links:[{t:"Đề",u:D("1VJ2wkJD_iPy1YHZwIfdHWNOBd9BwHuqW")},{t:"Audio",u:D("1VmJ1-rtZMVMzsm6v0Scqck8GcldlhDJY"),audio:1},{t:"Đáp án",u:D("1znCnc7MGr4fzIiAC0v5m_GaNXH7k6Rs5"),key:1}]},
+ {name:"Đề đầu vào Chuyên 2",types:["full"],part:"Đủ 4 phần Listening",links:[{t:"Đề",u:D("12dW041xFnyDgh3PzQRfPKlomc9LRCgmO")},{t:"Audio",u:D("1eX9PGZpkILq6sSZXr6Y3f4dNc3S7qRma"),audio:1},{t:"Đáp án",u:D("1JMUGqdz0zjlqNj2vqrEvN0OSgQiK7EOt"),key:1}]},
+ {name:"Đề chuyên Anh Hưng Yên 2026–2027",types:["full"],part:"Đề chính thức, đủ 4 phần",links:[{t:"Đề",u:D("1-jsiR3Jf01W3PeGGD2Lf5k4PdUplx0TB")},{t:"Đáp án tham khảo",u:D("1Izjv1H1I9NlaWsulQaETmp7kvbB2hcjp"),key:1}]}
+];
+// listening plan per phase, spread across that phase's weeks
+const LPLAN = {
+ 0:[ONEWORD, DICT[0]],
+ 1:[b2Item(1),DICT[1],b2Item(9),DICT[2],b2Item(10),TF,b2Item(17),DICT[3],b2Item(18),DICT[4],b2Item(19),DICT[5]],
+ 2:[b2Item(20),b2Item(21),DICT[6],b2Item(22),b2Item(23),b2Item(24),b2Item(25),b2Item(26),FULL[0]],
+ 3:[b2Item(27),b2Item(28),b2Item(29),b2Item(30),b2Item(31),b2Item(32),b2Item(33),FULL[1]],
+ 4:[FULL[2],FULL[0],FULL[1]]
+};
+// weeks per phase
+const phaseWeeks={}; lessons.forEach(s=>{(phaseWeeks[s.phase]=phaseWeeks[s.phase]||[]).includes(s.week)||phaseWeeks[s.phase].push(s.week)});
+const listeningForWeek={}, listeningRows=[];
+Object.keys(LPLAN).forEach(p=>{
+  const wk=phaseWeeks[p], items=LPLAN[p];
+  items.forEach((it,i)=>{
+    const w = wk[Math.min(wk.length-1, Math.floor(i*wk.length/items.length))];
+    listeningRows.push({phase:+p,week:w,item:it});
+  });
+  wk.forEach(w=>{
+    // latest item whose start week <= w
+    let pick=null; listeningRows.filter(r=>r.phase==p).forEach(r=>{if(r.week<=w) pick=r.item});
+    listeningForWeek[w]=pick||items[0];
+  });
+});
+
+/* ---------- VOCAB ---------- */
+const WW = u=>u;
+const TOPICS = [
+ {n:"Education",links:[["Education 1","https://wordwall.net/vi/resource/79074945/ivygifted-vocab-school-education"],["Education 2","https://wordwall.net/vi/resource/79075218/ivygifted-vocab-school-education-2"]]},
+ {n:"Career",links:[["Career 1","https://wordwall.net/play/82101/060/471"],["Career 1.2","https://wordwall.net/play/82101/060/130"],["Career 2","https://wordwall.net/play/82101/322/337"],["Career 3","https://wordwall.net/play/82101/675/921"],["Career 3.2","https://wordwall.net/play/82101/675/527"],["Career 4","https://wordwall.net/play/82102/007/888"],["Career 4.2","https://wordwall.net/play/82102/007/961"]]},
+ {n:"Shopping & Consumerism",links:[["Vocab 1","https://wordwall.net/play/79000/133/376"],["Ex 1","https://wordwall.net/play/79000/133/251"],["Vocab 1.2","https://wordwall.net/play/79000/133/429"],["Vocab 1.3","https://wordwall.net/play/79000/133/794"],["Vocab 2","https://wordwall.net/play/79000/403/853"],["Ex 2","https://wordwall.net/play/79000/403/609"],["Vocab 2.2","https://wordwall.net/play/79000/403/452"],["Vocab 2.3","https://wordwall.net/play/79000/403/927"]]},
+ {n:"Health & Lifestyle",links:[["Vocab 1.1","https://wordwall.net/play/79097/270/366"],["Vocab 1.2","https://wordwall.net/play/79097/270/602"],["Vocab 1.3","https://wordwall.net/play/79097/270/950"],["Vocab 2.1","https://wordwall.net/play/79098/790/893"],["Vocab 2.2","https://wordwall.net/play/79098/790/794"],["Vocab 2.3","https://wordwall.net/play/79098/790/568"],["Vocab 3.1","https://wordwall.net/play/79099/149/955"],["Vocab 3.2","https://wordwall.net/play/79099/149/113"]]},
+ {n:"Community & Society",links:[["Vocab 1.1","https://wordwall.net/play/79002/893/932"],["Vocab 1.2","https://wordwall.net/play/79002/893/205"],["Vocab 1.3","https://wordwall.net/play/79002/893/757"],["Vocab 2.1","https://wordwall.net/play/79029/806/821"],["Vocab 2.2","https://wordwall.net/play/79029/806/199"],["Vocab 2.3","https://wordwall.net/play/79029/806/109"]]},
+ {n:"Environment",links:[["Bài 1","https://wordwall.net/play/79076/816/546"],["Bài 2","https://wordwall.net/play/79076/816/991"],["Bài 3","https://wordwall.net/play/79076/882/611"],["Bài 4","https://wordwall.net/play/79076/882/306"],["Bài 5","https://wordwall.net/play/79076/882/869"],["Bài 6","https://wordwall.net/play/79077/033/968"],["Bài 7","https://wordwall.net/play/79077/033/974"],["Bài 8","https://wordwall.net/play/79077/033/800"]]},
+ {n:"Nature & Wildlife",links:[["Vocab 1","https://wordwall.net/play/79078/108/804"],["Ex 1","https://wordwall.net/play/79078/108/429"],["Ex 2","https://wordwall.net/play/79078/108/631"],["Vocab 2","https://wordwall.net/play/79078/222/896"],["Vocab 2.1","https://wordwall.net/play/79078/222/620"],["Vocab 3","https://wordwall.net/play/79078/383/979"],["Vocab 3.1","https://wordwall.net/play/79078/383/362"]]},
+ {n:"Travel & Tourism",links:[["Vocab 1","https://wordwall.net/play/81767/634/167"],["Vocab 2","https://wordwall.net/play/81768/098/354"],["Vocab 3.1","https://wordwall.net/play/81772/482/317"],["Vocab 3.2","https://wordwall.net/play/81772/482/495"],["Vocab 3.3","https://wordwall.net/play/81772/482/297"],["Vocab 4.1","https://wordwall.net/play/81773/163/363"],["Vocab 4.2","https://wordwall.net/play/81773/163/790"],["Vocab 5.1","https://wordwall.net/play/81773/663/862"]]},
+ {n:"Technology & Social media",links:[]},
+ {n:"Psychology & Behaviour",links:[]},
+ {n:"Media & Advertising",links:[]},
+ {n:"Culture & Arts",links:[]},
+ {n:"Science & Research",links:[]},
+ {n:"Urbanisation & Population",links:[]},
+ {n:"Sport & Entertainment",links:[]}
+];
+const allWeeks=[...new Set(lessons.map(s=>s.week))];
+function topicIndexForWeek(w){return Math.min(TOPICS.length-1, Math.floor(allWeeks.indexOf(w)/3))}
+TOPICS.forEach((t,i)=>{
+  const ws=allWeeks.filter(w=>topicIndexForWeek(w)===i);
+  const ls=lessons.filter(s=>ws.includes(s.week));
+  t.from=ls[0]?ls[0].date:null; t.to=ls.length?ls[ls.length-1].date:null;
+});
+
+/* ---------- STATE ---------- */
+let done={};
+try{done=JSON.parse(localStorage.getItem("ivy-done")||"{}")||{}}catch(e){done={}}
+function save(){try{localStorage.setItem("ivy-done",JSON.stringify(done))}catch(e){}}
+const today=new Date(); today.setHours(0,0,0,0);
+const next = lessons.find(s=>s.date>=today) || lessons[lessons.length-1];
+let selected = next.code;
+
+/* ---------- RENDER HELPERS ---------- */
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function linksHTML(L){return '<div class="links">'+L.map(l=>`<a class="chip${l.key?" key":""}${l.audio?" audio":""}" href="${l.u}" target="_blank" rel="noopener">${esc(l.t)}</a>`).join("")+'</div>'}
+function sessionCard(s, heading){
+  const ph=PHASES[s.phase];
+  const lis = s.mt? null : listeningForWeek[s.week];
+  const tp = s.mt? null : TOPICS[topicIndexForWeek(s.week)];
+  const isDone=!!done[s.code];
+  let h = `<div class="meta"><span class="tag${s.mt?" mt":""}${isDone?" done":""}">${s.code}</span><span>${WD[s.date.getDay()]}, ${fmt(s.date)}/${s.date.getFullYear()}</span><span>· ${ph.short} ${esc(ph.name)}</span></div>
+  <h2 style="margin-top:10px">${heading?esc(heading)+": ":""}${esc(s.title)}</h2>
+  <div class="tasks">
+    <div class="task"><b>Trên lớp</b><div>${esc(s.title)}<div class="meta" style="margin-top:4px">Dạng bài luyện kèm: ${esc(s.task)}</div></div></div>`;
+  if(s.mt){
+    h+=`<div class="task"><b>Chuẩn bị</b><div>Làm đề đủ 150 phút, không tra từ. Đánh dấu câu phân vân để chữa ở buổi sau.</div></div>`;
+  } else {
+    h+=`<div class="task"><b>Nghe</b><div><strong>${esc(lis.name)}</strong><div class="meta">${esc(lis.part)}</div>${linksHTML(lis.links)}</div></div>
+    <div class="task"><b>Vocab</b><div><strong>${esc(tp.n)}</strong> <span class="meta">· chủ đề của tuần</span>${tp.links.length?linksHTML(tp.links.slice(0,4).map(l=>({t:l[0],u:l[1]}))):'<div class="soon">Bài Wordwall đang được giáo viên soạn.</div>'}<div class="meta" style="margin-top:6px">Lexico ${ph.short}: ${esc(ph.lexico)}</div></div></div>`;
+  }
+  h+=`<div class="task"><b>Sổ lỗi</b><div>Ghi câu sai: dạng bài · lý do sai · kiến thức liên quan · ngày làm lại (sau 7–14 ngày).</div></div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
+    <button class="btn${isDone?" isdone":""}" data-toggle="${s.code}" id="btn-${heading?"n":"d"}-${s.code}">${isDone?"Đã học ✓":"Đánh dấu đã học"}</button>
+    <a class="btn ghost" href="#hoc/${s.code}" style="text-decoration:none">▶ Vào học ${s.code}</a>
+    ${heading?`<a class="btn ghost" href="#lo-trinh" style="text-decoration:none">Xem cả lộ trình</a>`:""}
+  </div>`;
+  return h;
+}
+
+function renderToday(){
+  document.getElementById("today-label").textContent = "Hôm nay · "+WD[today.getDay()]+", "+fmt(today)+"/"+today.getFullYear();
+  document.getElementById("today-title").textContent = "Buổi tiếp theo: "+next.code+" ("+fmt(next.date)+")";
+  document.getElementById("next-card").innerHTML = sessionCard(next, "Buổi "+next.code.slice(1));
+  const dl = Math.max(0, Math.round((EXAM-today)/864e5));
+  document.getElementById("days-left").textContent = dl;
+  const n = lessons.filter(s=>done[s.code]).length;
+  document.getElementById("done-count").textContent = n;
+  document.getElementById("done-bar").style.width = (n/lessons.length*100)+"%";
+}
+function renderSheet(){
+  let h="";
+  PHASES.forEach(ph=>{
+    const list=sessions.filter(s=>s.phase===ph.n);
+    const first=list[0].date, last=list[list.length-1].date;
+    h+=`<div class="sheet-phase"><div><div class="eyebrow">${ph.short} · ${fmt(first)} – ${fmt(last)}</div><h3 style="margin-top:4px">${esc(ph.name)}</h3><div class="meta" style="margin-top:4px">Mục tiêu: ${esc(ph.goal)}</div></div><div class="bubbles">`+
+      list.map(s=>`<button class="bub${s.mt?" mt":""}${done[s.code]?" done":""}${s.code===next.code?" now":""}${s.code===selected?" sel":""}" data-sel="${s.code}" title="${esc(s.code+" · "+fmt(s.date)+" · "+s.title)}" aria-label="${esc(s.code+", "+s.title)}">${s.mt?s.code:s.code.slice(1)}</button>`).join("")+
+    `</div></div>`;
+  });
+  document.getElementById("sheet").innerHTML=h;
+  const s=sessions.find(x=>x.code===selected);
+  document.getElementById("detail-card").innerHTML=sessionCard(s);
+}
+let lisFilter="all";
+const LTYPES=[["all","Tất cả"],["gf","Điền từ (P1–P2)"],["mcq","Trắc nghiệm (P3)"],["tf","True/False (P4)"],["dict","Chép chính tả"],["full","Đề đầy đủ"]];
+function renderListening(){
+  document.getElementById("lis-filter").innerHTML=LTYPES.map(t=>`<button aria-pressed="${t[0]===lisFilter}" data-lf="${t[0]}">${t[1]}</button>`).join("");
+  const rows=listeningRows.filter(r=>lisFilter==="all"||r.item.types.includes(lisFilter));
+  document.getElementById("lis-body").innerHTML=rows.map(r=>{
+    const wl=lessons.find(s=>s.week===r.week);
+    const cur = r.week===next.week;
+    return `<tr${cur?' style="background:var(--red-soft)"':''}><td class="num">${PHASES[r.phase].short}</td><td class="num">${wl?fmt(wl.date):""}${cur?" · tuần này":""}</td><td><strong>${esc(r.item.name)}</strong></td><td>${esc(r.item.part)}</td><td>${linksHTML(r.item.links)}</td></tr>`;
+  }).join("") || '<tr><td colspan="5">Chưa có bài cho dạng này.</td></tr>';
+}
+function renderVocab(){
+  const ph=PHASES[next.phase];
+  document.getElementById("lexico-panel").innerHTML=`<div class="eyebrow">Lexico giai đoạn hiện tại · ${ph.short}</div><h3 style="margin-top:6px">${esc(ph.lexico)}</h3><p class="meta" style="margin:8px 0 0">Mục tiêu cả khoá: 450 từ theo chủ đề, 400 collocation, 200 phrasal verb, 150 idiom, 250 họ từ.</p>`;
+  const cur=topicIndexForWeek(next.week);
+  document.getElementById("topics").innerHTML=TOPICS.map((t,i)=>`<div class="topic${i===cur?" cur":""}"><div class="wk">Chủ đề ${i+1}${t.from?" · "+fmt(t.from)+" – "+fmt(t.to):""}${i===cur?" · đang học":""}</div><h3>${esc(t.n)}</h3>${t.links.length?linksHTML(t.links.map(l=>({t:l[0],u:l[1]}))):'<div class="soon">Bài Wordwall đang được giáo viên soạn.</div>'}</div>`).join("");
+}
+
+/* ---------- LESSON VIEWER ---------- */
+function lessonURL(c){
+  if(c==="B00"||c==="B01") return "buoi-1/";
+  if(c==="B02") return "buoi-2/";
+  if(c==="MT1") return "de-on-1/";
+  if(c.startsWith("MT")) return null;
+  return "lesson.html?b="+c;
+}
+const lsel=document.getElementById("lsel");
+lsel.innerHTML=PHASES.map(ph=>`<optgroup label="${esc(ph.short+" · "+ph.name)}">`+sessions.filter(s=>s.phase===ph.n).map(s=>`<option value="${s.code}">${s.code} · ${esc(s.title)}</option>`).join("")+`</optgroup>`).join("");
+lsel.addEventListener("change",()=>{location.hash="hoc/"+lsel.value});
+let curL=null;
+function fitFrame(f){try{const d=f.contentDocument;if(!d)return;const h=Math.max(d.documentElement.scrollHeight,d.body?d.body.scrollHeight:0);f.style.height=(h+4)+"px"}catch(e){}}
+function openLesson(code){
+  const s=sessions.find(x=>x.code===code)||next; selected=s.code;
+  const i=sessions.indexOf(s);
+  lsel.value=s.code;
+  document.getElementById("lprev").disabled=i<=0;
+  document.getElementById("lnext").disabled=i>=sessions.length-1;
+  const db=document.getElementById("ldone"); db.textContent=done[s.code]?"Đã học ✓":"Đánh dấu đã học"; db.className="btn"+(done[s.code]?" isdone":"");
+  document.getElementById("lmeta").innerHTML=`<span class="tag${s.mt?" mt":""}">${s.code}</span><span>${WD[s.date.getDay()]}, ${fmt(s.date)}/${s.date.getFullYear()}</span><span>· ${PHASES[s.phase].short}</span><span>· Dạng bài: ${esc(s.task)}</span>`;
+  const url=lessonURL(s.code), op=document.getElementById("lopen"), box=document.getElementById("lbox");
+  if(curL===s.code&&box.firstChild) return; curL=s.code;
+  if(!url){
+    op.hidden=true;
+    box.innerHTML=`<div class="panel mtbox"><div class="eyebrow">Mock Test</div><h2 style="margin-top:8px">${esc(s.title)}</h2><p class="lead" style="margin:10px auto">Làm đề trên giấy, đủ 150 phút, không tra từ. Đánh dấu câu phân vân để chữa ở buổi sau. Có thể dùng một trong các đề dưới đây hoặc đề giáo viên phát.</p>${linksHTML(FULL.flatMap(f=>f.links.map(l=>({...l,t:f.name+" – "+l.t}))))}<p style="margin-top:14px"><a class="btn ghost" href="#hoc/MT1" style="text-decoration:none">Làm Đề ôn số 1 online</a></p></div>`;
+    return;
+  }
+  op.hidden=false; op.href=url;
+  box.innerHTML=`<iframe id="lframe" title="${esc(s.code+" · "+s.title)}" src="${url}"></iframe>`;
+  const f=document.getElementById("lframe");
+  f.addEventListener("load",()=>{fitFrame(f);try{const d=f.contentDocument;new ResizeObserver(()=>fitFrame(f)).observe(d.body);d.addEventListener("click",()=>setTimeout(()=>fitFrame(f),60))}catch(e){}});
+  window.scrollTo({top:0});
+}
+function stepLesson(d){const i=sessions.findIndex(x=>x.code===selected);const n=sessions[Math.min(sessions.length-1,Math.max(0,i+d))];location.hash="hoc/"+n.code}
+document.getElementById("lprev").addEventListener("click",()=>stepLesson(-1));
+document.getElementById("lnext").addEventListener("click",()=>stepLesson(1));
+document.getElementById("ldone").addEventListener("click",()=>{const c=selected;if(done[c])delete done[c];else done[c]=1;save();renderAll();curL=c;openLesson(c)});
+
+/* ---------- ROUTING ---------- */
+const VIEWS=["hom-nay","hoc","lo-trinh","nghe","tu-vung"];
+function show(){
+  const hh=location.hash.slice(1).split("/");
+  const v=VIEWS.includes(hh[0])?hh[0]:"hom-nay";
+  if(v==="hoc") openLesson(hh[1]||selected);
+  VIEWS.forEach(x=>{document.getElementById("v-"+x).hidden=(x!==v)});
+  document.querySelectorAll("nav a").forEach(a=>{if(a.dataset.view===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+}
+function renderAll(){renderToday();renderSheet();renderListening();renderVocab()}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-toggle]");
+  if(t){const c=t.dataset.toggle; if(done[c]) delete done[c]; else done[c]=1; save(); renderAll(); return;}
+  const b=e.target.closest("[data-sel]");
+  if(b){selected=b.dataset.sel; location.hash="hoc/"+selected; return;}
+  const f=e.target.closest("[data-lf]");
+  if(f){lisFilter=f.dataset.lf; renderListening();}
+});
+window.addEventListener("hashchange",show);
+renderAll(); show();
+})();
+</script>
+
+</body></html>
