@@ -1,0 +1,14 @@
+#speakers: Officer=Charon, Student=Kore
+Officer: Science Fair registration, how can I help?
+Student: Hi, I'd like to register my project.
+Officer: Sure. What's the title?
+Student: It's called 'Clean Water from Sunlight'.
+Officer: And what does it do?
+Student: It's a solar-powered filter that removes bacteria from river water.
+Officer: Interesting. How many people are in your team?
+Student: Three, including me.
+Officer: And which school are you from?
+Student: Le Quy Don High School.
+Officer: Great. Your stand will be in Hall B. Set-up starts at seven fifteen on Saturday morning. You'll need to bring your own extension cable, because there aren't enough sockets.
+Student: No problem. Is there a prize?
+Officer: Yes, the winner receives a trip to a research centre in Singapore.
