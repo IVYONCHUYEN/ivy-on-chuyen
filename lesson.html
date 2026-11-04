@@ -165,7 +165,7 @@ document.head.appendChild(s);
 
 function esc(t){return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function slug(t){return t.toLowerCase().replace(/\(.*?\)/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
-function norm(t){return String(t).toLowerCase().replace(/[’‘`]/g,"'").replace(/[“”]/g,'"').replace(/\s+/g," ").replace(/\s*([,.;:!?])\s*/g,"$1 ").replace(/[.!?]\s*$/,"").trim()}
+function norm(t){return String(t).toLowerCase().replace(/[’‘`]/g,"'").replace(/\bcan't\b/g,"cannot").replace(/\bcan not\b/g,"cannot").replace(/\bwon't\b/g,"will not").replace(/\bshan't\b/g,"shall not").replace(/n't\b/g," not").replace(/'m\b/g," am").replace(/'re\b/g," are").replace(/'ll\b/g," will").replace(/'ve\b/g," have").replace(/'d\b/g," would").replace(/[“”]/g,'"').replace(/\s+/g," ").replace(/\s*([,.;:!?])\s*/g,"$1 ").replace(/[.!?]\s*$/,"").trim()}
 function tts(t){try{const u=new SpeechSynthesisUtterance(t);u.lang="en-GB";u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 let _au=null;
 function say(t){t=t.replace(/\(.*?\)/g,"").trim();try{if(_au)_au.pause();try{speechSynthesis.cancel()}catch(e){}_au=new Audio("audio/"+slug(t)+".mp3");_au.play().catch(()=>tts(t))}catch(e){tts(t)}}

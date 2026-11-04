@@ -1,0 +1,13 @@
+#speakers: Man=Charon, Woman=Kore
+Man: Good afternoon, Greenfield Garden Centre. How can I help?
+Woman: Hi, I'm calling about the summer jobs you advertised.
+Man: Ah yes. We have two vacancies at the moment. The first is a shop assistant, working on the till.
+Woman: How much does that pay?
+Man: It's nine pounds fifty an hour, and the shifts are on Saturdays only.
+Woman: And the second job?
+Man: That's a café assistant. You'd make drinks and clean tables. That pays slightly less, eight pounds seventy-five an hour, but you can choose between mornings and afternoons, Monday to Friday.
+Woman: I'd prefer the café, I think. Who should I contact?
+Man: Please email the manager, Mrs Hadley. That's H-A-D-L-E-Y.
+Woman: H-A-D-L-E-Y. Thanks. Do I need any experience?
+Man: Not really, but we do ask for a reference from a teacher.
+Woman: No problem. Thanks a lot!
