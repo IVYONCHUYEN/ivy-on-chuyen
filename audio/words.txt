@@ -723,3 +723,65 @@ skim
 scan
 guesswork
 fine-tune
+urbanisation
+overpopulation
+traffic congestion
+public transport
+affordable housing
+rural-urban migration
+infrastructure
+slum
+high-rise
+commute
+make ends meet
+take into account
+give rise to
+play a part in
+come into effect
+at the expense of
+on the rise
+keep up with
+look into
+put forward
+a far cry from
+the tip of the iceberg
+by and large
+in the wake of
+with a view to
+on the grounds that
+population density
+ageing population
+birth rate
+census
+migrant
+demographic
+pension
+shrink
+gentrification
+displace
+sprawl
+liveable
+walkable
+zoning
+amenities
+regenerate
+vibrant
+skyrocket
+task response
+coherence
+lexical resource
+grammatical range
+accuracy
+feedback
+constructive criticism
+repetitive
+off-topic
+well-developed
+spell out
+word limit
+transfer answers
+guess wisely
+stay calm
+consistency
+last-minute
+error log

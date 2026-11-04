@@ -1,0 +1,9 @@
+#speakers: Host=Charon, Hoa=Leda
+Host: Hoa, you moved from the city back to your home village. Why?
+Hoa: People assume it was because of the pollution, and that was part of it. But the main reason was my parents – they're getting older, and I wanted to be near them.
+Host: Was it hard to find work?
+Hoa: I was worried about that, but I work online as a graphic designer, so I can live anywhere with a good internet connection.
+Host: How has the village changed?
+Hoa: Honestly, it's quieter than I remember. Many young people have left for the city, and the school has fewer pupils every year. That makes me a bit sad.
+Host: What would encourage young people to stay?
+Hoa: Better internet and some small businesses. I'm actually planning to open a co-working space here next year, so others can do what I do.
