@@ -15,7 +15,7 @@ if not API_KEY:
     sys.exit("Thiếu GEMINI_API_KEY trong Settings → Secrets → Actions.")
 
 VOICE = os.environ.get("TTS_VOICE", "Kore")
-BATCH = int(os.environ.get("TTS_BATCH", "8"))
+BATCH = int(os.environ.get("TTS_BATCH", "12"))
 MAX_MIN = int(os.environ.get("TTS_MAX_MINUTES", "300"))
 MODELS = ["gemini-3.1-flash-tts-preview", "gemini-2.5-flash-preview-tts",
           "gemini-2.5-flash-tts", "gemini-2.5-pro-preview-tts"]
@@ -164,6 +164,22 @@ def batch(items):
     return True
 
 
+def do_group(grp):
+    """Đọc cả nhóm; nếu cắt không khớp thì chia đôi nhóm (đỡ tốn lượt hơn đọc từng từ)."""
+    if len(grp) == 1:
+        one(*grp[0]); time.sleep(6); return
+    ok = False
+    try:
+        ok = batch(grp)
+    except OutOfQuota:
+        raise
+    except Exception as e:
+        print("  nhóm lỗi:", str(e)[:150])
+    if not ok:
+        h = len(grp) // 2
+        time.sleep(6); do_group(grp[:h]); do_group(grp[h:])
+
+
 jobs, seen = [], set()
 for wl in sorted(glob.glob("**/audio/words.txt", recursive=True)):
     d = os.path.dirname(wl)
@@ -215,17 +231,7 @@ try:
         if time.time() - T0 > MAX_MIN * 60:
             print("Hết thời gian của lần chạy này, lần sau làm tiếp."); break
         grp = jobs[i:i + BATCH]
-        ok = False
-        if len(grp) > 1:
-            try:
-                ok = batch(grp)
-            except OutOfQuota:
-                raise
-            except Exception as e:
-                print("  nhóm lỗi:", str(e)[:150])
-        if not ok:
-            for w, out in grp:
-                one(w, out); time.sleep(6)
+        do_group(grp)
         i += len(grp)
         checkpoint()
         time.sleep(8)
