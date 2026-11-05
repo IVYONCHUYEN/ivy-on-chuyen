@@ -13,8 +13,8 @@ const defs=u=>`<defs>
 </defs>`;
 const L=`stroke="#a52a2a" stroke-width="1.8" stroke-linejoin="round"`;
 /* tóc phía sau: bồng, xoăn sóng, đuôi tóc lượn */
-const hairBack=u=>`<path d="M115 30 C60 30 34 70 38 112 C30 130 24 150 30 168 C22 182 26 200 40 206 C40 214 52 220 62 214 C68 222 82 220 84 210 L146 210 C148 220 162 222 168 214 C178 220 190 214 190 206 C204 200 208 182 200 168 C206 150 200 130 192 112 C196 70 170 30 115 30Z" fill="url(#hg${u})" ${L}/>
- <path d="M44 150 C38 170 44 188 56 196 M186 150 C192 170 186 188 174 196 M58 120 C50 140 52 160 62 176 M172 120 C180 140 178 160 168 176" stroke="#ffc9c9" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>`;
+const hairBack=u=>`<path d="M115 30 C60 30 34 66 40 106 C32 120 28 136 34 150 C26 160 32 174 46 176 C52 186 66 184 70 174 C74 180 82 180 86 172 L144 172 C148 180 156 180 160 174 C164 184 178 186 184 176 C198 174 204 160 196 150 C202 136 198 120 190 106 C196 66 170 30 115 30Z" fill="url(#hg${u})" ${L}/>
+ <path d="M46 132 C40 146 44 160 52 168 M184 132 C190 146 186 160 178 168 M62 118 C56 132 58 146 66 156 M168 118 C174 132 172 146 164 156" stroke="#ffc9c9" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>`;
 /* thân: áo blouse trắng tay phồng + yếm đỏ + váy xoè viền bèo */
 const body=`<path d="M86 150 C86 146 144 146 144 150 L150 192 L80 192Z" fill="#fff" stroke="${SKINL}" stroke-width="1.5"/>
  <path d="M92 156 L138 156 L146 194 L84 194Z" fill="#fff6ec" stroke="#e7c9b3" stroke-width="1.5" stroke-linejoin="round"/>
@@ -34,28 +34,59 @@ const eye=(x,u,outer)=>{const o=outer;return `<g transform="translate(${x} 116)"
  <path d="M${-15*o} -3 C${-10*o} -16 ${10*o} -17 ${15*o} -6" stroke="#4a2f6b" stroke-width="3.6" fill="none" stroke-linecap="round"/>
  <path d="M${14*o} -6 l${5*o} -3 M${15*o} -3 l${5*o} 0 M${13*o} -9 l${3*o} -5" stroke="#4a2f6b" stroke-width="1.8" stroke-linecap="round"/>
  <path d="M${-8*o} 16 q${8*o} 3 ${16*o} -2" stroke="#b07a8e" stroke-width="1.2" fill="none" stroke-linecap="round"/>
- <path d="M${11*o} 13 l${2*o} 3 M${7*o} 15 l${1*o} 3" stroke="#b07a8e" stroke-width="1" stroke-linecap="round"/>
 </g>`};
-/* đầu: mặt tròn má phúng phính, tai nhỏ */
-const head=u=>`<ellipse cx="58" cy="118" rx="7" ry="10" fill="${SKIN}" stroke="${SKINL}" stroke-width="1.5"/><ellipse cx="172" cy="118" rx="7" ry="10" fill="${SKIN}" stroke="${SKINL}" stroke-width="1.5"/>
+const eyeHappy=(x,o)=>`<g transform="translate(${x} 118)"><path d="M-13 3 Q0 -12 13 3" stroke="#4a2f6b" stroke-width="3.6" fill="none" stroke-linecap="round"/><path d="M${13*o} 3 l${5*o} -2 M${12*o} 0 l${5*o} -4" stroke="#4a2f6b" stroke-width="1.8" stroke-linecap="round"/></g>`;
+const eyeX=(x,o)=>`<g transform="translate(${x} 116)"><path d="M${-11*o} -9 L${9*o} 0 L${-11*o} 9" stroke="#4a2f6b" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+const eyeFocus=(x,u,o)=>eye(x,u,o)+`<g transform="translate(${x} 116)"><path d="M-17 -19 L17 -19 L17 -2 C8 -7 -8 -7 -17 -2Z" fill="${SKIN}"/><path d="M${-15*o} -2 C${-8*o} -8 ${8*o} -8 ${15*o} -3 l${4*o} -2" stroke="#4a2f6b" stroke-width="3.4" fill="none" stroke-linecap="round"/></g>`;
+const eyeSpark=(x,u,o)=>eye(x,u,o)+`<path transform="translate(${x+3} 118) scale(.8)" d="M0 -10 L2.5 -2.5 L10 0 L2.5 2.5 L0 10 L-2.5 2.5 L-10 0 L-2.5 -2.5Z" fill="#fff"/>`;
+const MOUTH={
+ w:`<path d="M109 140 q3 3 6 0 q3 3 6 0" stroke="#c0566e" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+ open:`<path d="M107 138 Q115 149 123 138Z" fill="#c0566e" stroke="#a8435a" stroke-width="1.2" stroke-linejoin="round"/><path d="M110 143 q5 4 10 0" fill="#ff9fb3"/>`,
+ big:`<path d="M105 136 Q115 152 125 136Z" fill="#c0566e" stroke="#a8435a" stroke-width="1.2" stroke-linejoin="round"/><path d="M109 144 q6 5 12 0" fill="#ff9fb3"/>`,
+ o:`<ellipse cx="115" cy="142" rx="4" ry="5" fill="#c0566e" stroke="#a8435a" stroke-width="1.2"/>`,
+ calm:`<path d="M110 140 q5 4 10 0" stroke="#c0566e" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+ smug:`<path d="M109 140 q6 5 12 -1" stroke="#c0566e" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M118 141 q2 3 4 0" fill="#ff9fb3"/>`
+};
+const BROW={
+ n:`<path d="M106 100 q-5 -3 -11 -2 M124 100 q5 -3 11 -2" stroke="#c46a6a" stroke-width="1.6" fill="none" stroke-linecap="round"/>`,
+ up:`<path d="M106 96 q-5 -4 -11 -2 M124 96 q5 -4 11 -2" stroke="#c46a6a" stroke-width="1.6" fill="none" stroke-linecap="round"/>`,
+ firm:`<path d="M105 101 l-11 -3 M125 101 l11 -3" stroke="#c46a6a" stroke-width="1.8" fill="none" stroke-linecap="round"/>`
+};
+const FACES={
+ smile:u=>BROW.n+eye(92,u,-1)+eye(138,u,1)+MOUTH.w,
+ happy:u=>BROW.up+eyeHappy(92,-1)+eyeHappy(138,1)+MOUTH.open,
+ wink:u=>BROW.n+eye(92,u,-1)+eyeHappy(138,1)+MOUTH.smug,
+ focus:u=>BROW.firm+eyeFocus(92,u,-1)+eyeFocus(138,u,1)+MOUTH.calm,
+ surprised:u=>BROW.up+eye(92,u,-1)+eye(138,u,1)+MOUTH.o+`<path d="M168 92 q5 6 0 10 q-4 -4 0 -10Z" fill="#9fd3ff"/>`,
+ excited:u=>BROW.up+eyeX(92,-1)+eyeX(138,1)+MOUTH.big,
+ starry:u=>BROW.up+eyeSpark(92,u,-1)+eyeSpark(138,u,1)+MOUTH.open
+};
+/* đầu: mặt tròn má phúng phính, tai nhỏ; biểu cảm thay đổi */
+const head=(u,face)=>`<ellipse cx="58" cy="118" rx="7" ry="10" fill="${SKIN}" stroke="${SKINL}" stroke-width="1.5"/><ellipse cx="172" cy="118" rx="7" ry="10" fill="${SKIN}" stroke="${SKINL}" stroke-width="1.5"/>
  <path d="M60 104 C60 66 170 66 170 104 C170 136 146 156 115 156 C84 156 60 136 60 104Z" fill="${SKIN}" stroke="${SKINL}" stroke-width="1.6"/>
  <ellipse cx="80" cy="134" rx="14" ry="9" fill="url(#ck${u})"/><ellipse cx="150" cy="134" rx="14" ry="9" fill="url(#ck${u})"/>
- <path d="M106 102 q-5 -3 -11 -2 M124 102 q5 -3 11 -2" stroke="#c46a6a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
- ${eye(92,u,-1)}${eye(138,u,1)}
- <circle cx="115" cy="133" r="1.3" fill="#f2a2a2"/>
- <path d="M109 140 q3 3 6 0 q3 3 6 0" stroke="#c0566e" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+ <path d="M73 133l3 -4M79 134l3 -4M85 133l3 -4M143 133l3 -4M149 134l3 -4M155 133l3 -4" stroke="#f48fb1" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>
+ <circle cx="115" cy="132" r="1.3" fill="#f2a2a2"/>
+ ${(FACES[face]||FACES.smile)(u)}`;
 /* tóc phía trước: mái thưa rẽ ngôi, lọn hai bên xoăn sóng, sợi tóc dựng */
+const bow=`<g transform="translate(72 56) rotate(-18)">
+ <path d="M0 0 C-12 -16 -30 -12 -28 2 C-26 14 -10 12 0 0Z" fill="#fff" stroke="${REDD}" stroke-width="1.8" stroke-linejoin="round"/>
+ <path d="M0 0 C12 -16 30 -12 28 2 C26 14 10 12 0 0Z" fill="#fff" stroke="${REDD}" stroke-width="1.8" stroke-linejoin="round"/>
+ <path d="M-4 3 L-12 20 L-6 18 L-3 24Z M4 3 L12 20 L6 18 L3 24Z" fill="#fff" stroke="${REDD}" stroke-width="1.5" stroke-linejoin="round"/>
+ <circle cx="-16" cy="-4" r="2" fill="${RED}"/><circle cx="-20" cy="4" r="1.6" fill="${RED}"/><circle cx="16" cy="-4" r="2" fill="${RED}"/><circle cx="20" cy="4" r="1.6" fill="${RED}"/>
+ <ellipse rx="6" ry="7" fill="${RED}" stroke="${REDD}" stroke-width="1.5"/>
+</g>`;
 const hairFront=u=>`<path d="M115 34 C78 34 56 58 58 96 C64 86 72 78 82 74 C80 84 82 92 86 98 C92 84 102 70 115 60 C128 70 138 84 144 98 C148 92 150 84 148 74 C158 78 166 86 172 96 C174 58 152 34 115 34Z" fill="url(#hg${u})" ${L}/>
  <path d="M115 60 C110 76 108 92 110 104 C106 96 104 86 106 76Z" fill="url(#hg${u})" ${L}/>
  <path d="M115 60 C120 76 122 92 120 104 C124 96 126 86 124 76Z" fill="url(#hg${u})" ${L}/>
- <path d="M58 92 C48 112 54 130 48 148 C44 160 50 176 58 184 C56 170 64 162 62 150 C68 134 64 118 70 104 Z" fill="url(#hg${u})" ${L}/>
- <path d="M172 92 C182 112 176 130 182 148 C186 160 180 176 172 184 C174 170 166 162 168 150 C162 134 166 118 160 104 Z" fill="url(#hg${u})" ${L}/>
+ <path d="M58 92 C46 106 56 120 48 134 C42 146 48 160 60 164 C54 154 62 148 60 138 C66 126 62 112 70 102Z" fill="url(#hg${u})" ${L}/>
+ <path d="M172 92 C184 106 174 120 182 134 C188 146 182 160 170 164 C176 154 168 148 170 138 C164 126 168 112 160 102Z" fill="url(#hg${u})" ${L}/>
  <path d="M76 52 C88 42 102 39 112 40" stroke="#fff" stroke-width="4.5" fill="none" stroke-linecap="round" opacity=".75"/>
  <path d="M124 41 l7 2 M136 45 l6 3" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".75"/>
- <path d="M84 60 C82 70 84 78 88 84 M146 60 C148 70 146 78 142 84 M54 130 C52 140 54 150 52 160 M176 130 C178 140 176 150 178 160" stroke="#ffd3d3" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/>
+ <path d="M84 60 C82 70 84 78 88 84 M146 60 C148 70 146 78 142 84 M54 120 C50 130 54 140 50 150 M176 120 C180 130 176 140 180 150" stroke="#ffd3d3" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/>
  <path d="M113 36 C108 18 126 12 130 22 C122 20 116 26 118 36" fill="url(#hg${u})" ${L}/>
  <g transform="translate(160 66) rotate(36)"><path d="M0 0 C-11 -9 -8 -25 0 -29 C8 -25 11 -9 0 0Z" fill="${LEAF}" stroke="#23804b" stroke-width="1.3"/><path d="M0 -3 L0 -25 M0 -11 l-5 -5 M0 -17 l5 -5" stroke="#23804b" stroke-width="1.1"/></g>
- <path transform="translate(70 70) rotate(-15) scale(.85)" d="M0 -10 L3 -3 L10 -2 L5 3 L6 10 L0 6 L-6 10 L-5 3 L-10 -2 L-3 -3Z" fill="${GOLD}" stroke="#d99a1e" stroke-width="1"/>`;
+ ${bow}`;
 const hand=(x,y)=>`<circle cx="${x}" cy="${y}" r="7" fill="${SKIN}" stroke="${SKINL}" stroke-width="1.5"/>`;
 const arm=(x1,y1,x2,y2)=>`<path d="M${x1} ${y1} L${x2} ${y2}" stroke="${SKINL}" stroke-width="11" stroke-linecap="round"/><path d="M${x1} ${y1} L${x2} ${y2}" stroke="${SKIN}" stroke-width="8.5" stroke-linecap="round"/>`+hand(x2,y2);
 const armDownL=arm(82,160,76,188), armDownR=arm(148,160,154,188);
@@ -78,7 +109,8 @@ const redPanda=`<g transform="translate(115 184)">
  <ellipse cx="0" cy="-6" rx="3" ry="2.2" fill="#2b1712"/><path d="M-3 -2 q3 3 6 0" stroke="#2b1712" stroke-width="1.3" fill="none" stroke-linecap="round"/>
  <ellipse cx="-17" cy="-4" rx="4" ry="2.4" fill="#ff9fb8" opacity=".7"/><ellipse cx="17" cy="-4" rx="4" ry="2.4" fill="#ff9fb8" opacity=".7"/>
 </g>`;
-const base=(arms,front,back,top)=>{const u=++UID;return defs(u)+shadow+hairBack(u)+(back||"")+body+arms+head(u)+hairFront(u)+(top||"")+(front||"")};
+let FACE="smile";
+const base=(arms,front,back,top)=>{const u=++UID;return defs(u)+shadow+hairBack(u)+(back||"")+body+arms+head(u,FACE)+hairFront(u)+(top||"")+(front||"")};
 const P={
  wave:()=>base(arm(82,160,92,186)+arm(148,160,138,186),redPanda+hand(91,186)+hand(139,186)+sparkle(196,58,.9)+sparkle(32,62,.7,"#f9a8d4")+sparkle(184,92,.5,"#f9a8d4")),
  idea:()=>base(armDownL,wand(184,112,8)+sparkle(200,30,1.1)+sparkle(218,60,.7,"#f9a8d4")+sparkle(172,20,.6,"#c4b5fd")+`<path d="M188 36 q14 -6 22 4" stroke="#fde68a" stroke-width="3" fill="none" stroke-dasharray="3 5"/>`,"",arm(148,160,182,116)),
@@ -88,7 +120,8 @@ const P={
  timer:()=>base(arm(82,160,96,184)+arm(148,160,134,184),`<g transform="translate(115 186)"><circle r="21" fill="#fff" stroke="#6b5a8e" stroke-width="4.5"/><rect x="-5" y="-30" width="10" height="7" rx="2" fill="#6b5a8e"/><path d="M0 0 L0 -12 M0 0 L9 5" stroke="${RED}" stroke-width="3.5" stroke-linecap="round"/><circle r="3" fill="#6b5a8e"/></g>`+hand(95,186)+hand(135,186)),
  cheer:()=>base("",`<g transform="translate(190 100)"><path d="M-16 0h32v5c0 13-6 21-16 23c-10-2-16-10-16-23z" fill="${GOLD}"/><path d="M-16 5c-10 0-10 13 2 13M16 5c10 0 10 13-2 13" stroke="${GOLD}" stroke-width="3.5" fill="none"/><rect x="-4" y="27" width="8" height="7" fill="${GOLD}"/><rect x="-11" y="33" width="22" height="5" rx="2" fill="#c98a12"/></g>`+sparkle(40,100,1,"#f9a8d4")+sparkle(212,66,1)+sparkle(30,70,.6)+sparkle(164,76,.6,"#c4b5fd"),"",arm(82,160,48,124)+arm(148,160,182,124))
 };
-function svg(pose,cls){const f=P[pose]||P.wave;return `<svg class="${cls||"gifty"}" viewBox="10 4 220 246" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Violet – cô bạn hướng dẫn của IVY GIFTED">${f()}</svg>`}
+const POSE_FACE={wave:"happy",idea:"wink",book:"smile",listen:"focus",write:"focus",timer:"surprised",cheer:"excited"};
+function svg(pose,cls,face){const f=P[pose]||P.wave;FACE=face||POSE_FACE[pose]||"smile";return `<svg class="${cls||"gifty"}" viewBox="10 4 220 246" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Violet – cô bạn hướng dẫn của IVY GIFTED">${f()}</svg>`}
 function sky(){
  const petals=[[8,22,-20],[18,64,30],[30,12,10],[44,80,-35],[58,28,25],[66,70,-15],[74,16,40],[82,52,-30],[90,30,15],[95,78,-25],[38,46,20],[52,58,-10],[12,40,35],[86,86,10]];
  return `<svg class="ivy-sky" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -115,5 +148,5 @@ function poseFor(L){
  return "idea";
 }
 const LINES={wave:"Chào em! Mình là Violet, còn đây là bạn gấu trúc đỏ Ivy!",book:"Mở sách ra nào! Mình đọc và học từ cùng nhau nhé.",listen:"Đeo tai nghe lên nhé – nghe 2 lần như phòng thi!",write:"Cầm bút lên! Viết thật cẩn thận, soát lỗi cuối bài nhé.",idea:"Phép thuật ngữ pháp đây! Đọc lý thuyết rồi làm bài ngay nhé.",timer:"Bấm giờ thôi! Làm như thi thật, rồi chữa thật kỹ.",cheer:"Em làm tốt lắm! Ôn lại một vòng là chắc điểm."};
-window.IVY_MASCOT={svg,sky,poseFor,line:p=>LINES[p]||LINES.wave};
+window.IVY_MASCOT={svg,sky,poseFor,line:p=>LINES[p]||LINES.wave,faces:Object.keys(FACES)};
 })();
