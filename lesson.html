@@ -151,6 +151,19 @@ summary{cursor:pointer;font-weight:700;color:var(--cyan)}
 .err{background:var(--card);border-radius:16px;padding:24px;text-align:center}
 @media (prefers-reduced-motion:reduce){.flip-in{transition:none}}
 
+
+.hero{position:relative;overflow:hidden;isolation:isolate;border-radius:20px;display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:10px;align-items:center;padding:26px 30px;margin-bottom:20px;background:#d9e6fb;box-shadow:0 10px 26px rgba(16,24,40,.08)}
+.hero .ivy-sky{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.hero h1{text-align:left;color:#23314a}
+.hero .sub{text-align:left;margin:6px 0 12px;color:#2f3b52;max-width:none}
+.hero .goals{justify-content:flex-start;margin:0}
+.hero .goals li{background:rgba(255,255,255,.85);border-color:transparent}
+.hero-art{position:relative;display:flex;flex-direction:column;align-items:center}
+.hero-art .gifty{width:190px;height:auto;filter:drop-shadow(0 8px 14px rgba(60,40,90,.18))}
+.hero-art .bubble{background:#fff;border-radius:14px;padding:8px 12px;font-weight:700;font-size:13px;color:#9b1c1c;box-shadow:0 6px 16px rgba(16,24,40,.12);margin-bottom:4px;text-align:center;position:relative}
+.hero-art .bubble::after{content:"";position:absolute;left:50%;bottom:-14px;margin-left:-7px;border:7px solid transparent;border-top-color:#fff}
+@media (max-width:600px){.hero{grid-template-columns:1fr;padding:20px}.hero-art{flex-direction:row;gap:8px}.hero-art .gifty{width:110px;order:-1}.hero-art .bubble::after{display:none}}
+.ph>div:not(.icon):not(.row){flex:1 1 220px;min-width:0}
 /* ===== IVY GIFTED light theme ===== */
 :root{--card:#ffffff;--card-2:#f7f8fa;--card-3:#ffffff;--line:#e3e6eb;--fg:#1f2328;--muted:#5f6672;--dim:#8a909b;
   --btn-a:#a52020;--btn-b:#8a1717;--green:#15803d;--red:#c0262d;--yellow:#b45309;--cyan:#9b1c1c;--orange:#c2410c;
@@ -219,6 +232,7 @@ summary{color:#9b1c1c}
 </head>
 <body>
 <div class="wrap" id="app"><div class="err">Đang tải bài học…</div></div>
+<script src="mascot.js"></script>
 <script>
 (function(){
 const P=new URLSearchParams(location.search);
@@ -243,9 +257,12 @@ function start(L){
   const app=document.getElementById("app");
   app.innerHTML=`
   <div class="top"><span class="brand">IVY GIFTED</span><span class="crumb">Lộ trình 90 buổi › ${esc(L.phase||"")}</span><span class="code">${esc(L.code)}</span></div>
-  <h1>${esc(L.title)}</h1>
-  <p class="sub">${L.sub||""}</p>
-  ${L.goals?`<ul class="goals">${L.goals.map(g=>`<li>🎯 ${g}</li>`).join("")}</ul>`:""}
+  <div class="hero">${window.IVY_MASCOT?IVY_MASCOT.sky():""}
+   <div class="hero-txt"><h1>${esc(L.title)}</h1>
+   <p class="sub">${L.sub||""}</p>
+   ${L.goals?`<ul class="goals">${L.goals.map(g=>`<li>🎯 ${g}</li>`).join("")}</ul>`:""}</div>
+   ${window.IVY_MASCOT?`<div class="hero-art"><div class="bubble">${IVY_MASCOT.line(IVY_MASCOT.poseFor(L))}</div>${IVY_MASCOT.svg(IVY_MASCOT.poseFor(L))}</div>`:""}
+  </div>
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" id="t-v" aria-controls="p-v" aria-selected="true"><span class="k">PRE</span>Từ vựng · ${L.vocab.length} từ</button>
     <button class="tab" role="tab" id="t-t" aria-controls="p-t" aria-selected="false"><span class="k">LÝ THUYẾT</span>${esc(L.theoryTitle||"Kiến thức trọng tâm")}</button>
