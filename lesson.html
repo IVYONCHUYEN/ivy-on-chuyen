@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>IVY Ôn Chuyên Anh · Bài học</title>
+<title>IVY GIFTED · Bài học</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<script>if(window.self!==window.top)document.documentElement.classList.add("embed")</script>
 <style>
 :root{
   --stage-a:#5b6fd6; --stage-b:#9a5cc7; --stage-c:#c983d9;
@@ -149,6 +150,71 @@ summary{cursor:pointer;font-weight:700;color:var(--cyan)}
 .checks input{margin-top:5px;accent-color:var(--green)}
 .err{background:var(--card);border-radius:16px;padding:24px;text-align:center}
 @media (prefers-reduced-motion:reduce){.flip-in{transition:none}}
+
+/* ===== IVY GIFTED light theme ===== */
+:root{--card:#ffffff;--card-2:#f7f8fa;--card-3:#ffffff;--line:#e3e6eb;--fg:#1f2328;--muted:#5f6672;--dim:#8a909b;
+  --btn-a:#a52020;--btn-b:#8a1717;--green:#15803d;--red:#c0262d;--yellow:#b45309;--cyan:#9b1c1c;--orange:#c2410c;
+  --font:"Quicksand","Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:light}
+body{background:#f6f7f9;font-weight:500}
+html.embed body{background:transparent}
+html.embed .top{display:none}
+.top{background:#fff;border:1px solid var(--line)}
+.brand{background:none;-webkit-background-clip:initial;background-clip:initial;color:#9b1c1c}
+.code{background:#9b1c1c;color:#fff}
+h1{text-shadow:none;color:#1f2328}
+.sub{color:#4b5563}
+.sub b{color:#9b1c1c}
+.goals li{background:#fff;border:1px solid var(--line);color:#374151}
+.tab{background:#fff;color:#374151;border:1px solid var(--line)}
+.tab[aria-selected="true"]{background:#9b1c1c;color:#fff;box-shadow:none;border-color:#9b1c1c}
+.panel{border:1px solid var(--line);box-shadow:0 1px 3px rgba(16,24,40,.05)}
+.btn{box-shadow:0 3px 0 #6e1111}
+.btn:active{box-shadow:0 1px 0 #6e1111}
+.btn.ghost{background:#fff;color:#1f2328;border:1px solid var(--line)}
+.btn.good{background:linear-gradient(180deg,#22a35a,#15803d);box-shadow:0 3px 0 #0f5e2c;color:#fff}
+.btn.bad{background:linear-gradient(180deg,#e2525a,#c0262d);box-shadow:0 3px 0 #8c1c21}
+.front{background:linear-gradient(160deg,#b42323,#8a1717)}
+.back{background:#fff;box-shadow:inset 0 0 0 2px var(--line)}
+.vi{color:#9b1c1c}
+.wl li{background:#f7f8fa}
+.wl li .vi2{color:var(--muted)}
+.tcard{background:#fff}
+.tcard h3{color:#9b1c1c}
+.tcard .eg{background:#f7f8fa;border-left-color:#9b1c1c;color:#1f2328}
+.tcard .tip{background:#fff7ed;border-left-color:#c2410c;color:#7c2d12}
+.tcard em{color:#9b1c1c}
+.tcard b{color:#111827}
+.res a{background:#fff;color:#1f2328}
+.res a:hover{border-color:#9b1c1c}
+.ex-sec{background:#fff}
+.passage{background:#f7f8fa;color:#1f2328}
+.passage b{color:#9b1c1c}
+.qs .n{background:#9b1c1c;color:#fff}
+.opt{background:#fff;color:#1f2328}
+.opt .L{color:#111}
+.opt.sel{border-color:#9b1c1c;background:#fbeaea}
+.opt.right{border-color:#15803d;background:#e7f6ec}
+.opt.wrong{border-color:#c0262d;background:#fdecec}
+.inp{background:#fff;color:#1f2328}
+.inp:focus{border-color:#9b1c1c;outline:none}
+.fb.ok{background:#e7f6ec;color:#14532d}
+.fb.no{background:#fdecec;color:#7f1d1d}
+.fb b{color:#111827}
+u.seg{border-bottom-color:#9b1c1c}
+u.seg sup{color:#9b1c1c}
+.letters button{background:#fff;color:#1f2328}
+.letters button.sel{border-color:#9b1c1c;background:#fbeaea}
+.letters button.right{border-color:#15803d;background:#e7f6ec}
+.letters button.wrong{border-color:#c0262d;background:#fdecec}
+.scorebar{background:#fffffff0;color:#1f2328;box-shadow:0 6px 20px rgba(16,24,40,.08)}
+.wbox{background:#fff}
+.wprompt{background:#f7f8fa;border-left-color:#9b1c1c}
+.model{background:#f7f8fa}
+summary{color:#9b1c1c}
+.checks input{accent-color:#9b1c1c}
+.err{background:#fff;border:1px solid var(--line)}
+.back .speak{background:#f3f4f6;color:#1f2328}
+.back .pos{background:#f3f4f6}
 </style>
 </head>
 <body>
@@ -172,11 +238,11 @@ function say(t){t=t.replace(/\(.*?\)/g,"").trim();try{if(_au)_au.pause();try{spe
 const store={get(k,d){try{const v=localStorage.getItem("ivy-"+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem("ivy-"+k,JSON.stringify(v))}catch(e){}}};
 
 function start(L){
-  document.title=L.code+" · "+L.title+" · IVY Ôn Chuyên Anh";
+  document.title=L.code+" · "+L.title+" · IVY GIFTED";
   const hasW=!!(L.writing||L.home);
   const app=document.getElementById("app");
   app.innerHTML=`
-  <div class="top"><span class="brand">IVY Ôn Chuyên</span><span class="crumb">Lộ trình 90 buổi › ${esc(L.phase||"")}</span><span class="code">${esc(L.code)}</span></div>
+  <div class="top"><span class="brand">IVY GIFTED</span><span class="crumb">Lộ trình 90 buổi › ${esc(L.phase||"")}</span><span class="code">${esc(L.code)}</span></div>
   <h1>${esc(L.title)}</h1>
   <p class="sub">${L.sub||""}</p>
   ${L.goals?`<ul class="goals">${L.goals.map(g=>`<li>🎯 ${g}</li>`).join("")}</ul>`:""}
