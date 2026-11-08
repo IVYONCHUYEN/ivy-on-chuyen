@@ -123,9 +123,10 @@ def call(prompt, speakers=None):
             return tts(prompt, m, speakers)
         except Exception as e:
             last = str(e)
-            print("  …", m, last[:160])
-            if "404" in last or "NOT_FOUND" in last or (
-                    "429" in last and ("PerDay" in last or "per day" in last.lower())):
+            print("  …", m, last[:400])
+            if ("404" in last or "NOT_FOUND" in last or "Unknown name" in last
+                    or "not supported" in last.lower() or "Cannot find field" in last
+                    or ("429" in last and ("PerDay" in last or "per day" in last.lower()))):
                 print("  → bỏ model", m); models.pop(0); continue
             time.sleep(65 if "429" in last else 5)
     raise RuntimeError(last)
