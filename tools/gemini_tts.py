@@ -88,21 +88,34 @@ def encode(src, out, start=None, end=None):
     subprocess.run(cmd, check=True)
 
 
-def speech_segments(wav):
-    p = subprocess.run(["ffmpeg", "-i", wav, "-af", "silencedetect=noise=-40dB:d=0.6",
+def _segments(wav, noise, dur_min, dur):
+    p = subprocess.run(["ffmpeg", "-i", wav, "-af", f"silencedetect=noise={noise}dB:d={dur_min}",
                         "-f", "null", "-"], capture_output=True, text=True)
-    dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
-                                "-of", "csv=p=0", wav], capture_output=True, text=True).stdout)
     starts = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", p.stderr)]
     ends = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", p.stderr)]
     segs, cur = [], 0.0
-    for s, e in zip(starts, ends + [dur] * (len(starts) - len(ends))):
-        if s - cur > 0.15:
-            segs.append((cur, s))
+    for s_, e in zip(starts, ends + [dur] * (len(starts) - len(ends))):
+        if s_ - cur > 0.15:
+            segs.append((cur, s_))
         cur = e
     if dur - cur > 0.15:
         segs.append((cur, dur))
     return [(max(0, a - 0.08), b + 0.08) for a, b in segs]
+
+
+def speech_segments(wav, n=None):
+    """Tìm cách cắt khớp đúng n đoạn: thử nhiều ngưỡng lặng/độ dài khoảng lặng."""
+    dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                                "-of", "csv=p=0", wav], capture_output=True, text=True).stdout)
+    first = None
+    for d in (0.6, 0.8, 0.5, 1.0, 0.4, 1.3, 0.3):
+        for noise in (-40, -35, -45, -30, -50):
+            segs = _segments(wav, noise, d, dur)
+            if first is None:
+                first = segs
+            if n is None or len(segs) == n:
+                return segs
+    return first
 
 
 class OutOfQuota(Exception):
@@ -154,7 +167,7 @@ def batch(items):
     with tempfile.TemporaryDirectory() as d:
         w = os.path.join(d, "b.wav")
         write_wav(call(MANY + "\n".join(words)), w)
-        segs = speech_segments(w)
+        segs = speech_segments(w, len(items))
         if len(segs) != len(items):
             print(f"  nhóm {len(items)} từ cắt ra {len(segs)} đoạn → đọc từng từ")
             return False
