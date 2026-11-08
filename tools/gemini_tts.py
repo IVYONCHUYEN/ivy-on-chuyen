@@ -25,7 +25,7 @@ MANY = ("Read the following English vocabulary items aloud, one by one, in a cle
         "natural British English teacher voice. Say each item exactly once, then pause "
         "silently for two full seconds before the next one. Do not say numbers or any other words.\n\n")
 
-client = genai.Client(api_key=API_KEY)
+client = genai.Client(api_key=API_KEY, http_options=types.HttpOptions(api_version="v1beta"))
 _made = 0
 
 
