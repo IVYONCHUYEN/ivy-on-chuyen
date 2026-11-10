@@ -4,7 +4,7 @@
  *   (Thực thi với: Tôi · Ai có quyền truy cập: Bất kỳ ai) → sao chép URL /exec.
  * Lần chạy đầu tiên script tự tạo bảng tính "IVY GIFTED – Tiến độ học sinh" trong Drive của bạn.
  */
-const TEACHER_KEY = 'ivy2027';          // Mã đăng nhập dashboard giáo viên – đổi nếu muốn
+const TEACHER_KEY = 'DOI-MA-NAY';      // Mã đăng nhập dashboard giáo viên – đặt mã riêng, không chia sẻ
 const SHEET_NAME = 'IVY GIFTED – Tiến độ học sinh';
 const HEAD = ['Thời gian', 'Mã HS', 'Họ tên', 'Lớp', 'Loại', 'Buổi', 'Điểm', 'Tổng', 'Chi tiết', 'Nội dung'];
 
