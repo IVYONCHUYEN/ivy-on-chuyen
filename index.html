@@ -232,6 +232,7 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border
   .main{padding:calc(var(--top) + 18px) 14px 90px}
   .ttabs button{padding:12px 14px;font-size:16px}
 }
+[data-hist]{white-space:nowrap}.pill{display:inline-block;font-size:12px;font-weight:700;border-radius:99px;padding:3px 10px;background:#fbeaea;color:#9b1c1c;white-space:nowrap}.pill.g{background:#e7f6ec;color:#15803d}.pill.y{background:#fff7ed;color:#c2410c}
 </style>
 </head>
 <body>
@@ -264,6 +265,7 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border
     <a href="#lo-trinh" data-view="lo-trinh"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Lộ trình</span></a>
     <a href="#nghe" data-view="nghe"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg><span>Listening</span></a>
     <a href="#tu-vung" data-view="tu-vung"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v9l7.8 4.5A9 9 0 1 1 12 3z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg><span>Từ vựng</span></a>
+    <a href="#lich-su" data-view="lich-su"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg><span>Lịch sử làm bài</span></a>
   </nav>
   <div class="user">
     <button class="urow" id="nameBtn" type="button" title="Đổi tên hiển thị">
@@ -383,6 +385,17 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border
     </div>
     <div class="panel" id="lexico-panel"></div>
     <div class="topics" id="topics"></div>
+  </section>
+
+
+  <!-- HISTORY -->
+  <section id="v-lich-su" class="stack" hidden>
+    <div>
+      <div class="eyebrow">Bài luyện tập đã làm trên máy này</div>
+      <h1 style="margin-top:6px">Lịch sử làm bài</h1>
+      <p class="lead">Mỗi bài luyện tập được làm tối đa 3 lần. Lần 1–2 chỉ báo câu đúng/sai, đáp án hiện sau lần thứ 3. Bấm “Xem lại” để mở bài và xem từng lần đã làm.</p>
+    </div>
+    <div class="tbl"><table><thead><tr><th>Buổi</th><th>Bài</th><th>Số lần</th><th>Điểm các lần</th><th>Lần gần nhất</th><th>Trạng thái</th><th></th></tr></thead><tbody id="hist-body"></tbody></table></div>
   </section>
 
   <footer>IVY GIFTED · Lộ trình 90 buổi ôn thi vào lớp 10 chuyên Anh. Các file Listening nằm trên Google Drive của trung tâm, học sinh cần được chia sẻ quyền xem mới mở được. · <a href="teacher.html">Dành cho giáo viên</a></footer>
@@ -850,12 +863,23 @@ modal.addEventListener("click",e=>{if(e.target===modal)modal.hidden=true});
 document.getElementById("mCopy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(mText.value)}catch(e){mText.select();try{document.execCommand("copy")}catch(_){}}document.getElementById("mCopy").textContent="Đã sao chép ✓";setTimeout(()=>{document.getElementById("mCopy").textContent="Sao chép";modal.hidden=true},1200)});
 
 /* ---------- ROUTING ---------- */
-const VIEWS=["hom-nay","hoc","lo-trinh","nghe","tu-vung"];
+const VIEWS=["hom-nay","hoc","lo-trinh","nghe","tu-vung","lich-su"];
+function renderHist(){
+  const rows=[];const p2=x=>String(x).padStart(2,"0");
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(!/^ivy-att-/.test(k))continue;let S;try{S=JSON.parse(localStorage.getItem(k))}catch(e){continue}
+    if(!S||!(S.hist||[]).length&&!S.cur)continue;const code=k.slice(8);const s=sessions.find(x=>x.code===code);
+    const last=(S.hist||[]).slice(-1)[0];const t=last?last.t:(S.cur?S.cur.start:0);const d=new Date(t);
+    const st=S.cur?'<span class="pill y">Đang làm</span>':S.locked?'<span class="pill g">Đã khoá · xem đáp án</span>':`<span class="pill">Còn ${3-S.hist.length} lần</span>`;
+    rows.push({t,html:`<tr><td><span class="tag${s&&s.mt?" mt":""}">${esc(code)}</span></td><td>${esc(s?s.title:code)}</td><td>${S.hist.length}/3</td><td>${S.hist.map(h=>`<b>${h.score}</b>/${h.total}`).join(" · ")||"–"}</td><td>${t?p2(d.getDate())+"/"+p2(d.getMonth()+1)+" "+p2(d.getHours())+":"+p2(d.getMinutes()):"–"}</td><td>${st}</td><td><button class="btn ghost sm" data-hist="${esc(code)}">Xem lại</button></td></tr>`})}
+  rows.sort((a,b)=>b.t-a.t);
+  document.getElementById("hist-body").innerHTML=rows.length?rows.map(r=>r.html).join(""):'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Em chưa làm bài luyện tập nào. Vào mục <a href="#hoc">Vào học</a> → tab Luyện tập để bắt đầu.</td></tr>';
+}
 function show(){
   const hh=location.hash.slice(1).split("/");
   const v=VIEWS.includes(hh[0])?hh[0]:"hom-nay";
   VIEWS.forEach(x=>{document.getElementById("v-"+x).hidden=(x!==v)});
   if(v==="hoc") openLesson(hh[1]||selected);
+  if(v==="lich-su") renderHist();
   document.querySelectorAll(".side nav a").forEach(a=>{if(a.dataset.view===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
   if(v!=="hoc") window.scrollTo({top:0});
 }
@@ -865,6 +889,8 @@ document.addEventListener("click",e=>{
   if(t){const c=t.dataset.toggle; if(done[c]) delete done[c]; else done[c]=1; save(); IVY_TRACK.send({type:"done",code:c,score:done[c]?1:0,total:1}); renderAll(); return;}
   const b=e.target.closest("[data-sel]");
   if(b){selected=b.dataset.sel; location.hash="hoc/"+selected; return;}
+  const hb=e.target.closest("[data-hist]");
+  if(hb){const c=hb.dataset.hist;try{localStorage.setItem("ivy-tab-"+c,JSON.stringify("t-p"))}catch(_){}curL=null;location.hash="hoc/"+c;return;}
   const f=e.target.closest("[data-lf]");
   if(f){lisFilter=f.dataset.lf; renderListening();}
 });

@@ -84,6 +84,9 @@ input.bad{border-color:var(--pen);background:var(--pen-soft)}
 .overflow{overflow-x:auto}
 @media (max-width:520px){.err-row{grid-template-columns:2em 1fr}.err-row>:nth-child(3){grid-column:2}}
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+.gate{background:#fbeaea;border:1px solid #e3b4b4;color:#7f1d1d;border-radius:10px;padding:12px 16px;margin:12px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.hist{margin-top:16px}.hist h3{color:#9b1c1c;margin:0 0 8px}
+[hidden]{display:none!important}
 /* === IVY: thẻ từ vựng nền đỏ chữ trắng; MCQ chữ cái trắng; đáp án đúng xanh / sai đỏ === */
 .front,.back{background:linear-gradient(160deg,#b42323,#8a1717)!important;color:#fff!important;box-shadow:inset 0 0 0 4px #ffffff22!important}
 .front *,.back *{color:#fff!important}
@@ -209,70 +212,149 @@ function progress(){
 }
 progress();
 
+/* ===== Chấm bài: REVEAL=false → chỉ báo đúng/sai; REVEAL=true → hiện đáp án ===== */
+const MAXA = 3, AKEY = 'ivy-att-MT1';
+let REVEAL = false, ATT = { hist: [], cur: null, locked: false };
+try { ATT = JSON.parse(localStorage.getItem(AKEY) || 'null') || ATT; } catch (e) {}
+const saveAtt = () => { try { localStorage.setItem(AKEY, JSON.stringify(ATT)); } catch (e) {} };
+const autoPts = D.parts.flatMap(P => P.sections).filter(S => S.type !== 'essay').reduce((a,S) => a + S.points, 0);
+let grading = -1; // chỉ số lần làm đang được cập nhật điểm (AI trả kết quả muộn)
+
 function grade(){
   submitted = true; let sum = 0; const rows = [];
-  paper.querySelectorAll('[data-show]').forEach(e => e.hidden = false);
+  paper.querySelectorAll('[data-show]').forEach(e => e.hidden = !REVEAL);
   D.parts.forEach(P => P.sections.forEach(S => {
     if (S.type === 'essay') { rows.push([S.title, '—', S.points + ' (GV chấm)']); return; }
     const per = S.points / S.items.length; let ok = 0;
     if (S.type === 'mcq') S.items.forEach(q => {
       const a = state[`${S.id}-${q.n}`]; const ri = L.indexOf(q.answer);
       q.options.forEach((_,i) => { const e = document.getElementById(`${S.id}-${q.n}-${i}`); e.classList.remove('right','wrong');
-        if (i === ri) e.classList.add('right'); else if (a === L[i]) e.classList.add('wrong'); });
+        if (i === ri && (REVEAL || a === L[i])) e.classList.add('right'); else if (a === L[i]) e.classList.add('wrong'); });
       if (a === q.answer) ok++;
     });
     if (S.type === 'gap' || S.type === 'rewrite') S.items.forEach(q => {
       const el = document.getElementById(`${S.id}-${q.n}`); const v = norm(el.value);
-      let good = v && q.accept.some(x => norm(x) === v);
+      const exact = !!v && q.accept.some(x => norm(x) === v); let good = exact;
       const fx = document.getElementById(`fx-${S.id}-${q.n}`); const sf = document.getElementById(`sf-${S.id}-${q.n}`);
-      if (!good && sf && state[`self-${S.id}-${q.n}`]) good = true;
+      if (!good && REVEAL && sf && state[`self-${S.id}-${q.n}`]) good = true;
       const ak = `${S.id}-${q.n}|${v}`; let note = '';
-      if (!good && S.type === 'rewrite' && v.split(' ').length >= 2 && window.IVY_AI) {
+      if (!exact && S.type === 'rewrite' && v.split(' ').length >= 2 && window.IVY_AI) {
         const r = AIR[ak];
         if (r === undefined) { AIR[ak] = 'wait'; note = ' · ⏳ đang kiểm tra nghĩa và ngữ pháp…';
           IVY_AI.check({ q: q.stem, h: q.keyword ? 'Use the word: ' + q.keyword : (q.start ? 'Begin with: ' + q.start : ''), a: q.accept, r: el.value })
-            .then(res => { AIR[ak] = res; grade(); }); }
+            .then(res => { AIR[ak] = res; if (submitted) grade(); }); }
         else if (r === 'wait') note = ' · ⏳ đang kiểm tra nghĩa và ngữ pháp…';
-        else if (r && r.correct) { good = true; note = ' · Câu của em đúng nghĩa và ngữ pháp' + (r.reason ? ' – ' + r.reason : ''); }
-        else if (r) note = ' · ' + r.reason;
+        else if (r && r.correct) { good = true; note = REVEAL ? ' · Câu của em khác đáp án mẫu nhưng đúng nghĩa và ngữ pháp' : ''; }
+        else if (r && REVEAL) note = ' · ' + r.reason;
       }
       el.classList.toggle('ok', !!good); el.classList.toggle('bad', !good);
       fx.hidden = false; fx.className = 'fix' + (good ? ' okc' : '');
-      fx.textContent = (good ? '✓ ' : 'Đáp án: ') + q.accept[0] + (q.accept.length > 1 && !good ? `  (chấp nhận ${q.accept.length} cách viết)` : '') + note;
-      if (sf) sf.hidden = !(v && !q.accept.some(x => norm(x) === v));
+      fx.textContent = REVEAL ? (good ? '✓ ' : 'Đáp án: ') + q.accept[0] + (q.accept.length > 1 && !good ? `  (chấp nhận ${q.accept.length} cách viết)` : '') + note
+                              : (good ? '✓ Đúng' : (v ? '✗ Sai' : '✗ Chưa làm')) + note;
+      if (sf) sf.hidden = !(REVEAL && v && !exact && !good);
       if (good) ok++;
     });
     if (S.type === 'cloze') { const keys = [];
       S.items.forEach(q => { const el = document.getElementById(`${S.id}-${q.n}`); const good = q.accept.map(norm).includes(norm(el.value));
         el.classList.toggle('ok', good); el.classList.toggle('bad', !good); if (good) ok++; keys.push(`(${q.n}) ${q.accept.join(' / ')}`); });
-      const fx = document.getElementById(`fx-${S.id}`); fx.hidden = false; fx.textContent = 'Đáp án: ' + keys.join(' · '); }
+      const fx = document.getElementById(`fx-${S.id}`); fx.hidden = !REVEAL; fx.textContent = 'Đáp án: ' + keys.join(' · '); }
     if (S.type === 'error') { const used = new Set();
       S.items.forEach(q => { const w = norm(state[`${S.id}-${q.n}-w`]); const c = norm(state[`${S.id}-${q.n}-c`]);
         const hit = S.items.find(k => !used.has(k.n) && norm(k.wrong) === w && k.accept.map(norm).includes(c));
         if (hit) { used.add(hit.n); ok++; }
         document.getElementById(`${S.id}-${q.n}-c`).classList.toggle('ok', !!hit); document.getElementById(`${S.id}-${q.n}-c`).classList.toggle('bad', !hit); });
-      const fx = document.getElementById(`fx-${S.id}`); fx.hidden = false;
+      const fx = document.getElementById(`fx-${S.id}`); fx.hidden = !REVEAL;
       fx.textContent = 'Đáp án: ' + S.items.map(k => `${k.wrong} → ${k.accept[0]}`).join(' · '); }
     const got = Math.round(ok * per * 100) / 100; sum += got;
     const p = document.getElementById('pts-' + S.id); p.textContent = `${got} / ${S.points} đ · ${ok}/${S.items.length} câu`; p.classList.add('got');
     rows.push([S.title.replace(/^([IV]+)\..*/, (m, r) => `${P.part.split(':')[1].trim()} ${r}`), `${ok}/${S.items.length}`, `${got} / ${S.points}`]);
   }));
-  const auto = D.parts.flatMap(P => P.sections).filter(S => S.type !== 'essay').reduce((a,S) => a + S.points, 0);
-  document.getElementById('score').innerHTML = `${(Math.round(sum*100)/100).toString().replace('.',',')} <small>/ ${auto} điểm tự chấm</small>`;
+  sum = Math.round(sum * 100) / 100;
+  document.getElementById('score').innerHTML = `${sum.toString().replace('.',',')} <small>/ ${autoPts} điểm tự chấm</small>`;
   document.getElementById('breakdown').innerHTML = rows.map(r => `<tr><td>${esc(r[0])}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
   document.getElementById('result').classList.add('on');
+  if (grading >= 0 && ATT.hist[grading]) { ATT.hist[grading].score = sum; saveAtt(); renderHist(); }
+  return sum;
 }
-const submit = () => { grade(); clearInterval(tick); window.scrollTo({ top: 0 }); };
-document.getElementById('submit').onclick = submit; document.getElementById('submit2').onclick = submit;
-let armed = false; const rb = document.getElementById('reset');
-rb.onclick = () => { if (!armed) { armed = true; rb.textContent = 'Bấm lần nữa để xoá bài làm'; setTimeout(() => { armed = false; rb.textContent = 'Làm lại từ đầu'; }, 3000); return; }
-  state = {}; save(); location.reload(); };
-// timer
-let left = (state.__left ?? D.minutes * 60);
-const clock = document.getElementById('clock');
-const show = () => { const m = Math.floor(left/60), s = left % 60; clock.textContent = `${m}:${String(s).padStart(2,'0')}`; };
-show();
-const tick = setInterval(() => { if (left <= 0) { clearInterval(tick); submit(); return; } left--; state.__left = left; if (left % 10 === 0) save(); show(); }, 1000);
+function clearMarks(){
+  paper.querySelectorAll('.right,.wrong,.ok,.bad').forEach(e => e.classList.remove('right','wrong','ok','bad'));
+  paper.querySelectorAll('.fix,.self,[data-show]').forEach(e => e.hidden = true);
+  paper.querySelectorAll('.pts.got').forEach(e => { e.classList.remove('got'); e.textContent = e.id && D.parts.flatMap(P=>P.sections).find(S=>'pts-'+S.id===e.id).points + ' điểm'; });
+  document.getElementById('result').classList.remove('on'); submitted = false;
+}
+function setInputs(on){ paper.querySelectorAll('input,textarea').forEach(e => e.disabled = !on); }
+function restore(st){ state = JSON.parse(JSON.stringify(st || {}));
+  paper.querySelectorAll('[data-k]').forEach(el => { const k = el.dataset.k;
+    if (el.type === 'radio') el.checked = state[k] === el.value; else if (el.type === 'checkbox') el.checked = !!state[k]; else el.value = state[k] || ''; });
+  progress(); wc(); }
+
+/* ---- đồng hồ ---- */
+const host = (() => { try { if (window.top !== window && window.top.document) return window.top.document; } catch (e) {} return document; })();
+const clock = document.getElementById('clock'); let tick = null, warned = false;
+const fmtT = s => { s = Math.max(0, Math.round(s)); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; };
+function chip(){ let c = host.getElementById('ivyClock');
+  if (!c) { if (!host.getElementById('ivyClockCss')) { const st = host.createElement('style'); st.id = 'ivyClockCss';
+      st.textContent = '#ivyClock{position:fixed;right:18px;bottom:18px;z-index:9999;background:#9b1c1c;color:#fff;font:700 18px/1 system-ui,sans-serif;padding:12px 16px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.25);display:flex;gap:8px;align-items:center;font-variant-numeric:tabular-nums}#ivyClock small{font-weight:600;font-size:12px;opacity:.85}#ivyClock.warn{background:#dc2626;animation:ivyPulse 1s infinite}@keyframes ivyPulse{50%{transform:scale(1.07)}}#ivyWarn{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:10000;background:#dc2626;color:#fff;font:700 16px system-ui,sans-serif;padding:12px 20px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25)}';
+      host.head.appendChild(st); }
+    c = host.createElement('div'); c.id = 'ivyClock'; host.body.appendChild(c); }
+  return c; }
+function stopClock(){ clearInterval(tick); tick = null; const c = host.getElementById('ivyClock'); if (c) c.remove(); const w = host.getElementById('ivyWarn'); if (w) w.remove(); }
+window.addEventListener('pagehide', stopClock);
+function beep(){ try { const A = new (window.AudioContext || window.webkitAudioContext)(); [0,.25].forEach(d => { const o = A.createOscillator(), g = A.createGain(); o.frequency.value = 880; o.connect(g); g.connect(A.destination); g.gain.value = .15; o.start(A.currentTime + d); o.stop(A.currentTime + d + .15); }); } catch (e) {} }
+function runClock(){ warned = false;
+  const upd = () => { const left = (ATT.cur.deadline - Date.now()) / 1000; clock.textContent = fmtT(left); clock.style.color = left <= 60 ? '#dc2626' : '';
+    const c = chip(); c.innerHTML = `⏱ ${fmtT(left)}<small>Lần ${ATT.cur.n}/${MAXA}</small>`; c.classList.toggle('warn', left <= 60);
+    if (left <= 60 && !warned) { warned = true; beep(); const w = host.createElement('div'); w.id = 'ivyWarn'; w.textContent = '⚠️ Còn 1 phút! Kiểm tra lại bài và nộp nhé.'; host.body.appendChild(w); setTimeout(() => w.remove(), 6000); }
+    if (left <= 0) submit(true); };
+  clearInterval(tick); tick = setInterval(upd, 500); upd(); }
+
+/* ---- các lần làm ---- */
+const gateEl = document.createElement('div'); gateEl.className = 'gate'; paper.before(gateEl);
+const histEl = document.createElement('div'); histEl.className = 'hist'; document.querySelector('.foot').after(histEl);
+const fmtD = t => { const d = new Date(t), p = x => String(x).padStart(2,'0'); return `${p(d.getDate())}/${p(d.getMonth()+1)} ${p(d.getHours())}:${p(d.getMinutes())}`; };
+function renderHist(){
+  if (!ATT.hist.length) { histEl.innerHTML = ''; return; }
+  histEl.innerHTML = `<h3>Lịch sử làm bài</h3><table class="tbl"><tr><th>Lần</th><th>Thời điểm</th><th>Điểm tự chấm</th><th>Thời gian làm</th><th></th></tr>${ATT.hist.map((x,i) =>
+    `<tr><td>${i+1}/${MAXA}</td><td>${fmtD(x.t)}</td><td><b>${String(x.score).replace('.',',')}</b> / ${autoPts}${x.auto ? ' (hết giờ)' : ''}</td><td>${fmtT(x.dur)}</td><td><button class="btn ghost" type="button" data-rv="${i}">Xem lại</button></td></tr>`).join('')}</table>`;
+}
+const sb = [document.getElementById('submit'), document.getElementById('submit2')], rb = document.getElementById('reset');
+function mode(m){ // intro | doing | graded | locked
+  sb.forEach(b => b.hidden = m !== 'doing'); rb.hidden = m !== 'graded';
+  paper.hidden = m === 'intro'; document.querySelector('.foot').hidden = m === 'intro';
+  rb.textContent = `Làm lại (lần ${ATT.hist.length + 1}/${MAXA})`;
+}
+function intro(){ stopClock(); clearMarks(); mode('intro'); clock.textContent = `${D.minutes}:00`;
+  gateEl.innerHTML = `<b>Lần làm ${ATT.hist.length + 1}/${MAXA}</b> · ${D.minutes} phút. Đồng hồ chạy khi em bấm bắt đầu, hết giờ bài tự nộp. Lần 1–2 chỉ báo câu đúng/sai; đáp án hiện sau lần ${MAXA}. <button class="btn" type="button" id="go">Bắt đầu làm bài</button>`;
+  document.getElementById('go').onclick = () => { ATT.cur = { n: ATT.hist.length + 1, start: Date.now(), deadline: Date.now() + D.minutes * 60000 }; saveAtt(); doing(); };
+  renderHist(); }
+function doing(){ clearMarks(); REVEAL = false; setInputs(true); mode('doing'); gateEl.innerHTML = `<b>Đang làm lần ${ATT.cur.n}/${MAXA}.</b> Bài được lưu tự động.`;
+  renderHist(); if (Date.now() >= ATT.cur.deadline) { submit(true); return; } runClock(); }
+function graded(){ stopClock(); const last = ATT.hist[ATT.hist.length - 1]; restore(last.ans); REVEAL = false; grading = ATT.hist.length - 1; grade(); setInputs(false); mode('graded');
+  clock.textContent = '—'; gateEl.innerHTML = `<b>Lần ${ATT.hist.length}/${MAXA}: ${String(last.score).replace('.',',')} / ${autoPts} điểm.</b> Ô đỏ là câu sai – xem lại rồi bấm “Làm lại”. Còn ${MAXA - ATT.hist.length} lần; đáp án hiện sau lần ${MAXA}.`; renderHist(); }
+function locked(){ stopClock(); const last = ATT.hist[ATT.hist.length - 1]; restore(last.ans); REVEAL = true; grading = ATT.hist.length - 1; grade(); setInputs(false); mode('locked');
+  clock.textContent = '—'; gateEl.innerHTML = `<b>${last.score >= autoPts ? '🎉 Em làm đúng hết phần tự chấm!' : 'Em đã dùng hết ' + MAXA + ' lần làm bài.'}</b> Bài đã khoá – dưới đây là bài làm lần cuối kèm đáp án.`; renderHist(); }
+function current(){ grading = -1; if (ATT.cur) return doing(); if (ATT.locked) return locked(); if (ATT.hist.length) return graded(); intro(); }
+function submit(auto){
+  if (!ATT.cur) return; stopClock();
+  const final = ATT.hist.length + 1 >= MAXA;
+  ATT.hist.push({ t: Date.now(), dur: Math.min(D.minutes * 60, (Date.now() - ATT.cur.start) / 1000), score: 0, ans: JSON.parse(JSON.stringify(state)), auto: !!auto });
+  ATT.cur = null; grading = ATT.hist.length - 1; REVEAL = final;
+  let s = grade(); if (!final && s >= autoPts) { REVEAL = true; s = grade(); }
+  if (REVEAL) ATT.locked = true; saveAtt();
+  current(); window.scrollTo({ top: 0 });
+}
+sb.forEach(b => b.onclick = () => submit(false));
+rb.onclick = () => { if (!ATT.locked && ATT.hist.length < MAXA) intro(); };
+histEl.addEventListener('click', e => { const b = e.target.closest('[data-rv]'); if (!b) return; const i = +b.dataset.rv, x = ATT.hist[i];
+  stopClock(); grading = -1; restore(x.ans); REVEAL = ATT.locked; grade(); setInputs(false); mode('review'); paper.hidden = false; document.querySelector('.foot').hidden = false;
+  gateEl.innerHTML = `👀 Đang xem lại <b>lần ${i+1}</b> · ${fmtD(x.t)} · ${String(x.score).replace('.',',')} / ${autoPts} điểm${ATT.locked ? '' : ' (đáp án hiện sau lần ' + MAXA + ')'} <button class="btn" type="button" id="rvBack">Quay lại</button>`;
+  document.getElementById('rvBack').onclick = () => { if (ATT.cur) { restore(ATT.cur.ans || state); } current(); }; window.scrollTo({ top: 0 }); });
+// lưu bài đang làm theo lần
+paper.addEventListener('input', () => { if (ATT.cur) { ATT.cur.ans = JSON.parse(JSON.stringify(state)); saveAtt(); } });
+paper.addEventListener('change', () => { if (ATT.cur) { ATT.cur.ans = JSON.parse(JSON.stringify(state)); saveAtt(); } });
+if (ATT.cur && ATT.cur.ans) restore(ATT.cur.ans);
+current();
 </script>
+
 
 </body></html>

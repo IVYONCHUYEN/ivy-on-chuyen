@@ -228,6 +228,18 @@ summary{color:#9b1c1c}
 .err{background:#fff;border:1px solid var(--line)}
 .back .speak{background:#f3f4f6;color:#1f2328}
 .back .pos{background:#f3f4f6}
+.rvbar[hidden]{display:none!important}
+.rvbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;border-radius:12px;padding:10px 14px;margin:8px 0}
+.gate{text-align:center;background:#fff;border:2px dashed #e3b4b4;border-radius:16px;padding:26px 18px;margin:10px 0}
+.gate .big{font-size:42px}.gate h3{margin:6px 0;color:#9b1c1c}.gate p{color:#4b5563;max-width:56ch;margin:6px auto 14px}
+.gate.sm{padding:12px 16px;text-align:left;border-style:solid;border-width:1px;background:#fbeaea;color:#7f1d1d}
+.clock{font-weight:800;font-variant-numeric:tabular-nums;background:#9b1c1c;color:#fff;border-radius:10px;padding:6px 12px}
+.clock.warn{background:#dc2626;animation:pulse 1s infinite}@keyframes pulse{50%{transform:scale(1.06)}}
+.attn{font-size:13px;color:#6b7280;margin-left:6px}
+#pQs.locked .opt,#pQs.locked .letters button{cursor:default}
+.hist{margin-top:18px}.hist h3{margin:0 0 8px;color:#9b1c1c}
+.hist table{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.hist th,.hist td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}.hist th{background:#f7f8fa;color:#6b7280;font-weight:600}
 /* === IVY: thẻ từ vựng nền đỏ chữ trắng; MCQ chữ cái trắng; đáp án đúng xanh / sai đỏ === */
 .front,.back{background:linear-gradient(160deg,#b42323,#8a1717)!important;color:#fff!important;box-shadow:inset 0 0 0 4px #ffffff22!important}
 .front *,.back *{color:#fff!important}
@@ -348,11 +360,16 @@ function theory(L){
 /* ---------- PRACTICE ---------- */
 function practice(L){
   const el=document.getElementById("p-p");
+  const MAXA=3, AK="att-"+L.code;
   let total=0;const graders=[];
+  /* thời gian làm bài theo dung lượng đề */
+  const SEC={mcq:45,gap:60,fix:75,rewrite:120};
+  let secs=0;L.practice.forEach(sec=>{secs+=sec.items.length*(SEC[sec.type]||60);if(sec.audio)secs+=180;if(sec.passage)secs+=Math.min(300,Math.round(String(sec.passage).replace(/<[^>]+>/g,"").split(/\s+/).length/150*60))});
+  const MIN=Math.max(5,Math.ceil(secs/60));
   const html=L.practice.map((sec,si)=>{
     const head=`<div class="ex-sec" data-sec="${si}"><h3>${sec.title}</h3>${sec.intro?`<p class="intro">${sec.intro}</p>`:""}${sec.audio?`<div class="passage"><audio controls preload="none" style="width:100%" src="audio/listen/${sec.audio}.mp3" onerror="this.outerHTML='<p class=note>Audio bài nghe đang được tạo tự động, em đọc lời thoại bên dưới thay cho nghe nhé.</p>'"></audio><details${sec.audioOpen?" open":""}><summary>Lời thoại (chỉ mở sau khi làm xong)</summary><div style="white-space:pre-line;margin-top:8px">${esc(sec.script||"").replace(/^(\w+):/gm,"<b>$1:</b>")}</div></details></div>`:""}${sec.passage?`<div class="passage">${sec.passage}</div>`:""}`;
     const items=sec.items.map((it,qi)=>{total++;const id=`q${si}_${qi}`;const n=total;
-      if(sec.type==="mcq"){const opts=sec.options||it[1];const stem=sec.options?it[0]:it[0];const ans=sec.options?it[1]:it[2];const ex=sec.options?it[2]:it[3];
+      if(sec.type==="mcq"){const opts=sec.options||it[1];const stem=it[0];const ans=sec.options?it[1]:it[2];const ex=sec.options?it[2]:it[3];
         graders.push({id,type:"mcq",ans,ex,opts});
         return `<div class="q" id="${id}"><p class="qs"><span class="n">${n}</span>${stem}</p><div class="opts">${opts.map((o,k)=>`<button type="button" class="opt" data-k="${k}"><span class="L L${"ABCDEFGH"[k]}">${"ABCDEFGH"[k]}</span><span>${o}</span></button>`).join("")}</div><div class="fb"></div></div>`}
       if(sec.type==="gap"){graders.push({id,type:"gap",ans:it[1],ex:it[2]});
@@ -366,39 +383,125 @@ function practice(L){
     }).join("");
     return head+items+"</div>";
   }).join("");
-  el.innerHTML=`<div class="ph"><div class="icon" style="background:linear-gradient(160deg,#2ea865,#5fe09c)">✍️</div><div style="min-width:0;flex:1"><h2>Luyện tập theo dạng đề</h2><p>${L.practiceLead||"Làm hết rồi bấm “Chấm bài”. Câu sai có giải thích — chép câu sai vào sổ lỗi."}</p></div></div>
-  ${html}<div class="scorebar"><span>Điểm: <b id="sc">–</b> / ${total} <small id="sentNote" class="note" style="margin-left:8px"></small></span><div class="row"><button class="btn ghost sm" id="rs">Làm lại</button><button class="btn" id="gr">Chấm bài</button></div></div>`;
+
+  /* ---- trạng thái các lần làm ---- */
+  const S=store.get(AK,null)||{hist:[],cur:null,locked:false};
+  const save=()=>store.set(AK,S);
+  const used=()=>S.hist.length;
+  const fmtT=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+  const p2=x=>String(x).padStart(2,"0"),fmtD=t=>{const d=new Date(t);return p2(d.getDate())+"/"+p2(d.getMonth()+1)+" "+p2(d.getHours())+":"+p2(d.getMinutes())};
+
+  el.innerHTML=`<div class="ph"><div class="icon" style="background:linear-gradient(160deg,#2ea865,#5fe09c)">✍️</div><div style="min-width:0;flex:1"><h2>Luyện tập theo dạng đề</h2><p>Mỗi bài được làm tối đa <b>${MAXA} lần</b>, mỗi lần <b>${MIN} phút</b>. Lần 1–2 chỉ báo câu đúng/sai; đáp án và giải thích hiện sau lần thứ ${MAXA} (hoặc khi em làm đúng hết).</p></div></div>
+  <div id="pGate"></div>
+  <div id="pReview" class="rvbar" hidden></div>
+  <div id="pQs">${html}</div>
+  <div class="scorebar" id="pBar"><span>Điểm: <b id="sc">–</b> / ${total} <span class="attn" id="attn"></span> <small id="sentNote" class="note" style="margin-left:8px"></small></span><span class="clock" id="clk" hidden></span><div class="row"><button class="btn ghost sm" id="rs" hidden>Làm lại</button><button class="btn" id="gr">Nộp bài</button></div></div>
+  <div class="hist" id="pHist"></div>`;
+  const qsBox=el.querySelector("#pQs"),gate=el.querySelector("#pGate"),bar=el.querySelector("#pBar"),rv=el.querySelector("#pReview");
+
+  /* ---- đọc / ghi đáp án ---- */
+  function read(){const a={};graders.forEach(g=>{const q=document.getElementById(g.id);
+    if(g.type==="mcq"){const s=q.querySelector(".opt.sel");a[g.id]=s?+s.dataset.k:-1}
+    else if(g.type==="fix"){const s=q.querySelector(".letters button.sel");a[g.id]={k:s?+s.dataset.k:-1,v:q.querySelector("input").value}}
+    else a[g.id]=q.querySelector("input").value});return a}
+  function fill(a){a=a||{};graders.forEach(g=>{const q=document.getElementById(g.id),v=a[g.id];
+    if(g.type==="mcq")q.querySelectorAll(".opt").forEach(x=>x.classList.toggle("sel",v!==undefined&&+x.dataset.k===v));
+    else if(g.type==="fix"){q.querySelectorAll(".letters button").forEach(x=>x.classList.toggle("sel",!!v&&+x.dataset.k===v.k));q.querySelector("input").value=v?v.v||"":""}
+    else q.querySelector("input").value=v||""})}
+  function clearMarks(){qsBox.querySelectorAll(".right,.wrong").forEach(x=>x.classList.remove("right","wrong"));qsBox.querySelectorAll(".fb").forEach(f=>{f.className="fb";f.innerHTML=""})}
+  function lock(on){qsBox.classList.toggle("locked",on);qsBox.querySelectorAll("input").forEach(i=>i.disabled=on)}
+  const fb=(q,cls,msg)=>{const f=q.querySelector(".fb");f.className="fb show "+cls;f.innerHTML=msg};
+
+  /* ---- chấm (đồng bộ; câu viết lại khác key → AI) ---- */
+  function judge(a){const res={},pend=[];
+    graders.forEach(g=>{const v=a[g.id];let ok=false;
+      if(g.type==="mcq")ok=v===g.ans;
+      if(g.type==="gap")ok=g.ans.some(x=>norm(x)===norm(v||""));
+      if(g.type==="fix")ok=!!v&&v.k===g.wrong&&g.ans.some(x=>norm(x)===norm(v.v||""));
+      if(g.type==="rewrite"){ok=g.ans.some(x=>norm(x)===norm(v||""));
+        if(!ok&&String(v||"").trim().split(/\s+/).length>=2&&window.IVY_AI){const t1=document.createElement("div");t1.innerHTML=g.q;const t2=document.createElement("div");t2.innerHTML=g.h;
+          pend.push(IVY_AI.check({q:t1.textContent,h:t2.textContent,a:g.ans,r:v}).then(r=>{if(r&&r.correct)res[g.id]=1;if(r&&r.reason)res["why_"+g.id]=r.reason}))}}
+      res[g.id]=ok?1:0});
+    return Promise.all(pend).then(()=>res)}
+
+  /* ---- hiển thị kết quả: reveal=false chỉ đúng/sai ---- */
+  function show(a,res,reveal){clearMarks();fill(a);
+    graders.forEach(g=>{const q=document.getElementById(g.id),ok=!!res[g.id],v=a[g.id],why=res["why_"+g.id];
+      const tag=ok?"✓ Đúng.":"✗ Sai.";
+      if(g.type==="mcq"){q.querySelectorAll(".opt").forEach(x=>{const k=+x.dataset.k;if(k===v)x.classList.add(ok?"right":"wrong");if(reveal&&k===g.ans)x.classList.add("right")});
+        fb(q,ok?"ok":"no",reveal?`${tag} Đáp án <b>${"ABCDEFGH"[g.ans]}</b>. ${g.ex||""}`:(v<0?"✗ Chưa chọn đáp án.":tag))}
+      if(g.type==="gap"){const i=q.querySelector("input");i.classList.add(ok?"right":"wrong");
+        fb(q,ok?"ok":"no",reveal?`${tag} Đáp án: <b>${esc(g.ans[0])}</b>${g.ans.length>1?" (chấp nhận: "+g.ans.slice(1).map(esc).join(", ")+")":""}. ${g.ex||""}`:tag)}
+      if(g.type==="fix"){const i=q.querySelector("input");q.querySelectorAll(".letters button").forEach(x=>{const k=+x.dataset.k;if(v&&k===v.k)x.classList.add(v.k===g.wrong?"right":"wrong");if(reveal&&k===g.wrong)x.classList.add("right")});
+        i.classList.add(ok?"right":"wrong");
+        fb(q,ok?"ok":"no",reveal?`${tag} Lỗi ở <b>${"ABCD"[g.wrong]}</b>, sửa thành <b>${esc(g.ans[0])}</b>. ${g.ex||""}`:tag)}
+      if(g.type==="rewrite"){const i=q.querySelector("input");i.classList.add(ok?"right":"wrong");const m=!g.ans.some(x=>norm(x)===norm(v||""));
+        fb(q,ok?"ok":"no",reveal?`${tag} ${ok&&m?"Câu của em khác đáp án mẫu nhưng đúng nghĩa và ngữ pháp. ":""}${!ok&&why?esc(why)+" ":""}Đáp án mẫu: <b>${esc(g.ans[0].replace(/[.]\s*$/,""))}</b>. ${g.ex||""}`:tag)}});
+    qsBox.querySelectorAll("details").forEach(d=>d.hidden=!reveal&&!S.locked)}
+  const score=res=>graders.reduce((s,g)=>s+(res[g.id]?1:0),0);
+  const detail=res=>{const d={};graders.forEach(g=>{d[g.type]=d[g.type]||[0,0];d[g.type][1]++;if(res[g.id])d[g.type][0]++});return d};
+
+  /* ---- đồng hồ (hiện nổi ở trang ngoài nếu đang nằm trong khung) ---- */
+  let tick=null,warned=false;
+  const host=(()=>{try{if(window.top!==window&&window.top.document)return window.top.document}catch(e){}return document})();
+  function chip(){let c=host.getElementById("ivyClock");if(!c){if(!host.getElementById("ivyClockCss")){const st=host.createElement("style");st.id="ivyClockCss";st.textContent="#ivyClock{position:fixed;right:18px;bottom:18px;z-index:9999;background:#9b1c1c;color:#fff;font:700 18px/1 system-ui,sans-serif;padding:12px 16px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.25);display:flex;gap:8px;align-items:center;font-variant-numeric:tabular-nums}#ivyClock small{font-weight:600;font-size:12px;opacity:.85}#ivyClock.warn{background:#dc2626;animation:ivyPulse 1s infinite}@keyframes ivyPulse{50%{transform:scale(1.07)}}#ivyWarn{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:10000;background:#dc2626;color:#fff;font:700 16px system-ui,sans-serif;padding:12px 20px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25)}";host.head.appendChild(st)}
+      c=host.createElement("div");c.id="ivyClock";host.body.appendChild(c)}return c}
+  function stopClock(){clearInterval(tick);tick=null;const c=host.getElementById("ivyClock");if(c)c.remove();const w=host.getElementById("ivyWarn");if(w)w.remove();el.querySelector("#clk").hidden=true}
+  window.addEventListener("pagehide",stopClock);
+  function beep(){try{const A=new (window.AudioContext||window.webkitAudioContext)();[0,.25].forEach(d=>{const o=A.createOscillator(),g=A.createGain();o.frequency.value=880;o.connect(g);g.connect(A.destination);g.gain.value=.15;o.start(A.currentTime+d);o.stop(A.currentTime+d+.15)})}catch(e){}}
+  function runClock(){const k=el.querySelector("#clk");k.hidden=false;warned=false;
+    const upd=()=>{const left=(S.cur.deadline-Date.now())/1000;const t="⏱ "+fmtT(left);k.textContent=t;k.classList.toggle("warn",left<=60);
+      const c=chip();c.innerHTML=`${t}<small>Lần ${S.cur.n}/${MAXA}</small>`;c.classList.toggle("warn",left<=60);
+      if(left<=60&&!warned){warned=true;beep();const w=host.createElement("div");w.id="ivyWarn";w.textContent="⚠️ Còn 1 phút! Kiểm tra lại bài và nộp nhé.";host.body.appendChild(w);setTimeout(()=>w.remove(),6000)}
+      if(left<=0){submit(true)}};
+    clearInterval(tick);tick=setInterval(upd,500);upd()}
+
+  /* ---- các trạng thái ---- */
+  function renderHist(){const h=el.querySelector("#pHist");
+    if(!S.hist.length){h.innerHTML="";return}
+    h.innerHTML=`<h3>Lịch sử làm bài</h3><table><thead><tr><th>Lần</th><th>Thời điểm</th><th>Điểm</th><th>Thời gian làm</th><th></th></tr></thead><tbody>${S.hist.map((x,i)=>`<tr><td>${i+1}/${MAXA}</td><td>${fmtD(x.t)}</td><td><b>${x.score}</b> / ${x.total}${x.auto?' <small class="note">(hết giờ)</small>':""}</td><td>${fmtT(x.dur)}</td><td><button class="btn ghost sm" data-rv="${i}">Xem lại</button></td></tr>`).join("")}</tbody></table>`}
+  function setBar(mode){const gr=el.querySelector("#gr"),rs=el.querySelector("#rs"),at=el.querySelector("#attn");
+    gr.hidden=mode!=="doing";rs.hidden=mode!=="graded";gr.disabled=false;
+    rs.textContent=`Làm lại (lần ${used()+1}/${MAXA})`;
+    at.textContent=mode==="doing"?`· Lần ${S.cur.n}/${MAXA}`:mode==="locked"?"· Đã khoá – xem đáp án bên dưới":`· Đã làm ${used()}/${MAXA} lần`;
+    const last=S.hist[S.hist.length-1];el.querySelector("#sc").textContent=mode==="doing"?"–":last?last.score:"–"}
+  function stateIntro(){stopClock();rv.hidden=true;qsBox.hidden=true;bar.hidden=true;
+    gate.innerHTML=`<div class="gate"><div class="big">⏱️</div><h3>Lần làm ${used()+1}/${MAXA}</h3><p>${total} câu · thời gian <b>${MIN} phút</b>. Đồng hồ bắt đầu chạy khi em bấm nút, hết giờ bài tự nộp.<br>Lần 1–2 chỉ báo câu đúng/sai; đáp án hiện sau lần ${MAXA}.</p><button class="btn" id="go">Bắt đầu làm bài</button></div>`;
+    gate.querySelector("#go").addEventListener("click",()=>{const prev=S.hist[S.hist.length-1];S.cur={n:used()+1,start:Date.now(),deadline:Date.now()+MIN*60000,ans:prev?prev.ans:{}};save();stateDoing()});renderHist()}
+  function stateDoing(){gate.innerHTML="";rv.hidden=true;qsBox.hidden=false;bar.hidden=false;clearMarks();fill(S.cur.ans);lock(false);
+    qsBox.querySelectorAll("details").forEach(d=>d.hidden=true);setBar("doing");renderHist();
+    if(Date.now()>=S.cur.deadline){submit(true);return}runClock()}
+  function stateGraded(){stopClock();gate.innerHTML="";rv.hidden=true;qsBox.hidden=false;bar.hidden=false;const last=S.hist[S.hist.length-1];
+    show(last.ans,last.res,false);lock(true);setBar("graded");renderHist();
+    gate.innerHTML=`<div class="gate sm"><b>Lần ${used()}/${MAXA}: ${last.score}/${last.total} câu đúng.</b> Câu sai được tô đỏ – em xem lại lý thuyết rồi bấm <b>Làm lại</b>. Còn ${MAXA-used()} lần.</div>`}
+  function stateLocked(){stopClock();rv.hidden=true;qsBox.hidden=false;bar.hidden=false;const last=S.hist[S.hist.length-1];
+    show(last.ans,last.res,true);lock(true);setBar("locked");renderHist();
+    gate.innerHTML=`<div class="gate sm">${last.score===last.total?"🎉 Em làm đúng hết!":"Em đã dùng hết "+MAXA+" lần làm bài."} Bài đã khoá – dưới đây là bài làm lần cuối kèm đáp án và giải thích.</div>`}
+  function current(){if(S.cur)return stateDoing();if(S.locked)return stateLocked();if(used())return stateGraded();stateIntro()}
+
+  function submit(auto){if(!S.cur||el.dataset.busy)return;el.dataset.busy=1;stopClock();
+    const a=read();S.cur.ans=a;save();lock(true);el.querySelector("#gr").disabled=true;
+    gate.innerHTML=`<div class="gate sm">⏳ Đang chấm bài…</div>`;
+    judge(a).then(res=>{const sc=score(res);
+      S.hist.push({t:Date.now(),dur:Math.min(MIN*60,(Date.now()-S.cur.start)/1000),score:sc,total,ans:a,res,auto:!!auto});
+      S.cur=null;if(S.hist.length>=MAXA||sc===total)S.locked=true;save();delete el.dataset.busy;
+      if(window.IVY_TRACK){const sent=IVY_TRACK.send({type:"score",code:L.code,score:sc,total,detail:Object.assign(detail(res),{lan:S.hist.length})});
+        const n=el.querySelector("#sentNote");if(n)n.textContent=sent?"✓ Đã gửi điểm cho giáo viên":"Đăng ký tên ở trang chủ để giáo viên nhận được điểm"}
+      const best=store.get("best-"+L.code,0);if(sc>best)store.set("best-"+L.code,sc);
+      current();el.scrollIntoView({behavior:"smooth"})})}
+
   el.addEventListener("click",e=>{
-    const o=e.target.closest(".opt");if(o&&!o.closest(".q").dataset.done){o.parentNode.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));o.classList.add("sel");return}
-    const b=e.target.closest(".letters button");if(b&&!b.closest(".q").dataset.done){b.parentNode.querySelectorAll("button").forEach(x=>x.classList.remove("sel"));b.classList.add("sel")}
+    const rb=e.target.closest("[data-rv]");if(rb){const i=+rb.dataset.rv,x=S.hist[i];stopClock();gate.innerHTML="";qsBox.hidden=false;bar.hidden=true;show(x.ans,x.res,S.locked);lock(true);
+      rv.hidden=false;rv.innerHTML=`<span>👀 Đang xem lại <b>lần ${i+1}</b> · ${fmtD(x.t)} · ${x.score}/${x.total} câu đúng${S.locked?"":" (đáp án hiện sau lần "+MAXA+")"}</span><button class="btn sm" id="rvBack">Quay lại</button>`;
+      rv.querySelector("#rvBack").addEventListener("click",()=>{current();el.scrollIntoView()});el.scrollIntoView({behavior:"smooth"});return}
+    if(qsBox.classList.contains("locked")||!S.cur)return;
+    const o=e.target.closest(".opt");if(o){o.parentNode.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));o.classList.add("sel");S.cur.ans=read();save();return}
+    const b=e.target.closest(".letters button");if(b){b.parentNode.querySelectorAll("button").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");S.cur.ans=read();save()}
   });
-  const fb=(q,ok,msg)=>{const f=q.querySelector(".fb");f.className="fb show "+(ok?"ok":"no");f.innerHTML=(ok?"✓ Đúng. ":"✗ Chưa đúng. ")+msg};
-  el.querySelector("#gr").addEventListener("click",()=>{
-    let sc=0; const det={}; const pend=[];
-    graders.forEach(g=>{const q=document.getElementById(g.id);q.dataset.done=1;let ok=false;
-      if(g.type==="mcq"){const s=q.querySelector(".opt.sel");const k=s?+s.dataset.k:-1;ok=k===g.ans;q.querySelectorAll(".opt").forEach(x=>{const kk=+x.dataset.k;x.classList.toggle("right",kk===g.ans);x.classList.toggle("wrong",kk===k&&!ok)});fb(q,ok,`Đáp án <b>${"ABCDEFGH"[g.ans]}</b>. ${g.ex||""}`)}
-      if(g.type==="gap"){const i=q.querySelector("input");ok=g.ans.some(a=>norm(a)===norm(i.value));i.classList.toggle("right",ok);i.classList.toggle("wrong",!ok);fb(q,ok,`Đáp án: <b>${esc(g.ans[0])}</b>${g.ans.length>1?" (chấp nhận: "+g.ans.slice(1).map(esc).join(", ")+")":""}. ${g.ex||""}`)}
-      if(g.type==="fix"){const s=q.querySelector(".letters button.sel");const k=s?+s.dataset.k:-1;const i=q.querySelector("input");const okL=k===g.wrong;const okC=g.ans.some(a=>norm(a)===norm(i.value));ok=okL&&okC;
-        q.querySelectorAll(".letters button").forEach(x=>{const kk=+x.dataset.k;x.classList.toggle("right",kk===g.wrong);x.classList.toggle("wrong",kk===k&&!okL)});i.classList.toggle("right",okC);i.classList.toggle("wrong",!okC);
-        fb(q,ok,`Lỗi ở <b>${"ABCD"[g.wrong]}</b>, sửa thành <b>${esc(g.ans[0])}</b>. ${g.ex||""}`)}
-      if(g.type==="rewrite"){const i=q.querySelector("input");ok=g.ans.some(a=>norm(a)===norm(i.value));i.classList.toggle("right",ok);i.classList.toggle("wrong",!ok);
-        const base=`Đáp án mẫu: <b>${esc(g.ans[0].replace(/[.]\s*$/,""))}</b>. ${g.ex||""}`;
-        if(ok)fb(q,true,base);
-        else if(i.value.trim().split(/\s+/).length>=2&&window.IVY_AI){const f=q.querySelector(".fb");f.className="fb show";f.innerHTML="⏳ Câu của em khác đáp án mẫu – đang kiểm tra nghĩa và ngữ pháp…";i.classList.remove("wrong");
-          const tmp=document.createElement("div");tmp.innerHTML=g.q;const th=document.createElement("div");th.innerHTML=g.h;
-          pend.push(IVY_AI.check({q:tmp.textContent,h:th.textContent,a:g.ans,r:i.value}).then(res=>{
-            if(res&&res.correct){i.classList.add("right");fb(q,true,`Câu của em đúng nghĩa và ngữ pháp${res.reason?" – "+esc(res.reason.replace(/[.]\s*$/,"")):""}. ${base}`);det.rewrite[0]++;sc++;}
-            else{i.classList.add("wrong");fb(q,false,`${res&&res.reason?esc(res.reason)+" ":""}${base}${res?"":" <i>(Chưa kiểm tra tự động được – nếu câu của em khác nhưng đúng nghĩa và ngữ pháp, hỏi lại giáo viên.)</i>"}`)}}))}
-        else fb(q,false,base)}
-      if(ok)sc++; det[g.type]=det[g.type]||[0,0]; det[g.type][1]++; if(ok)det[g.type][0]++;});
-    const finish=()=>{
-    if(window.IVY_TRACK){const sent=IVY_TRACK.send({type:"score",code:window.LESSON.code,score:sc,total:graders.length,detail:det});
-      const n=el.querySelector("#sentNote"); if(n) n.textContent=sent?"✓ Đã gửi điểm cho giáo viên":"Đăng ký tên ở trang chủ để giáo viên nhận được điểm";}
-    el.querySelector("#sc").textContent=sc;
-    const best=store.get("best-"+(window.LESSON.code),0);if(sc>best)store.set("best-"+window.LESSON.code,sc);};
-    if(pend.length){el.querySelector("#sc").textContent=sc+"…";const gb=el.querySelector("#gr");gb.disabled=true;Promise.all(pend).then(()=>{gb.disabled=false;finish()})}else finish();
-  });
-  el.querySelector("#rs").addEventListener("click",()=>{practice(L)});
+  qsBox.addEventListener("input",()=>{if(S.cur){S.cur.ans=read();save()}});
+  el.querySelector("#gr").addEventListener("click",()=>submit(false));
+  el.querySelector("#rs").addEventListener("click",()=>{if(used()<MAXA&&!S.locked)stateIntro()});
+  current();
 }
 
 /* ---------- WRITING / HOMEWORK ---------- */
