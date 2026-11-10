@@ -485,7 +485,9 @@ function practice(L){
     judge(a).then(res=>{const sc=score(res);
       S.hist.push({t:Date.now(),dur:Math.min(MIN*60,(Date.now()-S.cur.start)/1000),score:sc,total,ans:a,res,auto:!!auto});
       S.cur=null;if(S.hist.length>=MAXA||sc===total)S.locked=true;save();delete el.dataset.busy;
-      if(window.IVY_TRACK){const sent=IVY_TRACK.send({type:"score",code:L.code,score:sc,total,detail:Object.assign(detail(res),{lan:S.hist.length})});
+      if(window.IVY_TRACK){const H=S.hist[S.hist.length-1],why={};Object.keys(res).forEach(k=>{if(k.startsWith("why_"))why[k.slice(4)]=res[k]});
+        const sent=IVY_TRACK.send({type:"score",code:L.code,score:sc,total,detail:Object.assign(detail(res),{lan:S.hist.length,dur:Math.round(H.dur)}),
+          text:JSON.stringify({v:1,lan:S.hist.length,dur:Math.round(H.dur),lim:MIN*60,auto:!!auto,a,r:graders.map(g=>res[g.id]?1:0).join(""),why})});
         const n=el.querySelector("#sentNote");if(n)n.textContent=sent?"✓ Đã gửi điểm cho giáo viên":"Đăng ký tên ở trang chủ để giáo viên nhận được điểm"}
       const best=store.get("best-"+L.code,0);if(sc>best)store.set("best-"+L.code,sc);
       current();el.scrollIntoView({behavior:"smooth"})})}

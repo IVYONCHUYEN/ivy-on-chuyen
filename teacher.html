@@ -105,6 +105,22 @@ details.essay p{white-space:pre-wrap;margin:10px 0 0;font-weight:500}
 .setup ol{padding-left:20px}
 .setup li{margin:6px 0}
 .setup code{background:#f3f4f6;padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:12.5px}
+details.lsum{border-bottom:1px solid var(--line)}details.lsum:last-child{border-bottom:0}
+details.lsum>summary{list-style:none;cursor:pointer;border-bottom:0}details.lsum>summary::-webkit-details-marker{display:none}
+details.lsum[open]>summary{background:var(--brand-soft);border-radius:10px}
+table.att{width:100%;min-width:0;padding:0;border-spacing:0;table-layout:auto;border-collapse:collapse;font-size:13px;margin:6px 0 10px}table.att th,table.att td{padding:6px 5px;white-space:nowrap;text-align:left;border-bottom:1px solid var(--line)}table.att th{color:var(--muted);font-weight:600}
+.btn.sm{padding:4px 10px;font-size:13px}
+.rview{position:fixed;inset:0;z-index:80;background:rgba(17,24,39,.5);display:flex;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto}
+.rpanel{background:var(--paper);width:min(860px,100%);border-radius:18px;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.rhead{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;position:sticky;top:-20px;background:var(--paper);padding:8px 0;z-index:1}
+.rsec{background:#fff;border-radius:14px;padding:12px 14px;margin:10px 0}.rsec h4{margin:0 0 8px;color:var(--brand)}
+.rq{border-left:4px solid #e5e7eb;padding:8px 10px;margin:8px 0;background:#fafafa;border-radius:8px;font-size:14px}
+.rq.ok{border-left-color:#16a34a}.rq.no{border-left-color:#dc2626}.rq.mid{border-left-color:#f6b91c}
+.rqh{display:flex;gap:8px;align-items:flex-start;margin-bottom:4px}.rqh .stem{flex:1;font-weight:600}.rqh .n{background:var(--brand);color:#fff;border-radius:6px;padding:0 7px;font-size:12px;font-family:var(--mono)}
+.mk{font-size:12px;font-weight:700;border-radius:99px;padding:2px 8px;white-space:nowrap}.mk.ok{background:#dcfce7;color:#15803d}.mk.no{background:#fee2e2;color:#b91c1c}.mk.mid{background:var(--y-soft);color:#92400e}
+.ropts{display:grid;gap:4px;margin:4px 0}.ro{padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:#fff}.ro.key{border-color:#16a34a;background:#dcfce7}.ro.bad{border-color:#dc2626;background:#fee2e2}
+.ex{color:var(--muted);font-size:13px;margin-top:4px}.ai{background:#eef2ff;color:#3730a3;border-radius:8px;padding:4px 8px;margin:4px 0;font-size:13px}
+details.psg{margin:4px 0 8px}details.psg div{font-size:13px;background:#f7f8fa;padding:8px;border-radius:8px;margin-top:4px}
 </style>
 </head>
 <body>
@@ -125,6 +141,7 @@ details.essay p{white-space:pre-wrap;margin:10px 0 0;font-weight:500}
 
 <main class="wrap" id="app"></main>
 
+<div class="rview" id="rview" hidden><div class="rpanel" role="dialog" aria-modal="true"><div class="rhead" id="rhead"></div><div id="rbody"></div></div></div>
 <div class="drawer" id="drawer" hidden><div class="dpanel" id="dpanel" role="dialog" aria-modal="true"></div></div>
 
 <script src="config.js"></script>
@@ -141,6 +158,9 @@ const pct=x=>x==null?"–":Math.round(x*100)+"%";
 const fmtD=d=>d?new Date(d).toLocaleDateString("vi-VN",{day:"2-digit",month:"2-digit"}):"–";
 const fmtDT=d=>d?new Date(d).toLocaleString("vi-VN",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"–";
 const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const fmtDur=x=>{x=Math.round(+x||0);return Math.floor(x/60)+" phút "+String(x%60).padStart(2,"0")+" giây"};
+const fmtMS=x=>{x=Math.round(+x||0);return Math.floor(x/60)+":"+String(x%60).padStart(2,"0")};
+const fmtSc=x=>String(Math.round(x*100)/100).replace(".",",");
 const SKILL={mcq:"Trắc nghiệm",gap:"Điền từ",fix:"Sửa lỗi",rewrite:"Viết lại câu"};
 const COLORS=["#9b1c1c","#2563eb","#0f766e","#7c3aed","#c2410c","#be185d","#4d7c0f","#0369a1"];
 const app=document.getElementById("app");
@@ -179,12 +199,14 @@ function aggregate(events){
   const st={};
   events.slice().sort((a,b)=>new Date(a.t)-new Date(b.t)).forEach(e=>{
     if(!e.sid) return;
-    const s=st[e.sid]||(st[e.sid]={sid:e.sid,name:e.name,cls:e.cls,done:{},best:{},att:{},last:null,first:e.t,skills:{},essays:[],opens:0});
+    const s=st[e.sid]||(st[e.sid]={sid:e.sid,name:e.name,cls:e.cls,done:{},best:{},att:{},tries:{},last:null,first:e.t,skills:{},essays:[],opens:0});
     if(e.name) s.name=e.name; if(e.cls) s.cls=e.cls;
     s.last=e.t;
     if(e.type==="done"&&e.code) s.done[e.code]=Number(e.score)===1;
     if(e.type==="open") s.opens++;
     if(e.type==="score"&&e.code&&e.total>0){const p=e.score/e.total;s.best[e.code]=Math.max(s.best[e.code]||0,p);s.att[e.code]=(s.att[e.code]||0)+1;
+      let rec=null;try{rec=e.text?JSON.parse(e.text):null}catch(_){}
+      (s.tries[e.code]=s.tries[e.code]||[]).push({t:e.t,score:+e.score,total:+e.total,det:e.detail||{},rec});
       if(e.detail) Object.keys(e.detail).forEach(k=>{const d=e.detail[k];if(!Array.isArray(d))return;const a=s.skills[k]||(s.skills[k]=[0,0]);a[0]+=+d[0]||0;a[1]+=+d[1]||0})}
     if(e.type==="essay") s.essays.push({t:e.t,code:e.code,words:e.score,text:e.text});
   });
@@ -308,10 +330,58 @@ function openStudent(sid){
   <div class="dgrid"><div class="mini"><span>Tiến độ</span><b>${pct(s.progress)}</b><span>${s.doneDue}/${DUE.length} buổi</span></div><div class="mini"><span>Điểm TB</span><b>${pct(s.avg)}</b><span>${s.attempts} lượt làm bài</span></div><div class="mini"><span>Gần nhất</span><b style="font-size:17px">${fmtDT(s.last)}</b><span>${s.essays.length} bài luận</span></div></div>
   <div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 6px">Kỹ năng theo dạng câu hỏi</h3>${sk}</div>
   ${missing.length?`<div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 6px">Buổi chưa học (${missing.length})</h3><div style="display:flex;flex-wrap:wrap;gap:6px">${missing.map(c=>`<span class="tag" title="${esc(TITLE[c]||"")}">${c}</span>`).join("")}</div></div>`:""}
-  <div class="card" style="margin-bottom:14px;padding:8px 10px"><h3 style="margin:8px 10px">Điểm từng buổi</h3>${codes.length?codes.map(c=>{const v=s.best[c];const k=v<.5?"o":v<.8?"y":"g";return `<div class="lrow"><span class="tag">${c}</span><span>${esc(TITLE[c]||"")}</span><span class="st ${k}" style="text-align:center">${pct(v)}</span><span class="muted">${s.att[c]} lượt</span></div>`}).join(""):'<div class="empty">Chưa làm bài luyện tập nào.</div>'}</div>
+  <div class="card" style="margin-bottom:14px;padding:8px 10px"><h3 style="margin:8px 10px">Điểm từng buổi <small class="muted" style="font-weight:600">· bấm vào buổi để xem từng lần làm</small></h3>${codes.length?codes.map(c=>{const v=s.best[c];const k=v<.5?"o":v<.8?"y":"g";const T=s.tries[c]||[];
+    return `<details class="lsum"><summary class="lrow"><span class="tag">${c}</span><span>${esc(TITLE[c]||(c==="MT1"?"Đề ôn số 1":""))}</span><span class="st ${k}" style="text-align:center">${pct(v)}</span><span class="muted">${s.att[c]} lượt ▾</span></summary>
+    <table class="att"><thead><tr><th>Lần</th><th>Thời điểm</th><th>Làm trong</th><th>Kết quả</th><th></th></tr></thead><tbody>${T.map((x,i)=>{const p=x.total?x.score/x.total:0;const kk=p<.5?"o":p<.8?"y":"g";const r=x.rec;
+      return `<tr><td><b>${r&&r.lan?r.lan:i+1}</b>${r?"/3":""}</td><td>${fmtDT(x.t)}</td><td>${r&&r.dur!=null?fmtMS(r.dur)+(r.lim?` <small class="muted">/ ${Math.round(r.lim/60)}:00</small>`:""):(x.det&&x.det.dur!=null?fmtMS(x.det.dur):"–")}${r&&r.auto?' <span class="st o" style="font-size:11px;padding:1px 6px">hết giờ</span>':""}</td><td><span class="st ${kk}">${fmtSc(x.score)}/${fmtSc(x.total)}</span> <small class="muted">${pct(p)}</small></td><td>${r&&r.a?`<button class="btn ghost sm" type="button" data-view="${esc(s.sid)}|${c}|${i}">Xem bài làm</button>`:'<small class="muted">không có chi tiết</small>'}</td></tr>`}).join("")}</tbody></table></details>`}).join(""):'<div class="empty">Chưa làm bài luyện tập nào.</div>'}</div>
   ${s.essays.length?`<h3>Bài luận</h3>${s.essays.slice().reverse().map(e=>`<details class="essay"><summary><span class="tag">${esc(e.code)}</span> ${fmtDT(e.t)} · ${e.words||0} từ</summary><p>${esc(e.text)}</p></details>`).join("")}`:""}`;
   document.getElementById("drawer").hidden=false;
   document.getElementById("dclose").focus();
+}
+
+
+/* ---------- xem bài làm của học sinh ---------- */
+const LCACHE={};
+function loadLesson(code){
+  if(LCACHE[code]) return Promise.resolve(LCACHE[code]);
+  if(code==="MT1") return fetch("de-on-1/index.html").then(r=>r.text()).then(t=>{const m=t.match(/<script type="application\/json" id="data">([\s\S]*?)<\/script>/);const d=JSON.parse(m[1]);d._exam=true;return LCACHE[code]=d});
+  return new Promise((ok,no)=>{const prev=window.LESSON;const sc=document.createElement("script");sc.src="data/"+code+".js?"+Date.now();
+    sc.onload=()=>{const L=window.LESSON;window.LESSON=prev;sc.remove();LCACHE[code]=L;ok(L)};sc.onerror=()=>no(new Error("Không tải được bài "+code));document.head.appendChild(sc)});
+}
+const tnorm=t=>String(t==null?"":t).toLowerCase().replace(/[’‘`]/g,"'").replace(/[“”"]/g,"").replace(/\bcan't\b/g,"cannot").replace(/\bwon't\b/g,"will not").replace(/n't\b/g," not").replace(/'m\b/g," am").replace(/'re\b/g," are").replace(/'ll\b/g," will").replace(/'ve\b/g," have").replace(/'d\b/g," would").replace(/[.,!?;:]+/g," ").replace(/\s+/g," ").trim();
+const mark=ok=>ok?'<span class="mk ok">✓ Đúng</span>':'<span class="mk no">✗ Sai</span>';
+const ans=v=>v===undefined||v===null||v===""||v===-1?'<i class="muted">(bỏ trống)</i>':esc(v);
+function reviewLesson(L,rec){
+  let n=0,gi=0;const R=String(rec.r||"");
+  return L.practice.map((sec,si)=>`<div class="rsec"><h4>${sec.title}</h4>${sec.passage?`<details class="psg"><summary>Đoạn văn</summary><div>${sec.passage}</div></details>`:""}${sec.items.map((it,qi)=>{n++;const id=`q${si}_${qi}`;const v=rec.a?rec.a[id]:undefined;const ok=R[gi++]==="1";let body="";
+    if(sec.type==="mcq"){const opts=sec.options||it[1];const A=sec.options?it[1]:it[2];const ex=sec.options?it[2]:it[3];
+      body=`<div class="ropts">${opts.map((o,k)=>`<span class="ro ${k===A?"key":""} ${k===v&&k!==A?"bad":""}"><b>${"ABCDEFGH"[k]}</b> ${o}${k===v?' <small>← HS chọn</small>':""}</span>`).join("")}</div>${v===-1||v===undefined?'<div class="muted">HS bỏ trống</div>':""}<div class="ex">${ex||""}</div>`}
+    if(sec.type==="gap") body=`<div>HS: <b>${ans(v)}</b> · Đáp án: <b>${esc(it[1].join(" / "))}</b></div><div class="ex">${it[2]||""}</div>`;
+    if(sec.type==="fix"){const k=v?v.k:-1;body=`<div>HS chọn lỗi: <b>${k>=0?"ABCD"[k]:"–"}</b>, sửa thành: <b>${ans(v&&v.v)}</b> · Đáp án: <b>${"ABCD"[it[1]]}</b> → <b>${esc(it[2][0])}</b></div><div class="ex">${it[3]||""}</div>`}
+    if(sec.type==="rewrite"){const exact=it[2].some(x=>tnorm(x)===tnorm(v));const why=rec.why&&rec.why[id];
+      body=`${it[1]?`<div class="muted">${it[1]}</div>`:""}<div>HS: <b>${ans(v)}</b></div>${ok&&!exact?'<div class="ai">🤖 Khác đáp án mẫu – AI chấm đúng nghĩa và ngữ pháp'+(why?": "+esc(why):"")+'</div>':""}${!ok&&why?'<div class="ai">🤖 '+esc(why)+'</div>':""}<div>Đáp án mẫu: <b>${esc(it[2][0])}</b></div><div class="ex">${it[3]||""}</div>`}
+    const stem=sec.type==="fix"?it[0].replace(/\[([^\]]+)\]/g,(m,t,o)=>`<u>${t}</u>`):it[0];
+    return `<div class="rq ${ok?"ok":"no"}"><div class="rqh"><span class="n">${n}</span><span class="stem">${stem}</span>${mark(ok)}</div>${body}</div>`}).join("")}</div>`).join("");
+}
+function reviewExam(D,rec){
+  const a=rec.a||{},L="ABCD",fm=t=>esc(t).replace(/\[([^\]]+)\]/g,"<u>$1</u>").replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");
+  return D.parts.map(P=>`<h3 style="margin:14px 0 4px">${esc(P.part)}</h3>`+P.sections.map(S=>{
+    let h=`<div class="rsec"><h4>${esc(S.title)}</h4>`;
+    if(S.type==="mcq") h+=S.items.map(q=>{const v=a[`${S.id}-${q.n}`];const ok=v===q.answer;return `<div class="rq ${ok?"ok":"no"}"><div class="rqh"><span class="n">${q.n}</span><span class="stem">${fm(q.stem||q.options.join(" · "))}</span>${mark(ok)}</div><div>HS: <b>${v||'<i class="muted">(bỏ trống)</i>'}</b>${v&&q.options[L.indexOf(v)]?" – "+fm(q.options[L.indexOf(v)]):""} · Đáp án: <b>${q.answer}</b> – ${fm(q.options[L.indexOf(q.answer)])}</div></div>`}).join("");
+    if(S.type==="gap"||S.type==="cloze"||S.type==="rewrite") h+=S.items.map(q=>{const v=a[`${S.id}-${q.n}`];const ok=!!v&&q.accept.some(x=>tnorm(x)===tnorm(v));const self=a[`self-${S.id}-${q.n}`];
+      return `<div class="rq ${ok?"ok":S.type==="rewrite"&&v?"mid":"no"}"><div class="rqh"><span class="n">${q.n}</span><span class="stem">${fm(q.stem||"("+q.n+")")}${q.keyword?` <b>(${esc(q.keyword)})</b>`:""}${q.start?` → <i>${esc(q.start)}…</i>`:""}</span>${ok?mark(true):S.type==="rewrite"&&v?'<span class="mk mid">Khác đáp án mẫu</span>':mark(false)}</div><div>HS: <b>${ans(v)}</b>${self?' <small class="muted">(HS tự đánh dấu đúng)</small>':""} · Đáp án: <b>${esc(q.accept[0])}</b></div></div>`}).join("");
+    if(S.type==="error") h+=S.items.map(q=>{const w=a[`${S.id}-${q.n}-w`],c=a[`${S.id}-${q.n}-c`];const hit=S.items.some(k=>tnorm(k.wrong)===tnorm(w)&&k.accept.map(tnorm).includes(tnorm(c)));
+      return `<div class="rq ${hit?"ok":"no"}"><div class="rqh"><span class="n">${q.n}</span><span class="stem">HS: <b>${ans(w)}</b> → <b>${ans(c)}</b></span>${mark(hit)}</div><div class="muted">Đáp án câu ${q.n}: ${esc(q.wrong)} → ${esc(q.accept[0])}</div></div>`}).join("");
+    if(S.type==="essay"){const t=a[S.id];h+=`<div class="rq"><div class="muted">${esc(S.prompt||"")}</div><p style="white-space:pre-wrap">${t?esc(t):'<i class="muted">(chưa viết)</i>'}</p></div>`}
+    return h+"</div>"}).join("")).join("");
+}
+function openAttempt(sid,code,i){
+  const s=(window._S||[]).find(x=>x.sid===sid);const x=s&&s.tries[code]&&s.tries[code][i];if(!x||!x.rec)return;
+  const box=document.getElementById("rview"),body=document.getElementById("rbody");
+  const r=x.rec,p=x.total?x.score/x.total:0;
+  document.getElementById("rhead").innerHTML=`<div style="flex:1"><h2 style="margin:0">${esc(s.name)} · <span class="tag">${code}</span> lần ${r.lan||i+1}/3</h2><div class="muted">${esc(TITLE[code]||(code==="MT1"?"Đề ôn số 1":""))} · ${fmtDT(x.t)} · làm trong ${fmtDur(r.dur)}${r.lim?" / "+Math.round(r.lim/60)+" phút":""}${r.auto?" · <b>hết giờ, tự nộp</b>":""} · Kết quả <b>${fmtSc(x.score)}/${fmtSc(x.total)}</b> (${pct(p)})</div></div><button class="btn ghost" type="button" id="rclose">Đóng ✕</button>`;
+  body.innerHTML='<div class="empty">Đang tải đề…</div>';box.hidden=false;
+  loadLesson(code).then(L=>{body.innerHTML=(L._exam?reviewExam(L,r):reviewLesson(L,r))||'<div class="empty">Không có câu hỏi.</div>'}).catch(e=>{body.innerHTML=`<div class="empty">${esc(e.message)}</div>`});
 }
 
 /* ---------- Excel ---------- */
@@ -324,12 +394,15 @@ function exportXlsx(){
   const mat=[["Họ tên","Lớp"].concat(codes)].concat(S.map(s=>[s.name,s.cls].concat(codes.map(c=>s.best[c]===undefined?(s.done[c]?"✓":""):{pct:+s.best[c].toFixed(4)}))));
   const skills=[["Họ tên","Lớp"].concat(Object.values(SKILL))].concat(S.map(s=>[s.name,s.cls].concat(Object.keys(SKILL).map(k=>{const a=s.skills[k];return a&&a[1]?{pct:+(a[0]/a[1]).toFixed(4)}:""}))));
   const ess=[["Thời gian","Họ tên","Lớp","Buổi","Số từ","Bài viết"]];S.forEach(s=>s.essays.forEach(e=>ess.push([new Date(e.t),s.name,s.cls,e.code,e.words||0,e.text||""])));
+  const atts=[["Họ tên","Lớp","Buổi","Lần","Thời điểm","Thời gian làm (phút)","Giới hạn (phút)","Hết giờ","Điểm","Tổng","%"]];
+  S.forEach(s=>Object.keys(s.tries).sort().forEach(c=>s.tries[c].forEach((x,i)=>{const r=x.rec||{};atts.push([s.name,s.cls,c,r.lan||i+1,new Date(x.t),r.dur!=null?Math.round(r.dur/6)/10:"",r.lim?Math.round(r.lim/60):"",r.auto?"Có":"",x.score,x.total,x.total?{pct:+(x.score/x.total).toFixed(4)}:""])})));
   const sids=new Set(S.map(s=>s.sid)), TYPE={join:"Đăng ký",open:"Mở bài",done:"Đánh dấu học",score:"Điểm luyện tập",essay:"Nộp bài luận"};
   const log=[["Thời gian","Họ tên","Lớp","Hoạt động","Buổi","Điểm","Tổng"]].concat(EVENTS.filter(e=>sids.has(e.sid)).sort((a,b)=>new Date(a.t)-new Date(b.t)).map(e=>[new Date(e.t),e.name,e.cls,TYPE[e.type]||e.type,e.code,e.type==="score"?e.score:"",e.type==="score"?e.total:""]));
   const d=new Date(), tag=(klass==="all"?"tat-ca-lop":klass).normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d").replace(/Đ/g,"D").replace(/[^A-Za-z0-9]+/g,"-");
   IVY_XLSX.download([
     {name:"Tổng quan",rows:sum,widths:[6,26,20,12,12,11,16,14,16,18,15,14,18,12]},
     {name:"Điểm từng buổi",rows:mat,widths:[26,20].concat(codes.map(()=>8))},
+    {name:"Các lần làm bài",rows:atts,widths:[26,20,8,6,18,12,10,8,8,8,8]},
     {name:"Kỹ năng",rows:skills,widths:[26,20,14,12,12,14]},
     {name:"Bài luận",rows:ess,widths:[18,26,20,8,8,100]},
     {name:"Nhật ký hoạt động",rows:log,widths:[18,26,20,16,8,8,8]}
@@ -341,11 +414,13 @@ document.addEventListener("click",e=>{
   const t=e.target.closest("[data-tab]"); if(t){tab=t.dataset.tab;filt=null;render();return}
   const g=e.target.closest("[data-go]"); if(g){tab=g.dataset.go;render();return}
   const f=e.target.closest("[data-f]"); if(f){filt=f.dataset.f&&filt!==f.dataset.f?f.dataset.f:null;render();return}
+  const vw=e.target.closest("[data-view]"); if(vw){const p=vw.dataset.view.split("|");openAttempt(p[0],p[1],+p[2]);return}
+  if(e.target.id==="rview"||e.target.id==="rclose"){document.getElementById("rview").hidden=true;return}
   const r=e.target.closest("tr[data-sid]"); if(r){openStudent(r.dataset.sid);return}
   if(e.target.id==="drawer"||e.target.id==="dclose"){document.getElementById("drawer").hidden=true;return}
   if(e.target.id==="logout"){store.set("t-key","");load();return}
 });
-document.addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementById("drawer").hidden=true;const r=e.target.closest&&e.target.closest("tr[data-sid]");if(r&&e.key==="Enter")openStudent(r.dataset.sid)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){const rv=document.getElementById("rview");if(!rv.hidden){rv.hidden=true;return}document.getElementById("drawer").hidden=true}const r=e.target.closest&&e.target.closest("tr[data-sid]");if(r&&e.key==="Enter")openStudent(r.dataset.sid)});
 document.addEventListener("change",e=>{if(e.target.id==="sort"){sortBy=e.target.value;store.set("t-sort",sortBy);render()}});
 document.getElementById("reload").addEventListener("click",load);
 document.getElementById("xlsx").addEventListener("click",exportXlsx);
