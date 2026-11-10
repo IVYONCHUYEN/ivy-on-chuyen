@@ -1,0 +1,11 @@
+name: Kiểm tra kết nối Apps Script
+on: workflow_dispatch
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          U="https://script.google.com/macros/s/AKfycbxPv31CCDM5kyYSCd0ykkMfQrKzi7HQNjnXArOLfgQrwXK4sFaHqkkdkrw7FeIlZXzKag/exec"
+          echo "PING:"; curl -sL "$U?action=ping"; echo
+          echo "WRONGKEY:"; curl -sL "$U?key=x"; echo
+          echo "KEY:"; curl -sL "$U?key=ivy2027" | head -c 200; echo
