@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dashboard giáo viên · IVY GIFTED</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{--brand:#9b1c1c;--brand-dark:#7f1515;--brand-soft:#fbeaea;--paper:#f3f5f8;--ink:#1f2328;--muted:#6b7280;--line:#e6e8ec;
+ --g:#7cc242;--g-soft:#e9f6dd;--y:#f6b91c;--y-soft:#fff4d6;--o:#f2734a;--o-soft:#ffe7de;
+ --f:"Quicksand",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--f);font-weight:500;font-size:15px;line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+[hidden]{display:none!important}
+a{color:var(--brand)}
+.top{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;padding:12px 28px;flex-wrap:wrap}
+.logo{display:flex;flex-direction:column;gap:2px;background:var(--brand);color:#fff;text-decoration:none;border-radius:8px;padding:6px 12px 5px}
+.logo .lg{display:flex;align-items:center;gap:6px;font-weight:700;font-size:18px;letter-spacing:.06em;line-height:1}
+.logo .lg i{font-style:normal;background:#fff;color:var(--brand);padding:2px 5px 1px;border-radius:3px}
+.logo small{font-size:9px;font-weight:600}
+.top nav{display:flex;gap:4px;overflow-x:auto;max-width:100%}
+.top nav button{white-space:nowrap;border:0;background:transparent;padding:8px 14px;border-radius:999px;font-weight:700;color:var(--muted);cursor:pointer}
+.top nav button[aria-pressed="true"]{color:var(--brand);background:var(--brand-soft)}
+.tright{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;padding:9px 15px;border-radius:10px;border:1px solid var(--brand);background:var(--brand);color:#fff;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--brand-dark)}
+.btn.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--brand);color:var(--brand)}
+.wrap{max-width:1280px;margin:0 auto;padding:26px 28px 60px}
+.demo{background:var(--y-soft);border:1px solid #f3d27a;color:#7a5200;border-radius:12px;padding:10px 14px;margin-bottom:18px;font-weight:600}
+.demo .btn{margin-left:8px;padding:6px 12px}
+.hrow{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:30px;margin:0;font-weight:700}
+h2{font-size:21px;margin:0;font-weight:700}
+.sel{border:1px solid var(--line);border-radius:999px;background:#fff;padding:8px 14px;font-weight:700}
+.muted{color:var(--muted)}
+.kpis{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr));gap:16px;margin-bottom:26px}
+@media (max-width:1000px){.kpis{grid-template-columns:repeat(3,1fr)}.kpis .big{grid-column:1/-1}}
+@media (max-width:560px){.kpis{grid-template-columns:1fr 1fr}.stat{min-height:120px}.stat .n{font-size:36px}.top{padding:10px 14px}.wrap{padding:18px 14px 50px}}
+.card{background:#fff;border-radius:18px;box-shadow:0 2px 10px rgba(16,24,40,.05);padding:20px}
+.big{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.big .lbl{font-weight:700;color:#374151;line-height:1.25}
+.big .num{font-size:44px;font-weight:700;line-height:1.05;margin-top:6px}
+.big .sub{font-size:12.5px;color:var(--muted);margin-top:14px}
+.big .art{width:120px}
+@media (max-width:560px){.big{grid-template-columns:1fr 1fr}.big .art{display:none}}
+.stat{border-radius:18px;padding:18px;color:#fff;position:relative;overflow:hidden;min-height:160px;display:flex;flex-direction:column;justify-content:flex-end;cursor:pointer;border:0;text-align:left}
+.stat.g{background:var(--g)}.stat.y{background:var(--y)}.stat.o{background:var(--o)}
+.stat .n{font-size:46px;font-weight:700;line-height:1}
+.stat .t{font-size:13px;font-weight:700;opacity:.95}
+.stat .p{font-size:12.5px;opacity:.9}
+.stat .ic{position:absolute;top:14px;right:14px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.35);display:grid;place-items:center;font-size:20px}
+.stat[aria-pressed="true"]{outline:3px solid #1f2328;outline-offset:2px}
+.thead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.find{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:0 14px;height:40px;min-width:240px}
+.find input{border:0;outline:none;background:transparent;flex:1;min-width:0}
+.tbl{background:#fff;border-radius:18px;box-shadow:0 2px 10px rgba(16,24,40,.05);overflow:auto}
+table{border-collapse:separate;border-spacing:0 8px;width:100%;min-width:980px;padding:0 12px}
+th{font-size:12px;color:var(--muted);font-weight:700;text-align:left;padding:12px 10px 4px;white-space:nowrap;cursor:pointer;user-select:none}
+th.c,td.c{text-align:center}
+td{padding:10px;vertical-align:middle;font-weight:600}
+tr.r td:first-child{border-radius:12px 0 0 12px}tr.r td:last-child{border-radius:0 12px 12px 0}
+tr.r{cursor:pointer}
+tr.r.g td{background:var(--g-soft)}tr.r.y td{background:var(--y-soft)}tr.r.o td{background:var(--o-soft)}
+tr.r:hover td{filter:brightness(.98)}
+.who{display:flex;align-items:center;gap:10px}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;flex:none}
+.who small{display:block;color:var(--muted);font-weight:600;font-size:12px}
+.bar{display:flex;align-items:center;gap:0;background:#fff;border-radius:6px;overflow:hidden;width:150px;height:32px;border:1px solid var(--line)}
+.bar i{display:block;height:100%}
+.bar b{padding:0 10px;font-size:15px}
+.bub{display:inline-grid;place-items:center;border-radius:50%;font-weight:700;font-size:13px;color:#1f2328}
+.bub.o{background:var(--o);color:#fff}.bub.y{background:var(--y)}.bub.g{background:var(--g);color:#fff}
+.tag{font-family:var(--mono);font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:6px;background:var(--brand-soft);color:var(--brand)}
+.st{font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.st.g{background:var(--g);color:#fff}.st.y{background:var(--y)}.st.o{background:var(--o);color:#fff}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.prog{height:8px;background:#eef0f3;border-radius:99px;overflow:hidden;width:110px;margin-top:6px}
+.prog i{display:block;height:100%;background:var(--brand)}
+/* drawer */
+.drawer{position:fixed;inset:0;z-index:60;background:rgba(17,24,39,.4);display:flex;justify-content:flex-end}
+.dpanel{background:var(--paper);width:min(620px,100%);height:100%;overflow:auto;padding:22px;box-shadow:-10px 0 30px rgba(0,0,0,.15)}
+.dhead{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.dgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.mini{background:#fff;border-radius:14px;padding:12px}
+.mini b{display:block;font-size:24px}
+.mini span{font-size:12px;color:var(--muted);font-weight:700}
+.skill{display:grid;grid-template-columns:120px 1fr 48px;gap:10px;align-items:center;margin:8px 0;font-weight:700;font-size:14px}
+.skill .track{height:10px;background:#eef0f3;border-radius:99px;overflow:hidden}
+.skill .track i{display:block;height:100%}
+.lrow{display:grid;grid-template-columns:52px 1fr 64px 60px;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);font-size:14px}
+.lrow:last-child{border-bottom:0}
+details.essay{background:#fff;border-radius:12px;padding:10px 14px;margin:8px 0}
+details.essay summary{cursor:pointer;font-weight:700}
+details.essay p{white-space:pre-wrap;margin:10px 0 0;font-weight:500}
+/* login */
+.login{max-width:440px;margin:80px auto;background:#fff;border-radius:18px;padding:26px;box-shadow:0 10px 30px rgba(16,24,40,.08);display:grid;gap:12px}
+.login input{border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+.err{color:#b91c1c;font-weight:700;font-size:14px}
+.setup ol{padding-left:20px}
+.setup li{margin:6px 0}
+.setup code{background:#f3f4f6;padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:12.5px}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="./" title="Về trang học sinh"><span class="lg"><i>IVY</i>GIFTED</span><small>Dashboard giáo viên</small></a>
+  <nav aria-label="Mục">
+    <button type="button" data-tab="hs" aria-pressed="true">Học sinh</button>
+    <button type="button" data-tab="buoi" aria-pressed="false">Theo buổi học</button>
+    <button type="button" data-tab="luan" aria-pressed="false">Bài luận đã nộp</button>
+    <button type="button" data-tab="ketnoi" aria-pressed="false">Kết nối</button>
+  </nav>
+  <div class="tright">
+    <button class="btn ghost" id="reload" type="button">↻ Làm mới</button>
+    <a class="btn ghost" id="sheetLink" href="#" target="_blank" rel="noopener" hidden>Mở Google Sheet ↗</a>
+    <button class="btn" id="xlsx" type="button">⬇ Xuất Excel</button>
+  </div>
+</header>
+
+<main class="wrap" id="app"></main>
+
+<div class="drawer" id="drawer" hidden><div class="dpanel" id="dpanel" role="dialog" aria-modal="true"></div></div>
+
+<script src="config.js"></script>
+<script src="course.js"></script>
+<script src="data/index.js"></script>
+<script src="mascot.js"></script>
+<script src="xlsx-lite.js"></script>
+<script>
+(function(){
+const C=window.IVY_COURSE, IDX=window.IVY_INDEX||{};
+const TITLE={}; C.sessions.forEach(s=>TITLE[s.code]=s.title);
+const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pct=x=>x==null?"–":Math.round(x*100)+"%";
+const fmtD=d=>d?new Date(d).toLocaleDateString("vi-VN",{day:"2-digit",month:"2-digit"}):"–";
+const fmtDT=d=>d?new Date(d).toLocaleString("vi-VN",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"–";
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const SKILL={mcq:"Trắc nghiệm",gap:"Điền từ",fix:"Sửa lỗi",rewrite:"Viết lại câu"};
+const COLORS=["#9b1c1c","#2563eb","#0f766e","#7c3aed","#c2410c","#be185d","#4d7c0f","#0369a1"];
+const app=document.getElementById("app");
+let EVENTS=[], DEMO=false, SHEET="", tab="hs", klass=store.get("t-class","all"), filt=null, q="", sortBy=store.get("t-sort","status");
+
+const today=new Date(); today.setHours(23,59,59,999);
+const DUE=C.lessons.filter(s=>s.date<=today).map(s=>s.code);
+
+/* ---------- dữ liệu mẫu ---------- */
+function demoEvents(){
+  let seed=7; const r=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+  const names=["Nguyễn Minh Anh","Trần Gia Bảo","Lê Khánh Linh","Phạm Đức Huy","Vũ Thu Trang","Đặng Quốc Khánh","Bùi Ngọc Hân","Hoàng Tuấn Kiệt","Đỗ Phương Thảo","Ngô Hải Đăng","Dương Bảo Ngọc","Lý Thanh Tùng","Phan Mai Chi","Võ Nhật Minh","Trịnh Hà My","Mai Đức Anh","Hồ Thảo Vy","Tạ Quang Vinh"];
+  const cls=(window.IVY_CLASSES||["Lớp A","Lớp B"]);
+  const ev=[];
+  names.forEach((n,i)=>{
+    const sid="demo-"+i, c=cls[i%cls.length], ab=.42+r()*.55, dil=.5+r()*.5;
+    DUE.forEach((code,k)=>{
+      if(r()>dil) return;
+      const s=C.lessons.find(x=>x.code===code); const t=new Date(s.date); t.setHours(19+Math.floor(r()*3),Math.floor(r()*60));
+      ev.push({t:t.toISOString(),sid,name:n,cls:c,type:"open",code});
+      const L=(IDX[code]||{}); const tot=10+Math.floor(r()*12);
+      const sc=Math.max(0,Math.min(tot,Math.round(tot*(ab+(r()-.5)*.35))));
+      const det={mcq:[0,0],gap:[0,0],fix:[0,0],rewrite:[0,0]}; let left=tot,okl=sc;
+      Object.keys(det).forEach((k2,j)=>{const n2=j===3?left:Math.floor(left*(.25+r()*.3));const o=Math.min(n2,j===3?okl:Math.round(n2*sc/tot));det[k2]=[o,n2];left-=n2;okl-=o});
+      Object.keys(det).forEach(k2=>{if(!det[k2][1])delete det[k2]});
+      ev.push({t:new Date(t.getTime()+18*6e4).toISOString(),sid,name:n,cls:c,type:"score",code,score:sc,total:tot,detail:det});
+      if(r()<.8) ev.push({t:new Date(t.getTime()+40*6e4).toISOString(),sid,name:n,cls:c,type:"done",code,score:1,total:1});
+      if(["B18","B21","B26","B35","B47"].includes(code)&&r()<.7){const words=150+Math.floor(r()*120);ev.push({t:new Date(t.getTime()+50*6e4).toISOString(),sid,name:n,cls:c,type:"essay",code,score:words,total:0,text:"(Bài mẫu) In my opinion, schools should encourage students to develop both academic and life skills. Firstly, ...\n\n["+words+" từ]"})}
+    });
+  });
+  return ev;
+}
+
+/* ---------- tổng hợp ---------- */
+function aggregate(events){
+  const st={};
+  events.slice().sort((a,b)=>new Date(a.t)-new Date(b.t)).forEach(e=>{
+    if(!e.sid) return;
+    const s=st[e.sid]||(st[e.sid]={sid:e.sid,name:e.name,cls:e.cls,done:{},best:{},att:{},last:null,first:e.t,skills:{},essays:[],opens:0});
+    if(e.name) s.name=e.name; if(e.cls) s.cls=e.cls;
+    s.last=e.t;
+    if(e.type==="done"&&e.code) s.done[e.code]=Number(e.score)===1;
+    if(e.type==="open") s.opens++;
+    if(e.type==="score"&&e.code&&e.total>0){const p=e.score/e.total;s.best[e.code]=Math.max(s.best[e.code]||0,p);s.att[e.code]=(s.att[e.code]||0)+1;
+      if(e.detail) Object.keys(e.detail).forEach(k=>{const d=e.detail[k];if(!Array.isArray(d))return;const a=s.skills[k]||(s.skills[k]=[0,0]);a[0]+=+d[0]||0;a[1]+=+d[1]||0})}
+    if(e.type==="essay") s.essays.push({t:e.t,code:e.code,words:e.score,text:e.text});
+  });
+  return Object.values(st).map(s=>{
+    const doneCodes=Object.keys(s.done).filter(c=>s.done[c]);
+    const doneDue=DUE.filter(c=>s.done[c]||s.best[c]!==undefined).length;
+    const bs=Object.values(s.best);
+    s.doneN=doneCodes.length; s.progress=DUE.length?doneDue/DUE.length:0; s.doneDue=doneDue;
+    s.avg=bs.length?bs.reduce((a,b)=>a+b,0)/bs.length:null;
+    s.low=bs.filter(x=>x<.5).length; s.mid=bs.filter(x=>x>=.5&&x<.8).length; s.high=bs.filter(x=>x>=.8).length;
+    s.attempts=Object.values(s.att).reduce((a,b)=>a+b,0);
+    const idle=s.last?(Date.now()-new Date(s.last))/864e5:99;
+    s.idle=idle;
+    s.status=(s.progress<.5||(s.avg!=null&&s.avg<.5)||idle>14)?"o":(s.progress>=.8&&(s.avg==null||s.avg>=.75))?"g":"y";
+    return s;
+  });
+}
+const STATUS={g:"Vững",y:"Cần chú ý",o:"Nguy cơ"};
+function initials(n){const p=String(n||"?").trim().split(/\s+/);return (p[p.length-1]||"?")[0].toUpperCase()}
+function color(id){let h=0;for(const ch of String(id))h=(h*31+ch.charCodeAt(0))>>>0;return COLORS[h%COLORS.length]}
+
+/* ---------- nạp dữ liệu ---------- */
+async function load(){
+  const api=window.IVY_API, key=store.get("t-key","");
+  if(!api){DEMO=true;EVENTS=demoEvents();render();return}
+  if(!key){renderLogin();return}
+  app.innerHTML='<div class="empty">Đang tải dữ liệu từ Google Sheet…</div>';
+  try{
+    const r=await fetch(api+"?key="+encodeURIComponent(key)+"&_="+Date.now());
+    const j=await r.json();
+    if(!j.ok){store.set("t-key","");renderLogin(j.error||"Không đọc được dữ liệu");return}
+    DEMO=false; EVENTS=j.events||[]; SHEET=j.sheetUrl||"";
+    const sl=document.getElementById("sheetLink"); sl.hidden=!SHEET; sl.href=SHEET||"#";
+    render();
+  }catch(e){app.innerHTML='<div class="empty">Không kết nối được máy chủ. Kiểm tra mạng rồi bấm “Làm mới”.</div>'}
+}
+function renderLogin(err){
+  app.innerHTML=`<form class="login" id="lf"><div style="display:flex;justify-content:center">${IVY_MASCOT.svg("wave","",'happy').replace('class="gifty"','style="width:120px"')}</div><h2 style="text-align:center">Đăng nhập giáo viên</h2><label class="muted" for="tk">Mã giáo viên</label><input id="tk" type="password" autocomplete="current-password" required>${err?`<div class="err">${esc(err)}</div>`:""}<button class="btn" type="submit" style="justify-content:center">Vào dashboard</button></form>`;
+  document.getElementById("lf").addEventListener("submit",e=>{e.preventDefault();store.set("t-key",document.getElementById("tk").value.trim());load()});
+}
+
+/* ---------- giao diện ---------- */
+function classes(S){return [...new Set(S.map(s=>s.cls).filter(Boolean))].sort()}
+function render(){
+  document.querySelectorAll(".top nav button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.tab===tab));
+  const all=aggregate(EVENTS);
+  const S=all.filter(s=>klass==="all"||s.cls===klass);
+  const head=`${DEMO?`<div class="demo">⚠️ Đang xem <b>dữ liệu mẫu</b>. Kết nối Google Sheet để xem tiến độ thật của học sinh. <button class="btn ghost" type="button" data-go="ketnoi">Hướng dẫn kết nối</button></div>`:""}
+  <div class="hrow"><h1>${tab==="hs"?"Dashboard":tab==="buoi"?"Theo buổi học":tab==="luan"?"Bài luận đã nộp":"Kết nối dữ liệu"}</h1>
+  ${tab!=="ketnoi"?`<select class="sel" id="cls" aria-label="Chọn lớp"><option value="all">Tất cả lớp (${all.length} HS)</option>${classes(all).map(c=>`<option ${c===klass?"selected":""}>${esc(c)}</option>`).join("")}</select>`:""}
+  <span class="muted">Hôm nay ${today.toLocaleDateString("vi-VN")} · ${DUE.length} buổi đã đến hạn</span></div>`;
+  if(tab==="hs") app.innerHTML=head+viewStudents(S);
+  else if(tab==="buoi") app.innerHTML=head+viewLessons(S);
+  else if(tab==="luan") app.innerHTML=head+viewEssays(S);
+  else app.innerHTML=head+viewSetup();
+  const cs=document.getElementById("cls"); if(cs){cs.value=klass;cs.addEventListener("change",()=>{klass=cs.value;store.set("t-class",klass);render()})}
+  const f=document.getElementById("q"); if(f){f.value=q;f.addEventListener("input",()=>{q=f.value;const pos=f.selectionStart;render();const g=document.getElementById("q");g.focus();g.setSelectionRange(pos,pos)})}
+  window._S=S;
+}
+function viewStudents(S){
+  const n=S.length, avgs=S.filter(s=>s.avg!=null).map(s=>s.avg), cavg=avgs.length?avgs.reduce((a,b)=>a+b,0)/avgs.length:null;
+  const prog=n?S.reduce((a,s)=>a+s.progress,0)/n:0;
+  const cnt={g:0,y:0,o:0}; S.forEach(s=>cnt[s.status]++);
+  const card=(k,ic)=>`<button class="stat ${k}" data-f="${k}" aria-pressed="${filt===k}" type="button"><span class="ic">${ic}</span><span class="n">${cnt[k]}</span><span class="t">${STATUS[k]}</span><span class="p">${n?Math.round(cnt[k]/n*100):0}% học sinh</span></button>`;
+  let rows=S.filter(s=>(!filt||s.status===filt)&&(!q||(s.name+" "+s.cls).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").includes(q.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""))));
+  const ord={o:0,y:1,g:2};
+  rows.sort(sortBy==="name"?(a,b)=>a.name.localeCompare(b.name,"vi"):sortBy==="avg"?(a,b)=>(a.avg??-1)-(b.avg??-1):sortBy==="progress"?(a,b)=>a.progress-b.progress:sortBy==="last"?(a,b)=>new Date(a.last)-new Date(b.last):(a,b)=>ord[a.status]-ord[b.status]||(a.avg??0)-(b.avg??0));
+  const bar=s=>{const v=s.avg;const c=v==null?"#e5e7eb":v<.5?"var(--o)":v<.8?"var(--y)":"var(--g)";return `<div class="bar"><i style="width:${v==null?0:Math.max(8,v*45)}px;background:${c}"></i><b>${pct(v)}</b></div>`};
+  const bub=(v,k)=>{const sz=v?Math.min(46,24+v*2.2):24;return `<span class="bub ${k}" style="width:${sz}px;height:${sz}px">${v}</span>`};
+  return `<section class="kpis">
+    <div class="card big"><div><div class="lbl">Điểm luyện tập<br>trung bình lớp</div><div class="num">${pct(cavg)}</div><div class="sub">Tiến độ TB: ${pct(prog)} buổi đến hạn</div></div>
+      <div class="art">${IVY_MASCOT.svg("cheer","","excited").replace('class="gifty"','style="width:120px"')}</div>
+      <div><div class="lbl">Buổi đã<br>đến hạn</div><div class="num">${DUE.length}</div><div class="sub">Sĩ số: ${n} học sinh</div></div></div>
+    ${card("g","🌟")}${card("y","⚠️")}${card("o","🚨")}
+  </section>
+  <section>
+    <div class="thead"><h2>Tiến độ học sinh</h2>
+      <label class="find"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" placeholder="Tìm học sinh, lớp…" aria-label="Tìm học sinh"></label>
+      <select class="sel" id="sort" aria-label="Sắp xếp">${[["status","Ưu tiên cần hỗ trợ"],["name","Tên A–Z"],["avg","Điểm thấp → cao"],["progress","Tiến độ thấp → cao"],["last","Lâu chưa học nhất"]].map(o=>`<option value="${o[0]}" ${o[0]===sortBy?"selected":""}>${o[1]}</option>`).join("")}</select>
+      ${filt?`<button class="btn ghost" data-f="" type="button">Bỏ lọc “${STATUS[filt]}” ✕</button>`:""}
+    </div>
+    <div class="tbl">${rows.length?`<table><thead><tr><th>Họ tên</th><th>Buổi đã học</th><th>Điểm TB luyện tập</th><th class="c">Cần chú ý<br><small>&lt;50%</small></th><th class="c">Đang tiến bộ<br><small>50–79%</small></th><th class="c">Thành thạo<br><small>≥80%</small></th><th>Bài luận</th><th>Hoạt động gần nhất</th><th>Trạng thái</th></tr></thead><tbody>
+    ${rows.map(s=>`<tr class="r ${s.status}" data-sid="${esc(s.sid)}" tabindex="0"><td><div class="who"><span class="av" style="background:${color(s.sid)}">${esc(initials(s.name))}</span><span>${esc(s.name)}<small>${esc(s.cls||"")}</small></span></div></td>
+      <td>${s.doneDue} / ${DUE.length}<div class="prog"><i style="width:${Math.round(s.progress*100)}%"></i></div></td>
+      <td>${bar(s)}</td><td class="c">${bub(s.low,"o")}</td><td class="c">${bub(s.mid,"y")}</td><td class="c">${bub(s.high,"g")}</td>
+      <td>${s.essays.length}</td><td>${fmtDT(s.last)}${s.idle>7?`<br><small class="muted">${Math.floor(s.idle)} ngày trước</small>`:""}</td><td><span class="st ${s.status}">${STATUS[s.status]}</span></td></tr>`).join("")}
+    </tbody></table>`:`<div class="empty">${S.length?"Không có học sinh khớp bộ lọc.":"Chưa có học sinh nào gửi tiến độ. Học sinh cần điền tên và lớp ở trang học."}</div>`}</div>
+  </section>`;
+}
+function viewLessons(S){
+  const rows=C.lessons.filter(l=>DUE.includes(l.code)).reverse().map(l=>{
+    const tried=S.filter(s=>s.best[l.code]!==undefined), doneN=S.filter(s=>s.done[l.code]).length;
+    const avg=tried.length?tried.reduce((a,s)=>a+s.best[l.code],0)/tried.length:null;
+    return {l,tried:tried.length,doneN,avg};
+  });
+  return `<div class="tbl"><table><thead><tr><th>Buổi</th><th>Nội dung</th><th>Ngày</th><th>Đã đánh dấu học</th><th>Đã làm luyện tập</th><th>Điểm TB</th></tr></thead><tbody>
+  ${rows.map(x=>{const k=x.avg==null?"":x.avg<.5?"o":x.avg<.8?"y":"g";return `<tr class="r ${k}"><td><span class="tag">${x.l.code}</span></td><td>${esc(x.l.title)}</td><td>${fmtD(x.l.date)}</td><td>${x.doneN} / ${S.length}</td><td>${x.tried} / ${S.length}</td><td>${pct(x.avg)}</td></tr>`}).join("")}
+  </tbody></table></div><p class="muted">Buổi có điểm trung bình thấp (màu cam) nên được chữa lại trên lớp.</p>`;
+}
+function viewEssays(S){
+  const list=[];S.forEach(s=>s.essays.forEach(e=>list.push({s,e})));
+  list.sort((a,b)=>new Date(b.e.t)-new Date(a.e.t));
+  return list.length?list.map(({s,e})=>`<details class="essay"><summary><span class="tag">${esc(e.code)}</span> ${esc(s.name)} · <span class="muted">${esc(s.cls||"")} · ${fmtDT(e.t)} · ${e.words||0} từ</span></summary><p>${esc(e.text)}</p></details>`).join(""):'<div class="card empty">Chưa có bài luận nào được nộp.</div>';
+}
+function viewSetup(){
+  const url=window.IVY_API;
+  return `<div class="card setup"><h2>${url?"✓ Đã kết nối Google Sheet":"Kết nối Google Sheet (làm một lần, ~2 phút)"}</h2>
+  ${url?`<p>Địa chỉ máy chủ: <code>${esc(url)}</code></p><p><button class="btn ghost" id="logout" type="button">Đăng xuất mã giáo viên</button></p>`:`
+  <ol><li>Mở <a href="https://script.google.com/home/projects/create" target="_blank" rel="noopener">script.google.com → Dự án mới</a> (đăng nhập Gmail của trung tâm).</li>
+  <li>Xoá mã có sẵn, dán toàn bộ mã trong <a href="https://github.com/IVYONCHUYEN/ivy-on-chuyen/blob/main/tools/apps-script.gs" target="_blank" rel="noopener">tools/apps-script.gs</a>. Có thể đổi <code>TEACHER_KEY</code> (mã đăng nhập dashboard).</li>
+  <li>Bấm <b>Triển khai → Tùy chọn triển khai mới → Ứng dụng web</b>. Chọn <i>Thực thi với: Tôi</i>, <i>Người có quyền truy cập: Bất kỳ ai</i> → <b>Triển khai</b> → cấp quyền.</li>
+  <li>Sao chép <b>URL ứng dụng web</b> (kết thúc bằng <code>/exec</code>) gửi cho Claude để gắn vào web.</li></ol>`}
+  <p class="muted">Dữ liệu lưu trong bảng tính “IVY GIFTED – Tiến độ học sinh” trên Google Drive của tài khoản đã triển khai. Học sinh chỉ gửi được dữ liệu, không đọc được; chỉ ai có mã giáo viên mới xem được dashboard.</p></div>`;
+}
+function openStudent(sid){
+  const s=(window._S||[]).find(x=>x.sid===sid); if(!s) return;
+  const codes=Object.keys(s.best).sort().reverse();
+  const sk=Object.keys(SKILL).map(k=>{const a=s.skills[k];const v=a&&a[1]?a[0]/a[1]:null;const c=v==null?"#e5e7eb":v<.5?"var(--o)":v<.8?"var(--y)":"var(--g)";return `<div class="skill"><span>${SKILL[k]}</span><span class="track"><i style="width:${v==null?0:v*100}%;background:${c}"></i></span><span>${pct(v)}</span></div>`}).join("");
+  const missing=DUE.filter(c=>!s.done[c]&&s.best[c]===undefined);
+  document.getElementById("dpanel").innerHTML=`<div class="dhead"><span class="av" style="background:${color(s.sid)};width:48px;height:48px;font-size:20px">${esc(initials(s.name))}</span><div style="flex:1"><h2>${esc(s.name)}</h2><div class="muted">${esc(s.cls||"")} · <span class="st ${s.status}">${STATUS[s.status]}</span></div></div><button class="btn ghost" id="dclose" type="button">Đóng ✕</button></div>
+  <div class="dgrid"><div class="mini"><span>Tiến độ</span><b>${pct(s.progress)}</b><span>${s.doneDue}/${DUE.length} buổi</span></div><div class="mini"><span>Điểm TB</span><b>${pct(s.avg)}</b><span>${s.attempts} lượt làm bài</span></div><div class="mini"><span>Gần nhất</span><b style="font-size:17px">${fmtDT(s.last)}</b><span>${s.essays.length} bài luận</span></div></div>
+  <div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 6px">Kỹ năng theo dạng câu hỏi</h3>${sk}</div>
+  ${missing.length?`<div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 6px">Buổi chưa học (${missing.length})</h3><div style="display:flex;flex-wrap:wrap;gap:6px">${missing.map(c=>`<span class="tag" title="${esc(TITLE[c]||"")}">${c}</span>`).join("")}</div></div>`:""}
+  <div class="card" style="margin-bottom:14px;padding:8px 10px"><h3 style="margin:8px 10px">Điểm từng buổi</h3>${codes.length?codes.map(c=>{const v=s.best[c];const k=v<.5?"o":v<.8?"y":"g";return `<div class="lrow"><span class="tag">${c}</span><span>${esc(TITLE[c]||"")}</span><span class="st ${k}" style="text-align:center">${pct(v)}</span><span class="muted">${s.att[c]} lượt</span></div>`}).join(""):'<div class="empty">Chưa làm bài luyện tập nào.</div>'}</div>
+  ${s.essays.length?`<h3>Bài luận</h3>${s.essays.slice().reverse().map(e=>`<details class="essay"><summary><span class="tag">${esc(e.code)}</span> ${fmtDT(e.t)} · ${e.words||0} từ</summary><p>${esc(e.text)}</p></details>`).join("")}`:""}`;
+  document.getElementById("drawer").hidden=false;
+  document.getElementById("dclose").focus();
+}
+
+/* ---------- Excel ---------- */
+function exportXlsx(){
+  const all=aggregate(EVENTS), S=all.filter(s=>klass==="all"||s.cls===klass);
+  const H=(a)=>a;
+  const sum=[H(["STT","Họ tên","Lớp","Buổi đã học","Buổi đến hạn","% tiến độ","Điểm TB luyện tập","Số lượt làm bài","Thành thạo (≥80%)","Đang tiến bộ (50–79%)","Cần chú ý (<50%)","Bài luận đã nộp","Hoạt động gần nhất","Trạng thái"])]
+    .concat(S.sort((a,b)=>a.name.localeCompare(b.name,"vi")).map((s,i)=>[i+1,s.name,s.cls,s.doneDue,DUE.length,{pct:+s.progress.toFixed(4)},s.avg==null?"":{pct:+s.avg.toFixed(4)},s.attempts,s.high,s.mid,s.low,s.essays.length,s.last?new Date(s.last):"",STATUS[s.status]]));
+  const codes=C.lessons.map(l=>l.code).filter(c=>DUE.includes(c)||S.some(s=>s.best[c]!==undefined));
+  const mat=[["Họ tên","Lớp"].concat(codes)].concat(S.map(s=>[s.name,s.cls].concat(codes.map(c=>s.best[c]===undefined?(s.done[c]?"✓":""):{pct:+s.best[c].toFixed(4)}))));
+  const skills=[["Họ tên","Lớp"].concat(Object.values(SKILL))].concat(S.map(s=>[s.name,s.cls].concat(Object.keys(SKILL).map(k=>{const a=s.skills[k];return a&&a[1]?{pct:+(a[0]/a[1]).toFixed(4)}:""}))));
+  const ess=[["Thời gian","Họ tên","Lớp","Buổi","Số từ","Bài viết"]];S.forEach(s=>s.essays.forEach(e=>ess.push([new Date(e.t),s.name,s.cls,e.code,e.words||0,e.text||""])));
+  const sids=new Set(S.map(s=>s.sid)), TYPE={join:"Đăng ký",open:"Mở bài",done:"Đánh dấu học",score:"Điểm luyện tập",essay:"Nộp bài luận"};
+  const log=[["Thời gian","Họ tên","Lớp","Hoạt động","Buổi","Điểm","Tổng"]].concat(EVENTS.filter(e=>sids.has(e.sid)).sort((a,b)=>new Date(a.t)-new Date(b.t)).map(e=>[new Date(e.t),e.name,e.cls,TYPE[e.type]||e.type,e.code,e.type==="score"?e.score:"",e.type==="score"?e.total:""]));
+  const d=new Date(), tag=(klass==="all"?"tat-ca-lop":klass).normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d").replace(/Đ/g,"D").replace(/[^A-Za-z0-9]+/g,"-");
+  IVY_XLSX.download([
+    {name:"Tổng quan",rows:sum,widths:[6,26,20,12,12,11,16,14,16,18,15,14,18,12]},
+    {name:"Điểm từng buổi",rows:mat,widths:[26,20].concat(codes.map(()=>8))},
+    {name:"Kỹ năng",rows:skills,widths:[26,20,14,12,12,14]},
+    {name:"Bài luận",rows:ess,widths:[18,26,20,8,8,100]},
+    {name:"Nhật ký hoạt động",rows:log,widths:[18,26,20,16,8,8,8]}
+  ],`IVY-GIFTED_tien-do_${tag}_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}${DEMO?"_du-lieu-mau":""}.xlsx`);
+}
+
+/* ---------- sự kiện ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-tab]"); if(t){tab=t.dataset.tab;filt=null;render();return}
+  const g=e.target.closest("[data-go]"); if(g){tab=g.dataset.go;render();return}
+  const f=e.target.closest("[data-f]"); if(f){filt=f.dataset.f&&filt!==f.dataset.f?f.dataset.f:null;render();return}
+  const r=e.target.closest("tr[data-sid]"); if(r){openStudent(r.dataset.sid);return}
+  if(e.target.id==="drawer"||e.target.id==="dclose"){document.getElementById("drawer").hidden=true;return}
+  if(e.target.id==="logout"){store.set("t-key","");load();return}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementById("drawer").hidden=true;const r=e.target.closest&&e.target.closest("tr[data-sid]");if(r&&e.key==="Enter")openStudent(r.dataset.sid)});
+document.addEventListener("change",e=>{if(e.target.id==="sort"){sortBy=e.target.value;store.set("t-sort",sortBy);render()}});
+document.getElementById("reload").addEventListener("click",load);
+document.getElementById("xlsx").addEventListener("click",exportXlsx);
+load();
+})();
+</script>
+</body>
+</html>

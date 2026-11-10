@@ -232,6 +232,8 @@ summary{color:#9b1c1c}
 </head>
 <body>
 <div class="wrap" id="app"><div class="err">Đang tải bài học…</div></div>
+<script src="config.js"></script>
+<script src="track.js"></script>
 <script src="mascot.js"></script>
 <script>
 (function(){
@@ -351,14 +353,14 @@ function practice(L){
     return head+items+"</div>";
   }).join("");
   el.innerHTML=`<div class="ph"><div class="icon" style="background:linear-gradient(160deg,#2ea865,#5fe09c)">✍️</div><div style="min-width:0;flex:1"><h2>Luyện tập theo dạng đề</h2><p>${L.practiceLead||"Làm hết rồi bấm “Chấm bài”. Câu sai có giải thích — chép câu sai vào sổ lỗi."}</p></div></div>
-  ${html}<div class="scorebar"><span>Điểm: <b id="sc">–</b> / ${total}</span><div class="row"><button class="btn ghost sm" id="rs">Làm lại</button><button class="btn" id="gr">Chấm bài</button></div></div>`;
+  ${html}<div class="scorebar"><span>Điểm: <b id="sc">–</b> / ${total} <small id="sentNote" class="note" style="margin-left:8px"></small></span><div class="row"><button class="btn ghost sm" id="rs">Làm lại</button><button class="btn" id="gr">Chấm bài</button></div></div>`;
   el.addEventListener("click",e=>{
     const o=e.target.closest(".opt");if(o&&!o.closest(".q").dataset.done){o.parentNode.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));o.classList.add("sel");return}
     const b=e.target.closest(".letters button");if(b&&!b.closest(".q").dataset.done){b.parentNode.querySelectorAll("button").forEach(x=>x.classList.remove("sel"));b.classList.add("sel")}
   });
   const fb=(q,ok,msg)=>{const f=q.querySelector(".fb");f.className="fb show "+(ok?"ok":"no");f.innerHTML=(ok?"✓ Đúng. ":"✗ Chưa đúng. ")+msg};
   el.querySelector("#gr").addEventListener("click",()=>{
-    let sc=0;
+    let sc=0; const det={};
     graders.forEach(g=>{const q=document.getElementById(g.id);q.dataset.done=1;let ok=false;
       if(g.type==="mcq"){const s=q.querySelector(".opt.sel");const k=s?+s.dataset.k:-1;ok=k===g.ans;q.querySelectorAll(".opt").forEach(x=>{const kk=+x.dataset.k;x.classList.toggle("right",kk===g.ans);x.classList.toggle("wrong",kk===k&&!ok)});fb(q,ok,`Đáp án <b>${"ABCDEFGH"[g.ans]}</b>. ${g.ex||""}`)}
       if(g.type==="gap"){const i=q.querySelector("input");ok=g.ans.some(a=>norm(a)===norm(i.value));i.classList.toggle("right",ok);i.classList.toggle("wrong",!ok);fb(q,ok,`Đáp án: <b>${esc(g.ans[0])}</b>${g.ans.length>1?" (chấp nhận: "+g.ans.slice(1).map(esc).join(", ")+")":""}. ${g.ex||""}`)}
@@ -366,7 +368,9 @@ function practice(L){
         q.querySelectorAll(".letters button").forEach(x=>{const kk=+x.dataset.k;x.classList.toggle("right",kk===g.wrong);x.classList.toggle("wrong",kk===k&&!okL)});i.classList.toggle("right",okC);i.classList.toggle("wrong",!okC);
         fb(q,ok,`Lỗi ở <b>${"ABCD"[g.wrong]}</b>, sửa thành <b>${esc(g.ans[0])}</b>. ${g.ex||""}`)}
       if(g.type==="rewrite"){const i=q.querySelector("input");ok=g.ans.some(a=>norm(a)===norm(i.value));i.classList.toggle("right",ok);i.classList.toggle("wrong",!ok);fb(q,ok,`Đáp án mẫu: <b>${esc(g.ans[0])}</b>. ${g.ex||""}${ok?"":" <i>(Nếu câu của em khác nhưng đúng nghĩa và ngữ pháp, hỏi lại giáo viên.)</i>"}`)}
-      if(ok)sc++;});
+      if(ok)sc++; det[g.type]=det[g.type]||[0,0]; det[g.type][1]++; if(ok)det[g.type][0]++;});
+    if(window.IVY_TRACK){const sent=IVY_TRACK.send({type:"score",code:window.LESSON.code,score:sc,total:graders.length,detail:det});
+      const n=el.querySelector("#sentNote"); if(n) n.textContent=sent?"✓ Đã gửi điểm cho giáo viên":"Đăng ký tên ở trang chủ để giáo viên nhận được điểm";}
     el.querySelector("#sc").textContent=sc;
     const best=store.get("best-"+(window.LESSON.code),0);if(sc>best)store.set("best-"+window.LESSON.code,sc);
   });
@@ -383,6 +387,7 @@ function writing(L){
     ${w.outline?`<details><summary>Gợi ý dàn ý</summary><div class="model">${w.outline}</div></details>`:""}
     <textarea class="inp" id="wt" placeholder="Viết bài của em ở đây…"></textarea>
     <div class="row" style="justify-content:space-between;margin-top:6px"><span class="wc" id="wc">0 từ</span><span class="note">Mục tiêu: ${w.words||"150–250"} từ</span></div>
+    <div class="row" style="margin-top:10px"><button class="btn sm" id="wsend" type="button">📨 Nộp bài cho giáo viên</button><span class="note" id="wsent"></span></div>
     ${w.checklist?`<h3 style="margin-top:14px">Tự kiểm tra trước khi nộp</h3><ul class="checks">${w.checklist.map((c,i)=>`<li><label><input type="checkbox" data-c="${i}"> <span>${c}</span></label></li>`).join("")}</ul>`:""}
     ${w.model?`<details><summary>Xem bài mẫu (viết xong mới mở)</summary><div class="model">${w.model}</div></details>`:""}</div>`;
   }
@@ -390,6 +395,11 @@ function writing(L){
     <p class="note">Sổ lỗi: ghi câu sai theo mẫu <b>dạng bài · lý do sai · kiến thức · ngày làm lại (sau 7–14 ngày)</b>.</p></div>`;
   el.innerHTML=h;
   const k="w-"+L.code,t=el.querySelector("#wt");
+  const ws=el.querySelector("#wsend");
+  if(ws)ws.addEventListener("click",()=>{const txt=t.value.trim();const n=(txt.match(/\S+/g)||[]).length;const st=el.querySelector("#wsent");
+    if(n<20){st.textContent="Bài viết quá ngắn, em viết thêm nhé.";return}
+    if(!window.IVY_TRACK||!IVY_TRACK.me()){st.textContent="Em cần đăng ký tên ở trang chủ trước khi nộp.";return}
+    IVY_TRACK.send({type:"essay",code:L.code,score:n,total:0,text:txt});st.textContent="✓ Đã nộp lúc "+new Date().toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"})+" ("+n+" từ)"});
   if(t){t.value=store.get(k,"");const cnt=()=>{const n=(t.value.trim().match(/\S+/g)||[]).length;el.querySelector("#wc").textContent=n+" từ"};cnt();t.addEventListener("input",()=>{store.set(k,t.value);cnt()})}
   const ck=store.get("c-"+L.code,{});
   el.querySelectorAll("input[type=checkbox]").forEach(c=>{const id=c.dataset.c!==undefined?"c"+c.dataset.c:"h"+c.dataset.h;c.checked=!!ck[id];c.addEventListener("change",()=>{ck[id]=c.checked;store.set("c-"+L.code,ck)})});
