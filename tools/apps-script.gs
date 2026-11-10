@@ -147,3 +147,9 @@ function grade_(p) {
   cache.put('g' + id, JSON.stringify(res), 21600);
   return res;
 }
+
+/* Bấm ▶ Chạy với hàm kiemTraAI để cấp quyền gọi Gemini và thử chấm một câu. Xem kết quả ở Nhật ký thực thi. */
+function kiemTraAI() {
+  const r = grade_({ q: 'Save some money now, or you will regret it.', h: 'If...', a: JSON.stringify(["If you don't save some money now, you will regret it."]), r: 'If you do not save any money now, you will regret it.' });
+  Logger.log(JSON.stringify(r));
+}
