@@ -27,19 +27,31 @@ function out_(obj) {
 }
 
 function doPost(e) {
+  let body = {};
+  try { body = JSON.parse(e.postData.contents || '{}'); } catch (x) { return out_({ ok: false, error: 'Dữ liệu không hợp lệ' }); }
+  if (body.action) {
+    try { return out_(api_(body)); } catch (err) { return out_({ ok: false, error: String(err && err.message || err) }); }
+  }
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
-    const body = JSON.parse(e.postData.contents || '{}');
     const list = Array.isArray(body.events) ? body.events : [body];
     const sh = book_().getSheetByName('Sự kiện');
-    const rows = list.slice(0, 200).map(ev => [
-      ev.t ? new Date(ev.t) : new Date(),
-      String(ev.sid || '').slice(0, 40), String(ev.name || '').slice(0, 80), String(ev.cls || '').slice(0, 60),
-      String(ev.type || '').slice(0, 20), String(ev.code || '').slice(0, 10),
-      ev.score === undefined ? '' : Number(ev.score), ev.total === undefined ? '' : Number(ev.total),
-      ev.detail ? JSON.stringify(ev.detail).slice(0, 2000) : '', String(ev.text || '').slice(0, 20000)
-    ]);
+    const cache = {};
+    const rows = list.slice(0, 200).map(ev => {
+      // Học sinh đã đăng nhập: lấy mã, tên, lớp từ tài khoản (không tin dữ liệu trình duyệt gửi lên)
+      if (ev.tok) {
+        const u = cache[ev.tok] !== undefined ? cache[ev.tok] : (cache[ev.tok] = verify_(ev.tok));
+        if (u && u.r === 's') { const st = studentById_(u.id); if (st) { ev.sid = st.id; ev.name = st.name; ev.cls = (classById_(st.classId) || {}).name || ''; } }
+      }
+      return [
+        ev.t ? new Date(ev.t) : new Date(),
+        String(ev.sid || '').slice(0, 40), String(ev.name || '').slice(0, 80), String(ev.cls || '').slice(0, 60),
+        String(ev.type || '').slice(0, 20), String(ev.code || '').slice(0, 10),
+        ev.score === undefined ? '' : Number(ev.score), ev.total === undefined ? '' : Number(ev.total),
+        ev.detail ? JSON.stringify(ev.detail).slice(0, 2000) : '', String(ev.text || '').slice(0, 20000)
+      ];
+    });
     if (rows.length) sh.getRange(sh.getLastRow() + 1, 1, rows.length, HEAD.length).setValues(rows);
     return out_({ ok: true, n: rows.length });
   } catch (err) {
@@ -49,22 +61,217 @@ function doPost(e) {
   }
 }
 
+function events_() {
+  const values = book_().getSheetByName('Sự kiện').getDataRange().getValues();
+  values.shift();
+  return values.map(r => ({
+    t: r[0] instanceof Date ? r[0].toISOString() : r[0], sid: r[1], name: r[2], cls: r[3], type: r[4], code: r[5],
+    score: r[6] === '' ? null : r[6], total: r[7] === '' ? null : r[7],
+    detail: r[8] ? (function () { try { return JSON.parse(r[8]); } catch (x) { return null; } })() : null, text: r[9]
+  }));
+}
+
 function doGet(e) {
   const p = (e && e.parameter) || {};
   if (p.action === 'ping') return out_({ ok: true });
   if (p.action === 'grade') return out_(grade_(p));
   if (p.key !== TEACHER_KEY) return out_({ ok: false, error: 'Sai mã giáo viên' });
-  const ss = book_();
-  const values = ss.getSheetByName('Sự kiện').getDataRange().getValues();
-  values.shift();
-  const events = values.map(r => ({
-    t: r[0] instanceof Date ? r[0].toISOString() : r[0], sid: r[1], name: r[2], cls: r[3], type: r[4], code: r[5],
-    score: r[6] === '' ? null : r[6], total: r[7] === '' ? null : r[7],
-    detail: r[8] ? (function () { try { return JSON.parse(r[8]); } catch (x) { return null; } })() : null, text: r[9]
-  }));
-  return out_({ ok: true, sheetUrl: ss.getUrl(), events: events });
+  return out_({ ok: true, sheetUrl: book_().getUrl(), events: events_() });
 }
 
+/* ===================== TÀI KHOẢN: quản trị · giáo viên · học sinh ===================== */
+const T_HEAD = ['Mã GV', 'Họ tên', 'Mã đăng nhập (băm)', 'Đuôi mã', 'Trạng thái', 'Ngày tạo'];
+const C_HEAD = ['Mã lớp', 'Tên lớp', 'Mã GV', 'Bài public (JSON)', 'Ngày tạo'];
+const S_HEAD = ['Mã HS', 'Họ tên', 'Mã lớp', 'Tên đăng nhập', 'Mật khẩu (băm)', 'Muối', 'Trạng thái', 'Ngày tạo', 'Đăng nhập gần nhất'];
+
+function tab_(name, head) {
+  const ss = book_(); let sh = ss.getSheetByName(name);
+  if (!sh) {
+    sh = ss.insertSheet(name); sh.appendRow(head); sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, head.length).setFontWeight('bold').setBackground('#9b1c1c').setFontColor('#ffffff');
+  }
+  return sh;
+}
+function rows_(name, head) { const v = tab_(name, head).getDataRange().getValues(); v.shift(); return v; }
+function teachers_() { return rows_('Giáo viên', T_HEAD).filter(r => r[0]).map(r => ({ id: String(r[0]), name: r[1], hash: r[2], tail: r[3], status: r[4] || 'active', created: r[5] })); }
+function classes_() { return rows_('Lớp', C_HEAD).filter(r => r[0]).map(r => ({ id: String(r[0]), name: r[1], teacherId: String(r[2] || ''), pub: (function () { try { return JSON.parse(r[3] || '[]'); } catch (e) { return []; } })(), created: r[4] })); }
+function students_() { return rows_('Học sinh', S_HEAD).filter(r => r[0]).map(r => ({ id: String(r[0]), name: r[1], classId: String(r[2]), user: String(r[3]), hash: r[4], salt: r[5], status: r[6] || 'active', created: r[7], last: r[8] })); }
+function classById_(id) { return classes_().filter(c => c.id === String(id))[0] || null; }
+function studentById_(id) { return students_().filter(s => s.id === String(id))[0] || null; }
+function findRow_(name, head, id) {
+  const sh = tab_(name, head); const v = sh.getRange(1, 1, sh.getLastRow(), 1).getValues();
+  for (let i = 1; i < v.length; i++) if (String(v[i][0]) === String(id)) return { sh: sh, row: i + 1 };
+  return null;
+}
+
+function secret_() {
+  const p = PropertiesService.getScriptProperties(); let s = p.getProperty('TOKEN_SECRET');
+  if (!s) { s = Utilities.getUuid() + Utilities.getUuid(); p.setProperty('TOKEN_SECRET', s); }
+  return s;
+}
+function b64_(bytes) { return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/, ''); }
+function sign_(payload) {
+  const body = b64_(Utilities.newBlob(JSON.stringify(payload)).getBytes());
+  return body + '.' + b64_(Utilities.computeHmacSha256Signature(body, secret_()));
+}
+function verify_(tok) {
+  try {
+    const parts = String(tok || '').split('.'); if (parts.length !== 2) return null;
+    if (b64_(Utilities.computeHmacSha256Signature(parts[0], secret_())) !== parts[1]) return null;
+    const p = JSON.parse(Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[0] + '==='.slice((parts[0].length + 3) % 4))).getDataAsString());
+    if (!p.exp || p.exp < Date.now()) return null;
+    // tài khoản bị khoá / xoá thì token mất hiệu lực
+    if (p.r === 't') { const t = teachers_().filter(x => x.id === p.id)[0]; if (!t || t.status !== 'active' || t.hash.slice(0, 8) !== p.v) return null; }
+    if (p.r === 's') { const st = studentById_(p.id); if (!st || st.status !== 'active' || String(st.hash).slice(0, 8) !== p.v) return null; }
+    return p;
+  } catch (e) { return null; }
+}
+function hash_(text, salt) { return b64_(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(salt || '') + '|' + String(text))); }
+function rnd_(n, abc) { abc = abc || 'abcdefghjkmnpqrstuvwxyz23456789'; let s = ''; for (let i = 0; i < n; i++) s += abc[Math.floor(Math.random() * abc.length)]; return s; }
+function nid_(p) { return p + Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyMMdd') + rnd_(4, '0123456789ABCDEFGHJKLMNPQRSTUVWXYZ'); }
+const DAY = 86400000;
+
+function profile_(u) {
+  if (u.r === 'a') return { role: 'admin', id: 'admin', name: 'Quản trị viên' };
+  if (u.r === 't') { const t = teachers_().filter(x => x.id === u.id)[0]; return { role: 'teacher', id: t.id, name: t.name }; }
+  const st = studentById_(u.id), c = classById_(st.classId) || { name: '', pub: [] };
+  const t = teachers_().filter(x => x.id === c.teacherId)[0];
+  return { role: 'student', id: st.id, name: st.name, user: st.user, classId: st.classId, className: c.name, teacherName: t ? t.name : '', pub: c.pub };
+}
+function need_(u, roles) { if (!u || roles.indexOf(u.r) < 0) throw new Error('Phiên đăng nhập hết hạn hoặc không có quyền. Hãy đăng nhập lại.'); }
+function ownClass_(u, classId) {
+  const c = classById_(classId); if (!c) throw new Error('Không tìm thấy lớp');
+  if (u.r === 't' && c.teacherId !== u.id) throw new Error('Lớp này không thuộc giáo viên đang đăng nhập');
+  return c;
+}
+
+function api_(b) {
+  const a = b.action;
+  if (a === 'login') return login_(b);
+  const u = verify_(b.token);
+  if (a === 'me') { need_(u, ['a', 't', 's']); return { ok: true, user: profile_(u) }; }
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    if (a === 'data') { need_(u, ['a', 't']); return data_(u); }
+    if (a === 'createTeacher') { need_(u, ['a']); return createTeacher_(b); }
+    if (a === 'teacher') { need_(u, ['a']); return teacherOp_(b); }
+    if (a === 'createClass') { need_(u, ['a', 't']); return createClass_(u, b); }
+    if (a === 'class') { need_(u, ['a', 't']); return classOp_(u, b); }
+    if (a === 'setPublic') { need_(u, ['a', 't']); return setPublic_(u, b); }
+    if (a === 'addStudents') { need_(u, ['a', 't']); return addStudents_(u, b); }
+    if (a === 'student') { need_(u, ['a', 't']); return studentOp_(u, b); }
+    return { ok: false, error: 'Không rõ thao tác' };
+  } finally { lock.releaseLock(); }
+}
+
+function login_(b) {
+  if (b.role === 'a') {
+    if (String(b.key || '') !== TEACHER_KEY) return { ok: false, error: 'Sai mã quản trị' };
+    const u = { r: 'a', id: 'admin', exp: Date.now() + 30 * DAY };
+    return { ok: true, token: sign_(u), user: profile_(u) };
+  }
+  if (b.role === 't') {
+    const code = String(b.code || '').trim().toUpperCase();
+    const t = teachers_().filter(x => x.hash === hash_(code, x.id))[0];
+    if (!t) return { ok: false, error: 'Mã giáo viên không đúng' };
+    if (t.status !== 'active') return { ok: false, error: 'Tài khoản giáo viên đang bị khoá' };
+    const u = { r: 't', id: t.id, v: t.hash.slice(0, 8), exp: Date.now() + 30 * DAY };
+    return { ok: true, token: sign_(u), user: profile_(u) };
+  }
+  const user = String(b.user || '').trim().toLowerCase(), pass = String(b.pass || '').trim();
+  const st = students_().filter(x => x.user.toLowerCase() === user)[0];
+  if (!st || st.hash !== hash_(pass, st.salt)) return { ok: false, error: 'Sai mã học sinh hoặc mật khẩu' };
+  if (st.status !== 'active') return { ok: false, error: 'Tài khoản đang bị khoá, em hỏi giáo viên nhé' };
+  const r = findRow_('Học sinh', S_HEAD, st.id); if (r) r.sh.getRange(r.row, 9).setValue(new Date());
+  const u = { r: 's', id: st.id, v: String(st.hash).slice(0, 8), exp: Date.now() + 120 * DAY };
+  return { ok: true, token: sign_(u), user: profile_(u) };
+}
+
+function data_(u) {
+  const T = teachers_(), C = classes_(), S = students_();
+  const myC = u.r === 'a' ? C : C.filter(c => c.teacherId === u.id);
+  const cid = {}; myC.forEach(c => cid[c.id] = 1);
+  const myS = S.filter(s => cid[s.classId]);
+  const sid = {}; myS.forEach(s => sid[s.id] = 1);
+  const ev = events_().filter(e => u.r === 'a' || sid[e.sid]);
+  const tn = {}; T.forEach(t => tn[t.id] = t.name);
+  return {
+    ok: true, user: profile_(u), sheetUrl: u.r === 'a' ? book_().getUrl() : '',
+    teachers: u.r === 'a' ? T.map(t => ({ id: t.id, name: t.name, tail: t.tail, status: t.status, created: t.created })) : [],
+    classes: myC.map(c => ({ id: c.id, name: c.name, teacherId: c.teacherId, teacherName: tn[c.teacherId] || (c.teacherId ? '' : 'Quản trị viên'), pub: c.pub, created: c.created })),
+    students: myS.map(s => ({ id: s.id, name: s.name, classId: s.classId, user: s.user, status: s.status, created: s.created, last: s.last })),
+    events: ev
+  };
+}
+
+function createTeacher_(b) {
+  const name = String(b.name || '').trim().slice(0, 80); if (!name) return { ok: false, error: 'Nhập tên giáo viên' };
+  const id = nid_('GV'), code = 'GV-' + rnd_(4, '23456789ABCDEFGHJKLMNPQRSTUVWXYZ') + '-' + rnd_(4, '23456789ABCDEFGHJKLMNPQRSTUVWXYZ');
+  tab_('Giáo viên', T_HEAD).appendRow([id, name, hash_(code, id), code.slice(-4), 'active', new Date()]);
+  return { ok: true, id: id, name: name, code: code };
+}
+function teacherOp_(b) {
+  const r = findRow_('Giáo viên', T_HEAD, b.id); if (!r) return { ok: false, error: 'Không tìm thấy giáo viên' };
+  if (b.op === 'regen') {
+    const code = 'GV-' + rnd_(4, '23456789ABCDEFGHJKLMNPQRSTUVWXYZ') + '-' + rnd_(4, '23456789ABCDEFGHJKLMNPQRSTUVWXYZ');
+    r.sh.getRange(r.row, 3, 1, 2).setValues([[hash_(code, b.id), code.slice(-4)]]); return { ok: true, code: code };
+  }
+  if (b.op === 'disable' || b.op === 'enable') { r.sh.getRange(r.row, 5).setValue(b.op === 'disable' ? 'locked' : 'active'); return { ok: true }; }
+  if (b.op === 'rename') { r.sh.getRange(r.row, 2).setValue(String(b.name || '').slice(0, 80)); return { ok: true }; }
+  if (b.op === 'delete') {
+    if (classes_().some(c => c.teacherId === String(b.id))) return { ok: false, error: 'Giáo viên còn lớp. Chuyển hoặc xoá lớp trước.' };
+    r.sh.deleteRow(r.row); return { ok: true };
+  }
+  return { ok: false, error: 'Không rõ thao tác' };
+}
+function createClass_(u, b) {
+  const name = String(b.name || '').trim().slice(0, 60); if (!name) return { ok: false, error: 'Nhập tên lớp' };
+  const tid = u.r === 't' ? u.id : String(b.teacherId || '');
+  const id = nid_('L');
+  tab_('Lớp', C_HEAD).appendRow([id, name, tid, '[]', new Date()]);
+  return { ok: true, id: id };
+}
+function classOp_(u, b) {
+  const c = ownClass_(u, b.id); const r = findRow_('Lớp', C_HEAD, c.id);
+  if (b.op === 'rename') { r.sh.getRange(r.row, 2).setValue(String(b.name || '').slice(0, 60)); return { ok: true }; }
+  if (b.op === 'teacher' && u.r === 'a') { r.sh.getRange(r.row, 3).setValue(String(b.teacherId || '')); return { ok: true }; }
+  if (b.op === 'delete') {
+    if (students_().some(s => s.classId === c.id)) return { ok: false, error: 'Lớp còn học sinh. Xoá hoặc chuyển học sinh trước.' };
+    r.sh.deleteRow(r.row); return { ok: true };
+  }
+  return { ok: false, error: 'Không rõ thao tác' };
+}
+function setPublic_(u, b) {
+  const c = ownClass_(u, b.classId); const r = findRow_('Lớp', C_HEAD, c.id);
+  const codes = (Array.isArray(b.codes) ? b.codes : []).map(x => String(x).slice(0, 12)).slice(0, 400);
+  r.sh.getRange(r.row, 4).setValue(JSON.stringify(codes)); return { ok: true, pub: codes };
+}
+function addStudents_(u, b) {
+  const c = ownClass_(u, b.classId);
+  const names = (Array.isArray(b.names) ? b.names : []).map(n => String(n).trim().slice(0, 80)).filter(Boolean).slice(0, 100);
+  if (!names.length) return { ok: false, error: 'Nhập ít nhất một tên học sinh' };
+  const used = {}; students_().forEach(s => used[s.user.toLowerCase()] = 1);
+  const sh = tab_('Học sinh', S_HEAD), out = [], rows = [];
+  names.forEach(n => {
+    let user; do { user = 'hs' + rnd_(5, '0123456789'); } while (used[user]); used[user] = 1;
+    const pass = rnd_(6), salt = rnd_(8), id = nid_('HS');
+    rows.push([id, n, c.id, user, hash_(pass, salt), salt, 'active', new Date(), '']);
+    out.push({ id: id, name: n, user: user, pass: pass });
+  });
+  sh.getRange(sh.getLastRow() + 1, 1, rows.length, S_HEAD.length).setValues(rows);
+  return { ok: true, students: out, className: c.name };
+}
+function studentOp_(u, b) {
+  const st = studentById_(b.id); if (!st) return { ok: false, error: 'Không tìm thấy học sinh' };
+  ownClass_(u, st.classId);
+  const r = findRow_('Học sinh', S_HEAD, st.id);
+  if (b.op === 'reset') { const pass = rnd_(6), salt = rnd_(8); r.sh.getRange(r.row, 5, 1, 2).setValues([[hash_(pass, salt), salt]]); return { ok: true, user: st.user, pass: pass, name: st.name }; }
+  if (b.op === 'disable' || b.op === 'enable') { r.sh.getRange(r.row, 7).setValue(b.op === 'disable' ? 'locked' : 'active'); return { ok: true }; }
+  if (b.op === 'rename') { r.sh.getRange(r.row, 2).setValue(String(b.name || '').slice(0, 80)); return { ok: true }; }
+  if (b.op === 'move') { ownClass_(u, b.classId); r.sh.getRange(r.row, 3).setValue(String(b.classId)); return { ok: true }; }
+  if (b.op === 'delete') { r.sh.deleteRow(r.row); return { ok: true }; }
+  return { ok: false, error: 'Không rõ thao tác' };
+}
 
 /* ===== Chấm câu viết lại bằng Gemini (khi đáp án của học sinh khác key) =====
  * Cần thuộc tính tập lệnh GEMINI_API_KEY (Cài đặt dự án → Thuộc tính tập lệnh).
