@@ -14,7 +14,7 @@
     const id = n(o.q) + "|" + n(o.h) + "|" + n(o.r);
     if (mem[id]) return Promise.resolve(mem[id]);
     const qs = new URLSearchParams({ action: "grade", q: o.q || "", h: o.h || "", a: JSON.stringify((o.a || []).slice(0, 8)), r: o.r });
-    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 25000);
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 45000);
     return fetch(url + "?" + qs.toString(), { signal: ctl.signal }).then(r => r.json()).then(j => {
       clearTimeout(t);
       if (!j || !j.ok) return null;

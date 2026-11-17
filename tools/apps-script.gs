@@ -73,6 +73,29 @@ const AI_DAILY_LIMIT = 1500;
 const AI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite'];
 const AI_HEAD = ['Thời gian', 'Mã', 'Câu gốc', 'Yêu cầu', 'Đáp án mẫu', 'Câu học sinh', 'Kết quả', 'Lý do'];
 
+/* Tự tìm các mẫu Gemini "flash" đang dùng được (lưu 1 ngày); mẫu chạy tốt gần nhất được thử trước (AI_GOOD). */
+function models_(key) {
+  const props = PropertiesService.getScriptProperties();
+  const saved = props.getProperty('AI_MODEL_LIST');
+  if (saved) { try { const s = JSON.parse(saved); if (Date.now() - s.t < 86400000 && s.list.length) return s.list; } catch (e) {} }
+  let list = [];
+  try {
+    const r = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=' + encodeURIComponent(key), { muteHttpExceptions: true });
+    if (r.getResponseCode() === 200) {
+      list = (JSON.parse(r.getContentText()).models || [])
+        .filter(x => (x.supportedGenerationMethods || []).indexOf('generateContent') >= 0)
+        .map(x => x.name.replace(/^models\//, ''))
+        .filter(n => /flash/.test(n) && !/tts|image|audio|live|embed|exp|preview|thinking|8b/.test(n));
+      const ver = n => parseFloat((n.match(/gemini-(\d+(?:\.\d+)?)/) || [0, 0])[1]);
+      list.sort((x, y) => (ver(y) - ver(x)) || (/lite/.test(x) - /lite/.test(y)) || (/latest/.test(y) - /latest/.test(x)));
+    }
+  } catch (e) {}
+  if (!list.length) list = AI_MODELS.slice();
+  list = list.slice(0, 4);
+  props.setProperty('AI_MODEL_LIST', JSON.stringify({ t: Date.now(), list: list }));
+  return list;
+}
+
 function aiSheet_() {
   const ss = book_();
   let sh = ss.getSheetByName('Chấm AI');
@@ -126,21 +149,29 @@ function grade_(p) {
     'Reply as JSON: {"correct": true|false, "reason": "<one short sentence in Vietnamese explaining the verdict; if wrong, name the error>"}'
   ].join('\n');
   let res = null, lastErr = '';
-  for (const m of AI_MODELS) {
+  const T0 = Date.now();
+  const GOOD = PropertiesService.getScriptProperties().getProperty('AI_GOOD');
+  let ML = models_(key); if (GOOD) ML = [GOOD].concat(ML.filter(x => x !== GOOD));
+  for (const m of ML) {
+    if (Date.now() - T0 > 40000) break;
     try {
-      const resp = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent?key=' + encodeURIComponent(key), {
-        method: 'post', contentType: 'application/json', muteHttpExceptions: true,
-        payload: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0, responseMimeType: 'application/json' }
-        })
-      });
-      if (resp.getResponseCode() !== 200) { lastErr = m + ': ' + resp.getResponseCode(); continue; }
+      const call = think => {
+        const gc = { temperature: 0, maxOutputTokens: 400, responseMimeType: 'application/json', responseSchema: { type: 'OBJECT', properties: { correct: { type: 'BOOLEAN' }, reason: { type: 'STRING' } }, required: ['correct', 'reason'] } };
+        if (think) gc.thinkingConfig = /gemini-[3-9]/.test(m) ? { thinkingLevel: 'low' } : { thinkingBudget: 0 };
+        return UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent?key=' + encodeURIComponent(key), {
+          method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+          payload: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: gc })
+        });
+      };
+      let resp = call(true);
+      if (resp.getResponseCode() === 400) resp = call(false);
+      if (resp.getResponseCode() !== 200) { lastErr += m + ': ' + resp.getResponseCode() + ' ' + resp.getContentText().slice(0, 120) + ' | '; if (resp.getResponseCode() === 404) PropertiesService.getScriptProperties().deleteProperty('AI_MODEL_LIST'); continue; }
       const txt = JSON.parse(resp.getContentText()).candidates[0].content.parts.map(x => x.text || '').join('');
       const j = JSON.parse(txt.replace(/^```(json)?|```$/g, '').trim());
-      res = { ok: true, correct: j.correct === true, reason: String(j.reason || '').slice(0, 300) };
+      res = { ok: true, correct: j.correct === true, reason: String(j.reason || '').slice(0, 300), model: m };
+      if (m !== GOOD) PropertiesService.getScriptProperties().setProperty('AI_GOOD', m);
       break;
-    } catch (e) { lastErr = m + ': ' + e; }
+    } catch (e) { lastErr += m + ': ' + e + ' | '; }
   }
   if (!res) return { ok: false, error: 'AI lỗi: ' + lastErr };
   sh.appendRow([new Date(), id, q, hint, ans.join(' | '), r, res.correct ? 'Đúng' : 'Sai', res.reason]);
@@ -150,6 +181,8 @@ function grade_(p) {
 
 /* Bấm ▶ Chạy với hàm kiemTraAI để cấp quyền gọi Gemini và thử chấm một câu. Xem kết quả ở Nhật ký thực thi. */
 function kiemTraAI() {
-  const r = grade_({ q: 'Save some money now, or you will regret it.', h: 'If...', a: JSON.stringify(["If you don't save some money now, you will regret it."]), r: 'If you do not save any money now, you will regret it.' });
-  Logger.log(JSON.stringify(r));
+  ScriptApp.requireScopes(ScriptApp.AuthMode.FULL, ['https://www.googleapis.com/auth/script.external_request']);
+  const t0 = Date.now();
+  const r = grade_({ q: 'Without her advice, I would have bought the wrong size.', h: 'But...', a: JSON.stringify(['But for her advice, I would have bought the wrong size.']), r: 'But for the advice she gave me, I would have bought the wrong size.' });
+  Logger.log(JSON.stringify(r) + ' · ' + (Date.now() - t0) + ' ms');
 }
