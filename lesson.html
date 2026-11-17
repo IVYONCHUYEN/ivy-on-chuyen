@@ -264,9 +264,10 @@ summary{color:#9b1c1c}
 <script>
 (function(){
 const P=new URLSearchParams(location.search);
-const code=(P.get("b")||"B03").toUpperCase().replace(/[^A-Z0-9]/g,"");
+const LIS=(P.get("l")||"").toUpperCase().replace(/[^A-Z0-9-]/g,"");
+const code=LIS||(P.get("b")||"B03").toUpperCase().replace(/[^A-Z0-9]/g,"");
 const s=document.createElement("script");
-s.src="data/"+code+".js";
+s.src=LIS?"data/listening/"+LIS+".js":"data/"+code+".js";
 s.onload=()=>start(window.LESSON);
 s.onerror=()=>{document.getElementById("app").innerHTML='<div class="err"><h2>Chưa có nội dung buổi '+code+'</h2><p>Buổi này đang được soạn. Em quay lại sau nhé.</p></div>'};
 document.head.appendChild(s);
@@ -274,6 +275,9 @@ document.head.appendChild(s);
 function esc(t){return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function slug(t){return t.toLowerCase().replace(/\(.*?\)/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
 function norm(t){return String(t).toLowerCase().replace(/[’‘`]/g,"'").replace(/\bcan't\b/g,"cannot").replace(/\bcan not\b/g,"cannot").replace(/\bwon't\b/g,"will not").replace(/\bshan't\b/g,"shall not").replace(/n't\b/g," not").replace(/'m\b/g," am").replace(/'re\b/g," are").replace(/'ll\b/g," will").replace(/'ve\b/g," have").replace(/'d\b/g," would").replace(/[“”]/g,'"').replace(/\s+/g," ").replace(/\s*([,.;:!?])\s*/g,"$1 ").replace(/[.!?]\s*$/,"").trim()}
+function wacc(v,a){const W=t=>norm(t||"").replace(/[^a-z0-9' ]/g," ").split(/\s+/).filter(Boolean);const x=W(v),y=W(a);if(!y.length)return 0;
+  const m=x.length,n=y.length,D=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)D[i][j]=x[i-1]===y[j-1]?D[i-1][j-1]+1:Math.max(D[i-1][j],D[i][j-1]);
+  return D[m][n]/Math.max(n,m)}
 function tts(t){try{const u=new SpeechSynthesisUtterance(t);u.lang="en-GB";u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 let _au=null;
 function say(t){t=t.replace(/\(.*?\)/g,"").trim();try{if(_au)_au.pause();try{speechSynthesis.cancel()}catch(e){}_au=new Audio("audio/"+slug(t)+".mp3");_au.play().catch(()=>tts(t))}catch(e){tts(t)}}
@@ -284,7 +288,7 @@ function start(L){
   const hasW=!!(L.writing||L.home);
   const app=document.getElementById("app");
   app.innerHTML=`
-  <div class="top"><span class="brand">IVY GIFTED</span><span class="crumb">Lộ trình 90 buổi › ${esc(L.phase||"")}</span><span class="code">${esc(L.code)}</span></div>
+  <div class="top"><span class="brand">IVY GIFTED</span><span class="crumb">${L.listening?"Listening":"Lộ trình 90 buổi › "+esc(L.phase||"")}</span><span class="code">${esc(L.code)}</span></div>
   <div class="hero">${window.IVY_MASCOT?IVY_MASCOT.sky():""}
    <div class="hero-txt"><h1>${esc(L.title)}</h1>
    <p class="sub">${L.sub||""}</p>
@@ -292,19 +296,19 @@ function start(L){
    ${window.IVY_MASCOT?`<div class="hero-art"><div class="bubble">${IVY_MASCOT.line(IVY_MASCOT.poseFor(L))}</div>${IVY_MASCOT.svg(IVY_MASCOT.poseFor(L))}</div>`:""}
   </div>
   <div class="tabs" role="tablist">
-    <button class="tab" role="tab" id="t-v" aria-controls="p-v" aria-selected="true"><span class="k">PRE</span>Từ vựng · ${L.vocab.length} từ</button>
-    <button class="tab" role="tab" id="t-t" aria-controls="p-t" aria-selected="false"><span class="k">LÝ THUYẾT</span>${esc(L.theoryTitle||"Kiến thức trọng tâm")}</button>
-    <button class="tab" role="tab" id="t-p" aria-controls="p-p" aria-selected="false"><span class="k">PRACTICE</span>Luyện tập · ${L.practice.reduce((a,x)=>a+x.items.length,0)} câu</button>
+    ${L.listening?"":`<button class="tab" role="tab" id="t-v" aria-controls="p-v" aria-selected="true"><span class="k">PRE</span>Từ vựng · ${L.vocab.length} từ</button>
+    <button class="tab" role="tab" id="t-t" aria-controls="p-t" aria-selected="false"><span class="k">LÝ THUYẾT</span>${esc(L.theoryTitle||"Kiến thức trọng tâm")}</button>`}
+    <button class="tab" role="tab" id="t-p" aria-controls="p-p" aria-selected="${L.listening?"true":"false"}"><span class="k">${L.listening?"LISTENING":"PRACTICE"}</span>${L.listening?"Làm bài nghe":"Luyện tập"} · ${L.practice.reduce((a,x)=>a+x.items.length,0)} câu</button>
     ${hasW?`<button class="tab" role="tab" id="t-w" aria-controls="p-w" aria-selected="false"><span class="k">POST</span>${esc(L.writing?L.writing.tab||"Viết & bài về nhà":"Bài về nhà")}</button>`:""}
   </div>
-  <section class="panel" id="p-v" role="tabpanel"></section>
-  <section class="panel" id="p-t" role="tabpanel" hidden></section>
-  <section class="panel" id="p-p" role="tabpanel" hidden></section>
+  ${L.listening?"":`<section class="panel" id="p-v" role="tabpanel"></section>
+  <section class="panel" id="p-t" role="tabpanel" hidden></section>`}
+  <section class="panel" id="p-p" role="tabpanel" ${L.listening?"":"hidden"}></section>
   ${hasW?'<section class="panel" id="p-w" role="tabpanel" hidden></section>':""}`;
   const tabs=[...app.querySelectorAll(".tab")];
   function show(id){tabs.forEach(t=>{const on=t.id===id;t.setAttribute("aria-selected",on);document.getElementById(t.getAttribute("aria-controls")).hidden=!on});store.set("tab-"+L.code,id)}
   tabs.forEach(t=>t.addEventListener("click",()=>{show(t.id);window.scrollTo({top:0})}));
-  vocab(L);theory(L);practice(L);if(hasW)writing(L);
+  if(!L.listening){vocab(L);theory(L);}practice(L);if(hasW)writing(L);
   const last=store.get("tab-"+L.code,null);if(last&&document.getElementById(last))show(last);
 }
 
@@ -363,11 +367,11 @@ function practice(L){
   const MAXA=3, AK="att-"+L.code;
   let total=0;const graders=[];
   /* thời gian làm bài theo dung lượng đề */
-  const SEC={mcq:45,gap:60,fix:75,rewrite:120};
+  const SEC={mcq:45,gap:60,fix:75,rewrite:120,dict:40};
   let secs=0;L.practice.forEach(sec=>{secs+=sec.items.length*(SEC[sec.type]||60);if(sec.audio)secs+=180;if(sec.passage)secs+=Math.min(300,Math.round(String(sec.passage).replace(/<[^>]+>/g,"").split(/\s+/).length/150*60))});
-  const MIN=Math.max(5,Math.ceil(secs/60));
+  const MIN=L.minutes||Math.max(5,Math.ceil(secs/60));
   const html=L.practice.map((sec,si)=>{
-    const head=`<div class="ex-sec" data-sec="${si}"><h3>${sec.title}</h3>${sec.intro?`<p class="intro">${sec.intro}</p>`:""}${sec.audio?`<div class="passage"><audio controls preload="none" style="width:100%" src="audio/listen/${sec.audio}.mp3" onerror="this.outerHTML='<p class=note>Audio bài nghe đang được tạo tự động, em đọc lời thoại bên dưới thay cho nghe nhé.</p>'"></audio><details${sec.audioOpen?" open":""}><summary>Lời thoại (chỉ mở sau khi làm xong)</summary><div style="white-space:pre-line;margin-top:8px">${esc(sec.script||"").replace(/^(\w+):/gm,"<b>$1:</b>")}</div></details></div>`:""}${sec.passage?`<div class="passage">${sec.passage}</div>`:""}`;
+    const head=`<div class="ex-sec" data-sec="${si}"><h3>${sec.title}</h3>${sec.intro?`<p class="intro">${sec.intro}</p>`:""}${(sec.audio||sec.src)?`<div class="passage"><audio controls preload="none" style="width:100%" src="${sec.src||"audio/listen/"+sec.audio+".mp3"}" onerror="this.outerHTML='<p class=note>Audio bài nghe đang được tạo tự động, em đọc lời thoại bên dưới thay cho nghe nhé.</p>'"></audio>${sec.script?`<details${sec.audioOpen?" open":""}><summary>Lời thoại (mở sau khi hết lượt làm bài)</summary><div style="white-space:pre-line;margin-top:8px">${esc(sec.script||"").replace(/^([\w ]{1,20}):/gm,"<b>$1:</b>")}</div></details>`:""}</div>`:""}${sec.passage?`<div class="passage">${sec.passage}</div>`:""}`;
     const items=sec.items.map((it,qi)=>{total++;const id=`q${si}_${qi}`;const n=total;
       if(sec.type==="mcq"){const opts=sec.options||it[1];const stem=it[0];const ans=sec.options?it[1]:it[2];const ex=sec.options?it[2]:it[3];
         graders.push({id,type:"mcq",ans,ex,opts});
@@ -378,6 +382,8 @@ function practice(L){
       if(sec.type==="fix"){graders.push({id,type:"fix",wrong:it[1],ans:it[2],ex:it[3]});
         let k=0;const sent=it[0].replace(/\[([^\]]+)\]/g,(m,t)=>`<u class="seg">${t}<sup>${"ABCD"[k++]}</sup></u>`);
         return `<div class="q" id="${id}"><p class="qs"><span class="n">${n}</span>${sent}</p><div class="gapline"><span class="prompt">Lỗi ở:</span><div class="letters">${"ABCD".slice(0,k).split("").map((c,j)=>`<button type="button" data-k="${j}">${c}</button>`).join("")}</div><span class="prompt">Sửa thành:</span><input class="inp" aria-label="Sửa lỗi câu ${n}" size="16"></div><div class="fb"></div></div>`}
+      if(sec.type==="dict"){graders.push({id,type:"dict",ans:it[0]});
+        return `<div class="q" id="${id}"><p class="qs"><span class="n">${n}</span>Câu ${qi+1}</p><textarea class="inp w dict" rows="2" aria-label="Chép câu ${n}" placeholder="Nghe và chép lại câu thứ ${qi+1}…"></textarea><div class="fb"></div></div>`}
       if(sec.type==="rewrite"){graders.push({id,type:"rewrite",ans:it[2],ex:it[3],q:it[0],h:it[1]||""});
         return `<div class="q" id="${id}"><p class="qs"><span class="n">${n}</span>${it[0]}</p>${it[1]?`<p class="prompt">${it[1]}</p>`:""}<input class="inp w" aria-label="Viết lại câu ${n}"><div class="fb"></div></div>`}
     }).join("");
@@ -402,14 +408,14 @@ function practice(L){
   /* ---- đọc / ghi đáp án ---- */
   function read(){const a={};graders.forEach(g=>{const q=document.getElementById(g.id);
     if(g.type==="mcq"){const s=q.querySelector(".opt.sel");a[g.id]=s?+s.dataset.k:-1}
-    else if(g.type==="fix"){const s=q.querySelector(".letters button.sel");a[g.id]={k:s?+s.dataset.k:-1,v:q.querySelector("input").value}}
-    else a[g.id]=q.querySelector("input").value});return a}
+    else if(g.type==="fix"){const s=q.querySelector(".letters button.sel");a[g.id]={k:s?+s.dataset.k:-1,v:q.querySelector("input,textarea").value}}
+    else a[g.id]=q.querySelector("input,textarea").value});return a}
   function fill(a){a=a||{};graders.forEach(g=>{const q=document.getElementById(g.id),v=a[g.id];
     if(g.type==="mcq")q.querySelectorAll(".opt").forEach(x=>x.classList.toggle("sel",v!==undefined&&+x.dataset.k===v));
-    else if(g.type==="fix"){q.querySelectorAll(".letters button").forEach(x=>x.classList.toggle("sel",!!v&&+x.dataset.k===v.k));q.querySelector("input").value=v?v.v||"":""}
-    else q.querySelector("input").value=v||""})}
+    else if(g.type==="fix"){q.querySelectorAll(".letters button").forEach(x=>x.classList.toggle("sel",!!v&&+x.dataset.k===v.k));q.querySelector("input,textarea").value=v?v.v||"":""}
+    else q.querySelector("input,textarea").value=v||""})}
   function clearMarks(){qsBox.querySelectorAll(".right,.wrong").forEach(x=>x.classList.remove("right","wrong"));qsBox.querySelectorAll(".fb").forEach(f=>{f.className="fb";f.innerHTML=""})}
-  function lock(on){qsBox.classList.toggle("locked",on);qsBox.querySelectorAll("input").forEach(i=>i.disabled=on)}
+  function lock(on){qsBox.classList.toggle("locked",on);qsBox.querySelectorAll("input,textarea").forEach(i=>i.disabled=on)}
   const fb=(q,cls,msg)=>{const f=q.querySelector(".fb");f.className="fb show "+cls;f.innerHTML=msg};
 
   /* ---- chấm (đồng bộ; câu viết lại khác key → AI) ---- */
@@ -418,6 +424,7 @@ function practice(L){
       if(g.type==="mcq")ok=v===g.ans;
       if(g.type==="gap")ok=g.ans.some(x=>norm(x)===norm(v||""));
       if(g.type==="fix")ok=!!v&&v.k===g.wrong&&g.ans.some(x=>norm(x)===norm(v.v||""));
+      if(g.type==="dict"){const r=wacc(v,g.ans);res["acc_"+g.id]=r;ok=r>=.85}
       if(g.type==="rewrite"){ok=g.ans.some(x=>norm(x)===norm(v||""));
         if(!ok&&String(v||"").trim().split(/\s+/).length>=2&&window.IVY_AI){const t1=document.createElement("div");t1.innerHTML=g.q;const t2=document.createElement("div");t2.innerHTML=g.h;
           pend.push(IVY_AI.check({q:t1.textContent,h:t2.textContent,a:g.ans,r:v}).then(r=>{if(r&&r.correct)res[g.id]=1;if(r&&r.reason)res["why_"+g.id]=r.reason}))}}
@@ -430,12 +437,14 @@ function practice(L){
       const tag=ok?"✓ Đúng.":"✗ Sai.";
       if(g.type==="mcq"){q.querySelectorAll(".opt").forEach(x=>{const k=+x.dataset.k;if(k===v)x.classList.add(ok?"right":"wrong");if(reveal&&k===g.ans)x.classList.add("right")});
         fb(q,ok?"ok":"no",reveal?`${tag} Đáp án <b>${"ABCDEFGH"[g.ans]}</b>. ${g.ex||""}`:(v<0?"✗ Chưa chọn đáp án.":tag))}
-      if(g.type==="gap"){const i=q.querySelector("input");i.classList.add(ok?"right":"wrong");
+      if(g.type==="gap"){const i=q.querySelector("input,textarea");i.classList.add(ok?"right":"wrong");
         fb(q,ok?"ok":"no",reveal?`${tag} Đáp án: <b>${esc(g.ans[0])}</b>${g.ans.length>1?" (chấp nhận: "+g.ans.slice(1).map(esc).join(", ")+")":""}. ${g.ex||""}`:tag)}
-      if(g.type==="fix"){const i=q.querySelector("input");q.querySelectorAll(".letters button").forEach(x=>{const k=+x.dataset.k;if(v&&k===v.k)x.classList.add(v.k===g.wrong?"right":"wrong");if(reveal&&k===g.wrong)x.classList.add("right")});
+      if(g.type==="fix"){const i=q.querySelector("input,textarea");q.querySelectorAll(".letters button").forEach(x=>{const k=+x.dataset.k;if(v&&k===v.k)x.classList.add(v.k===g.wrong?"right":"wrong");if(reveal&&k===g.wrong)x.classList.add("right")});
         i.classList.add(ok?"right":"wrong");
         fb(q,ok?"ok":"no",reveal?`${tag} Lỗi ở <b>${"ABCD"[g.wrong]}</b>, sửa thành <b>${esc(g.ans[0])}</b>. ${g.ex||""}`:tag)}
-      if(g.type==="rewrite"){const i=q.querySelector("input");i.classList.add(ok?"right":"wrong");const m=!g.ans.some(x=>norm(x)===norm(v||""));
+      if(g.type==="dict"){const i=q.querySelector("input,textarea");i.classList.add(ok?"right":"wrong");const r=res["acc_"+g.id]||0;
+        fb(q,ok?"ok":"no",`${tag} Chép đúng ${Math.round(r*100)}% số từ${ok?"":" (cần từ 85%)"}.${reveal?` Câu gốc: <b>${esc(g.ans)}</b>`:""}`)}
+      if(g.type==="rewrite"){const i=q.querySelector("input,textarea");i.classList.add(ok?"right":"wrong");const m=!g.ans.some(x=>norm(x)===norm(v||""));
         fb(q,ok?"ok":"no",reveal?`${tag} ${ok&&m?"Câu của em khác đáp án mẫu nhưng đúng nghĩa và ngữ pháp. ":""}${!ok&&why?esc(why)+" ":""}Đáp án mẫu: <b>${esc(g.ans[0].replace(/[.]\s*$/,""))}</b>. ${g.ex||""}`:tag)}});
     qsBox.querySelectorAll("details").forEach(d=>d.hidden=!reveal&&!S.locked)}
   const score=res=>graders.reduce((s,g)=>s+(res[g.id]?1:0),0);

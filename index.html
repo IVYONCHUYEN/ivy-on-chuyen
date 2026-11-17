@@ -376,12 +376,18 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border
   <!-- LISTENING -->
   <section id="v-nghe" class="stack" hidden>
     <div>
-      <div class="eyebrow">Kho bài nghe trên Drive</div>
+      <div class="eyebrow">Làm bài nghe trực tiếp trên web</div>
       <h1 style="margin-top:6px">Listening theo lộ trình</h1>
-      <p class="lead">Bài nghe được xếp theo giai đoạn, từ dễ đến khó. Làm bài trước, chấm bằng file KEY, rồi ghi câu sai vào sổ lỗi.</p>
+      <p class="lead">Bài nghe xếp theo giai đoạn, từ dễ đến khó. Bấm “Làm bài” để nghe và làm ngay trên web: mỗi bài làm tối đa 3 lần, đáp án và lời thoại hiện sau lần thứ 3.</p>
     </div>
+    <div id="lis-listwrap" class="stack">
     <div class="filters" id="lis-filter" role="group" aria-label="Lọc theo dạng bài"></div>
-    <div class="tbl"><table><thead><tr><th>Giai đoạn</th><th>Tuần</th><th>Bài</th><th>Dạng bài trong đề</th><th>Tài liệu</th></tr></thead><tbody id="lis-body"></tbody></table></div>
+    <div class="tbl"><table><thead><tr><th>Giai đoạn</th><th>Tuần</th><th>Bài</th><th>Dạng bài trong đề</th><th>Kết quả</th><th></th></tr></thead><tbody id="lis-body"></tbody></table></div>
+    </div>
+    <div id="lis-player" hidden>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><button class="btn ghost" type="button" id="lis-back">‹ Danh sách bài nghe</button><h2 id="lis-title" style="margin:0;flex:1"></h2></div>
+      <div id="lis-box"></div>
+    </div>
   </section>
 
   <!-- VOCAB -->
@@ -433,6 +439,7 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border
 
 <script src="config.js"></script>
 <script src="track.js"></script>
+<script src="data/listening/index.js"></script>
 <script src="data/index.js"></script>
 <script src="mascot.js"></script>
 <script>
@@ -605,7 +612,7 @@ function b2Item(n){
   if(x.kgf) L.push({t:"KEY Gap filling",u:G(x.kgf),key:1});
   if(x.kmcq) L.push({t:"KEY MCQ",u:G(x.kmcq),key:1});
   const types=[]; if(x.gf||x.kgf) types.push("gf"); if(x.mcq||x.kmcq) types.push("mcq");
-  return {name:"B2-Practice "+n, types, part:(types.includes("gf")?"P2 điền ≤ 3 từ":"")+(types.length>1?" · ":"")+(types.includes("mcq")?"P3 trắc nghiệm":""), links:L};
+  return {code:"LB2-"+String(n).padStart(2,"0"), name:"B2-Practice "+n, types, part:(types.includes("gf")?"P2 điền ≤ 3 từ":"")+(types.length>1?" · ":"")+(types.includes("mcq")?"P3 trắc nghiệm":""), links:L};
 }
 const DICT = [
  ["Dictation – Gold B1 Unit 2","1VA5NH6S-Zpu2C0238L9oRgzdIYjL7Xti"],
@@ -615,12 +622,12 @@ const DICT = [
  ["Dictation – Gold B1 Unit 8","1mhVVWpdZo8sXhlp5407Wk2LMgmjxgzpP"],
  ["Dictation – Gold B1 Unit 9","1UxhP9apm3tLN8rFA44tZ-JiRiSIifC5a"],
  ["Dictation – Gold Experience B2 Unit 5","1K3Z6WbbS2Q9JKABOxPn5tC99_WqDSqyi"]
-].map(d=>({name:d[0],types:["dict"],part:"Nền cho P1–P2 (chép chính tả)",links:[{t:"Nghe audio",u:D(d[1]),audio:1}]}));
-const ONEWORD = {name:"Listening: ONE WORD ONLY",types:["gf"],part:"P1 hoàn thành bảng ≤ 1 từ",links:[{t:"Bài tập",u:G("1wcawRpn4yfjsQveZy2lIAj950HxEDHnV9u1AKnstvyo")}]};
-const TF = {name:"B1-Practice 11: True/False",types:["tf"],part:"P4 True/False/Not Given",links:[{t:"Bài tập",u:G("1L7GXUOEIAcImYonjeVum-kVywEOuofrG7zwrYru3-FA")},{t:"KEY",u:G("10ys57Ka5lgQa5Tx3Pzcmscl6KYywYabB8ZEMKyIxStA"),key:1}]};
+].map((d,i)=>({code:"LD-"+(i+1),name:d[0],types:["dict"],part:"Nền cho P1–P2 (chép chính tả)",links:[{t:"Nghe audio",u:D(d[1]),audio:1}]}));
+const ONEWORD = {code:"L1W",name:"Listening: ONE WORD ONLY",types:["gf"],part:"P1 hoàn thành bảng ≤ 1 từ",links:[{t:"Bài tập",u:G("1wcawRpn4yfjsQveZy2lIAj950HxEDHnV9u1AKnstvyo")}]};
+const TF = {code:"LB1-11",name:"B1-Practice 11: True/False",types:["tf"],part:"P4 True/False/Not Given",links:[{t:"Bài tập",u:G("1L7GXUOEIAcImYonjeVum-kVywEOuofrG7zwrYru3-FA")},{t:"KEY",u:G("10ys57Ka5lgQa5Tx3Pzcmscl6KYywYabB8ZEMKyIxStA"),key:1}]};
 const FULL = [
- {name:"Đề đầu vào Chuyên 1",types:["full"],part:"Đủ 4 phần Listening",links:[{t:"Đề",u:D("1VJ2wkJD_iPy1YHZwIfdHWNOBd9BwHuqW")},{t:"Audio",u:D("1VmJ1-rtZMVMzsm6v0Scqck8GcldlhDJY"),audio:1},{t:"Đáp án",u:D("1znCnc7MGr4fzIiAC0v5m_GaNXH7k6Rs5"),key:1}]},
- {name:"Đề đầu vào Chuyên 2",types:["full"],part:"Đủ 4 phần Listening",links:[{t:"Đề",u:D("12dW041xFnyDgh3PzQRfPKlomc9LRCgmO")},{t:"Audio",u:D("1eX9PGZpkILq6sSZXr6Y3f4dNc3S7qRma"),audio:1},{t:"Đáp án",u:D("1JMUGqdz0zjlqNj2vqrEvN0OSgQiK7EOt"),key:1}]},
+ {code:"LFULL-1",name:"Đề đầu vào Chuyên 1",types:["full"],part:"Đủ 4 phần Listening",links:[{t:"Đề",u:D("1VJ2wkJD_iPy1YHZwIfdHWNOBd9BwHuqW")},{t:"Audio",u:D("1VmJ1-rtZMVMzsm6v0Scqck8GcldlhDJY"),audio:1},{t:"Đáp án",u:D("1znCnc7MGr4fzIiAC0v5m_GaNXH7k6Rs5"),key:1}]},
+ {code:"LFULL-2",name:"Đề đầu vào Chuyên 2",types:["full"],part:"Đủ 4 phần Listening",links:[{t:"Đề",u:D("12dW041xFnyDgh3PzQRfPKlomc9LRCgmO")},{t:"Audio",u:D("1eX9PGZpkILq6sSZXr6Y3f4dNc3S7qRma"),audio:1},{t:"Đáp án",u:D("1JMUGqdz0zjlqNj2vqrEvN0OSgQiK7EOt"),key:1}]},
  {name:"Đề chuyên Anh Hưng Yên 2026–2027",types:["full"],part:"Đề chính thức, đủ 4 phần",links:[{t:"Đề",u:D("1-jsiR3Jf01W3PeGGD2Lf5k4PdUplx0TB")},{t:"Đáp án tham khảo",u:D("1Izjv1H1I9NlaWsulQaETmp7kvbB2hcjp"),key:1}]}
 ];
 // listening plan per phase, spread across that phase's weeks
@@ -697,7 +704,7 @@ function sessionCard(s, heading){
   if(s.mt){
     h+=`<div class="task"><b>Chuẩn bị</b><div>Làm đề đủ 150 phút, không tra từ. Đánh dấu câu phân vân để chữa ở buổi sau.</div></div>`;
   } else {
-    h+=`<div class="task"><b>Nghe</b><div><strong>${esc(lis.name)}</strong><div class="meta">${esc(lis.part)}</div>${linksHTML(lis.links)}</div></div>
+    h+=`<div class="task"><b>Nghe</b><div><strong>${esc(lis.name)}</strong><div class="meta">${esc(lis.part)}</div>${lisAvail(lis.code)?`<div class="links"><a class="chip audio" href="#nghe/${lis.code}">▶ Làm bài nghe trên web</a></div>`:linksHTML(lis.links)}</div></div>
     <div class="task"><b>Vocab</b><div><strong>${esc(tp.n)}</strong> <span class="meta">· chủ đề của tuần</span>${tp.links.length?linksHTML(tp.links.slice(0,4).map(l=>({t:l[0],u:l[1]}))):'<div class="soon">Bài Wordwall đang được giáo viên soạn.</div>'}<div class="meta" style="margin-top:6px">Lexico ${ph.short}: ${esc(ph.lexico)}</div></div></div>`;
   }
   h+=`<div class="task"><b>Sổ lỗi</b><div>Ghi câu sai: dạng bài · lý do sai · kiến thức liên quan · ngày làm lại (sau 7–14 ngày).</div></div></div>
@@ -731,14 +738,30 @@ function renderSheet(){
 }
 let lisFilter="all";
 const LTYPES=[["all","Tất cả"],["gf","Điền từ (P1–P2)"],["mcq","Trắc nghiệm (P3)"],["tf","True/False (P4)"],["dict","Chép chính tả"],["full","Đề đầy đủ"]];
+function lisStatus(code){const A=attOf(code),H=A&&A.hist||[];if(!H.length)return A&&A.cur?'<span class="pill y">Đang làm</span>':'<span class="meta">Chưa làm</span>';
+  const best=Math.max(...H.map(x=>x.score)),tot=H[0].total;return `<span class="pill ${A.locked?"g":"y"}">${A.locked?"Xong":"Lần "+H.length+"/3"} · ${best}/${tot}</span>`}
+function lisAvail(code){return !!(code&&window.IVY_LISTEN&&IVY_LISTEN[code])}
 function renderListening(){
   document.getElementById("lis-filter").innerHTML=LTYPES.map(t=>`<button aria-pressed="${t[0]===lisFilter}" data-lf="${t[0]}">${t[1]}</button>`).join("");
   const rows=listeningRows.filter(r=>lisFilter==="all"||r.item.types.includes(lisFilter));
   document.getElementById("lis-body").innerHTML=rows.map(r=>{
     const wl=lessons.find(s=>s.week===r.week);
-    const cur = r.week===next.week;
-    return `<tr${cur?' style="background:var(--red-soft)"':''}><td class="num">${PHASES[r.phase].short}</td><td class="num">${wl?fmt(wl.date):""}${cur?" · tuần này":""}</td><td><strong>${esc(r.item.name)}</strong></td><td>${esc(r.item.part)}</td><td>${linksHTML(r.item.links)}</td></tr>`;
-  }).join("") || '<tr><td colspan="5">Chưa có bài cho dạng này.</td></tr>';
+    const cur = r.week===next.week, it=r.item, ok=lisAvail(it.code), X=ok?IVY_LISTEN[it.code]:null;
+    return `<tr${cur?' style="background:var(--red-soft)"':''}><td class="num">${PHASES[r.phase].short}</td><td class="num">${wl?fmt(wl.date):""}${cur?" · tuần này":""}</td><td><strong>${esc(it.name)}</strong>${X?`<div class="meta">${X.n} câu · ${X.min} phút</div>`:""}</td><td>${esc(it.part)}</td><td>${ok?lisStatus(it.code):""}</td><td>${ok?`<a class="btn" href="#nghe/${it.code}" style="text-decoration:none;white-space:nowrap">▶ Làm bài</a>`:linksHTML(it.links)+'<div class="meta">Đề chưa có file nghe – mở bản PDF.</div>'}</td></tr>`;
+  }).join("") || '<tr><td colspan="6">Chưa có bài cho dạng này.</td></tr>';
+}
+let curLis=null;
+function openListening(code){
+  const wrap=document.getElementById("lis-listwrap"),pl=document.getElementById("lis-player");
+  if(!code||!lisAvail(code)){curLis=null;pl.hidden=true;wrap.hidden=false;document.getElementById("lis-box").innerHTML="";renderListening();return}
+  wrap.hidden=true;pl.hidden=false;document.getElementById("lis-title").textContent=IVY_LISTEN[code].title;
+  if(curLis===code)return;curLis=code;
+  try{const k='ivy-open-'+code+'-'+new Date().toISOString().slice(0,10);if(!localStorage.getItem(k)){localStorage.setItem(k,'1');IVY_TRACK.send({type:'open',code})}}catch(e){}
+  const box=document.getElementById("lis-box");
+  box.innerHTML=`<iframe id="lisframe" title="${esc(IVY_LISTEN[code].title)}" src="lesson.html?l=${code}" style="width:100%;border:0;border-radius:16px;display:block;min-height:70vh;background:#fff"></iframe>`;
+  const f=document.getElementById("lisframe");
+  f.addEventListener("load",()=>{fitFrame(f);try{const d=f.contentDocument;new ResizeObserver(()=>fitFrame(f)).observe(d.body);d.addEventListener("click",()=>setTimeout(()=>fitFrame(f),60))}catch(e){}});
+  window.scrollTo({top:0});
 }
 const PV={"B40":{"sub":"Phrasal verb với 5 động từ hay ra nhất: <b>get, come, take, put, go</b>. Luyện kèm <b>Writing P2 – viết lại câu với từ khoá</b>.","v":[["get round to","rốt cuộc cũng làm (việc trì hoãn)"],["come across","tình cờ gặp/thấy"],["take up","bắt đầu (sở thích); chiếm (chỗ)"],["put off","hoãn lại"],["go through","trải qua"],["die out","tuyệt chủng"],["come up with","nghĩ ra"],["put up with","chịu đựng"],["take after","giống (người lớn trong nhà)"],["get over","vượt qua, hồi phục"]]},"B41":{"sub":"Học phrasal verb theo <b>nghĩa của tiểu từ</b>: up (hoàn toàn, tăng), out (hết, ra ngoài), off (rời, ngừng), down (giảm, ghi lại), round/over/through. Luyện kèm <b>Lexico P1</b>.","v":[["run out of","cạn kiệt"],["cut down","chặt hạ; cắt giảm"],["wipe out","xoá sổ"],["set off","khởi hành"],["break out","bùng phát"],["clean up","dọn sạch"],["slow down","chậm lại"],["carry out","tiến hành"],["give off","thải ra, toả ra"],["bring about","gây ra, mang lại"]]}};
 function renderPV(){
@@ -897,7 +920,7 @@ function renderHist(){
     if(!S||!(S.hist||[]).length&&!S.cur)continue;const code=k.slice(8);const s=sessions.find(x=>x.code===code);
     const last=(S.hist||[]).slice(-1)[0];const t=last?last.t:(S.cur?S.cur.start:0);const d=new Date(t);
     const st=S.cur?'<span class="pill y">Đang làm</span>':S.locked?'<span class="pill g">Đã khoá · xem đáp án</span>':`<span class="pill">Còn ${3-S.hist.length} lần</span>`;
-    rows.push({t,html:`<tr><td><span class="tag${s&&s.mt?" mt":""}">${esc(code)}</span></td><td>${esc(s?s.title:code)}</td><td>${S.hist.length}/3</td><td>${S.hist.map(h=>`<b>${h.score}</b>/${h.total}`).join(" · ")||"–"}</td><td>${t?p2(d.getDate())+"/"+p2(d.getMonth()+1)+" "+p2(d.getHours())+":"+p2(d.getMinutes()):"–"}</td><td>${st}</td><td><button class="btn ghost sm" data-hist="${esc(code)}">Xem lại</button></td></tr>`})}
+    rows.push({t,html:`<tr><td><span class="tag${s&&s.mt?" mt":""}">${esc(code)}</span></td><td>${esc(s?s.title:(window.IVY_LISTEN&&IVY_LISTEN[code]?"Listening · "+IVY_LISTEN[code].title:code))}</td><td>${S.hist.length}/3</td><td>${S.hist.map(h=>`<b>${h.score}</b>/${h.total}`).join(" · ")||"–"}</td><td>${t?p2(d.getDate())+"/"+p2(d.getMonth()+1)+" "+p2(d.getHours())+":"+p2(d.getMinutes()):"–"}</td><td>${st}</td><td><button class="btn ghost sm" data-hist="${esc(code)}">Xem lại</button></td></tr>`})}
   rows.sort((a,b)=>b.t-a.t);
   document.getElementById("hist-body").innerHTML=rows.length?rows.map(r=>r.html).join(""):'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Em chưa làm bài luyện tập nào. Vào mục <a href="#hoc">Vào học</a> → tab Luyện tập để bắt đầu.</td></tr>';
 }
@@ -907,6 +930,7 @@ function show(){
   VIEWS.forEach(x=>{document.getElementById("v-"+x).hidden=(x!==v)});
   if(v==="hoc") openLesson(hh[1]||selected);
   if(v==="lich-su") renderHist();
+  if(v==="nghe") openListening(hh[1]);
   document.querySelectorAll(".side nav a").forEach(a=>{if(a.dataset.view===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
   if(v!=="hoc") window.scrollTo({top:0});
 }
@@ -916,8 +940,9 @@ document.addEventListener("click",e=>{
   if(t){const c=t.dataset.toggle; if(done[c]) delete done[c]; else done[c]=1; save(); IVY_TRACK.send({type:"done",code:c,score:done[c]?1:0,total:1}); renderAll(); return;}
   const b=e.target.closest("[data-sel]");
   if(b){selected=b.dataset.sel; location.hash="hoc/"+selected; return;}
+  if(e.target.id==="lis-back"){location.hash="nghe";return}
   const hb=e.target.closest("[data-hist]");
-  if(hb){const c=hb.dataset.hist;try{localStorage.setItem("ivy-tab-"+c,JSON.stringify("t-p"))}catch(_){}curL=null;location.hash="hoc/"+c;return;}
+  if(hb){const c=hb.dataset.hist;if(lisAvail(c)){curLis=null;location.hash="nghe/"+c;return}try{localStorage.setItem("ivy-tab-"+c,JSON.stringify("t-p"))}catch(_){}curL=null;location.hash="hoc/"+c;return;}
   const f=e.target.closest("[data-lf]");
   if(f){lisFilter=f.dataset.lf; renderListening();}
 });

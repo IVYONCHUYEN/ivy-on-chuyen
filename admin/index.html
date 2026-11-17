@@ -150,10 +150,12 @@ details.psg{margin:4px 0 8px}details.psg div{font-size:13px;background:#f7f8fa;p
 <script src="../data/index.js"></script>
 <script src="../mascot.js"></script>
 <script src="../xlsx-lite.js"></script>
+<script src="../data/listening/index.js"></script>
 <script>
 (function(){
 const C=window.IVY_COURSE, IDX=window.IVY_INDEX||{};
 const TITLE={}; C.sessions.forEach(s=>TITLE[s.code]=s.title);
+if(window.IVY_LISTEN)Object.keys(IVY_LISTEN).forEach(c=>TITLE[c]="Listening · "+IVY_LISTEN[c].title);
 const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const pct=x=>x==null?"–":Math.round(x*100)+"%";
 const fmtD=d=>d?new Date(d).toLocaleDateString("vi-VN",{day:"2-digit",month:"2-digit"}):"–";
@@ -332,7 +334,7 @@ function openStudent(sid){
   <div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 6px">Kỹ năng theo dạng câu hỏi</h3>${sk}</div>
   ${missing.length?`<div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 6px">Buổi chưa học (${missing.length})</h3><div style="display:flex;flex-wrap:wrap;gap:6px">${missing.map(c=>`<span class="tag" title="${esc(TITLE[c]||"")}">${c}</span>`).join("")}</div></div>`:""}
   <div class="card" style="margin-bottom:14px;padding:8px 10px"><h3 style="margin:8px 10px">Điểm từng buổi <small class="muted" style="font-weight:600">· bấm vào buổi để xem từng lần làm</small></h3>${codes.length?codes.map(c=>{const v=s.best[c];const k=v<.5?"o":v<.8?"y":"g";const T=s.tries[c]||[];
-    return `<details class="lsum"><summary class="lrow"><span class="tag">${c}</span><span>${esc(TITLE[c]||(c==="MT1"?"Đề ôn số 1":""))}</span><span class="st ${k}" style="text-align:center">${pct(v)}</span><span class="muted">${s.att[c]} lượt ▾</span></summary>
+    return `<details class="lsum"><summary class="lrow"><span class="tag">${c}</span><span>${esc(TITLE[c]||lisT(c)||(c==="MT1"?"Đề ôn số 1":""))}</span><span class="st ${k}" style="text-align:center">${pct(v)}</span><span class="muted">${s.att[c]} lượt ▾</span></summary>
     <table class="att"><thead><tr><th>Lần</th><th>Thời điểm</th><th>Làm trong</th><th>Kết quả</th><th></th></tr></thead><tbody>${T.map((x,i)=>{const p=x.total?x.score/x.total:0;const kk=p<.5?"o":p<.8?"y":"g";const r=x.rec;
       return `<tr><td><b>${r&&r.lan?r.lan:i+1}</b>${r?"/3":""}</td><td>${fmtDT(x.t)}</td><td>${r&&r.dur!=null?fmtMS(r.dur)+(r.lim?` <small class="muted">/ ${Math.round(r.lim/60)}:00</small>`:""):(x.det&&x.det.dur!=null?fmtMS(x.det.dur):"–")}${r&&r.auto?' <span class="st o" style="font-size:11px;padding:1px 6px">hết giờ</span>':""}</td><td><span class="st ${kk}">${fmtSc(x.score)}/${fmtSc(x.total)}</span> <small class="muted">${pct(p)}</small></td><td>${r&&r.a?`<button class="btn ghost sm" type="button" data-view="${esc(s.sid)}|${c}|${i}">Xem bài làm</button>`:'<small class="muted">không có chi tiết</small>'}</td></tr>`}).join("")}</tbody></table></details>`}).join(""):'<div class="empty">Chưa làm bài luyện tập nào.</div>'}</div>
   ${s.essays.length?`<h3>Bài luận</h3>${s.essays.slice().reverse().map(e=>`<details class="essay"><summary><span class="tag">${esc(e.code)}</span> ${fmtDT(e.t)} · ${e.words||0} từ</summary><p>${esc(e.text)}</p></details>`).join("")}`:""}`;
@@ -343,10 +345,12 @@ function openStudent(sid){
 
 /* ---------- xem bài làm của học sinh ---------- */
 const LCACHE={};
+const isLis=c=>!!(window.IVY_LISTEN&&IVY_LISTEN[c]);
+const lisT=c=>isLis(c)?"Listening · "+IVY_LISTEN[c].title:"";
 function loadLesson(code){
   if(LCACHE[code]) return Promise.resolve(LCACHE[code]);
   if(code==="MT1") return fetch("../de-on-1/index.html").then(r=>r.text()).then(t=>{const m=t.match(/<script type="application\/json" id="data">([\s\S]*?)<\/script>/);const d=JSON.parse(m[1]);d._exam=true;return LCACHE[code]=d});
-  return new Promise((ok,no)=>{const prev=window.LESSON;const sc=document.createElement("script");sc.src="../data/"+code+".js?"+Date.now();
+  return new Promise((ok,no)=>{const prev=window.LESSON;const sc=document.createElement("script");sc.src=(isLis(code)?"../data/listening/":"../data/")+code+".js?"+Date.now();
     sc.onload=()=>{const L=window.LESSON;window.LESSON=prev;sc.remove();LCACHE[code]=L;ok(L)};sc.onerror=()=>no(new Error("Không tải được bài "+code));document.head.appendChild(sc)});
 }
 const tnorm=t=>String(t==null?"":t).toLowerCase().replace(/[’‘`]/g,"'").replace(/[“”"]/g,"").replace(/\bcan't\b/g,"cannot").replace(/\bwon't\b/g,"will not").replace(/n't\b/g," not").replace(/'m\b/g," am").replace(/'re\b/g," are").replace(/'ll\b/g," will").replace(/'ve\b/g," have").replace(/'d\b/g," would").replace(/[.,!?;:]+/g," ").replace(/\s+/g," ").trim();
@@ -359,6 +363,7 @@ function reviewLesson(L,rec){
       body=`<div class="ropts">${opts.map((o,k)=>`<span class="ro ${k===A?"key":""} ${k===v&&k!==A?"bad":""}"><b>${"ABCDEFGH"[k]}</b> ${o}${k===v?' <small>← HS chọn</small>':""}</span>`).join("")}</div>${v===-1||v===undefined?'<div class="muted">HS bỏ trống</div>':""}<div class="ex">${ex||""}</div>`}
     if(sec.type==="gap") body=`<div>HS: <b>${ans(v)}</b> · Đáp án: <b>${esc(it[1].join(" / "))}</b></div><div class="ex">${it[2]||""}</div>`;
     if(sec.type==="fix"){const k=v?v.k:-1;body=`<div>HS chọn lỗi: <b>${k>=0?"ABCD"[k]:"–"}</b>, sửa thành: <b>${ans(v&&v.v)}</b> · Đáp án: <b>${"ABCD"[it[1]]}</b> → <b>${esc(it[2][0])}</b></div><div class="ex">${it[3]||""}</div>`}
+    if(sec.type==="dict"){const acc=rec.acc&&rec.acc[id];body=`<div>HS: <b>${ans(v)}</b></div><div>Câu gốc: <b>${esc(it[0])}</b></div>`}
     if(sec.type==="rewrite"){const exact=it[2].some(x=>tnorm(x)===tnorm(v));const why=rec.why&&rec.why[id];
       body=`${it[1]?`<div class="muted">${it[1]}</div>`:""}<div>HS: <b>${ans(v)}</b></div>${ok&&!exact?'<div class="ai">🤖 Khác đáp án mẫu – AI chấm đúng nghĩa và ngữ pháp'+(why?": "+esc(why):"")+'</div>':""}${!ok&&why?'<div class="ai">🤖 '+esc(why)+'</div>':""}<div>Đáp án mẫu: <b>${esc(it[2][0])}</b></div><div class="ex">${it[3]||""}</div>`}
     const stem=sec.type==="fix"?it[0].replace(/\[([^\]]+)\]/g,(m,t,o)=>`<u>${t}</u>`):it[0];
@@ -380,7 +385,7 @@ function openAttempt(sid,code,i){
   const s=(window._S||[]).find(x=>x.sid===sid);const x=s&&s.tries[code]&&s.tries[code][i];if(!x||!x.rec)return;
   const box=document.getElementById("rview"),body=document.getElementById("rbody");
   const r=x.rec,p=x.total?x.score/x.total:0;
-  document.getElementById("rhead").innerHTML=`<div style="flex:1"><h2 style="margin:0">${esc(s.name)} · <span class="tag">${code}</span> lần ${r.lan||i+1}/3</h2><div class="muted">${esc(TITLE[code]||(code==="MT1"?"Đề ôn số 1":""))} · ${fmtDT(x.t)} · làm trong ${fmtDur(r.dur)}${r.lim?" / "+Math.round(r.lim/60)+" phút":""}${r.auto?" · <b>hết giờ, tự nộp</b>":""} · Kết quả <b>${fmtSc(x.score)}/${fmtSc(x.total)}</b> (${pct(p)})</div></div><button class="btn ghost" type="button" id="rclose">Đóng ✕</button>`;
+  document.getElementById("rhead").innerHTML=`<div style="flex:1"><h2 style="margin:0">${esc(s.name)} · <span class="tag">${code}</span> lần ${r.lan||i+1}/3</h2><div class="muted">${esc(TITLE[code]||lisT(code)||(code==="MT1"?"Đề ôn số 1":""))} · ${fmtDT(x.t)} · làm trong ${fmtDur(r.dur)}${r.lim?" / "+Math.round(r.lim/60)+" phút":""}${r.auto?" · <b>hết giờ, tự nộp</b>":""} · Kết quả <b>${fmtSc(x.score)}/${fmtSc(x.total)}</b> (${pct(p)})</div></div><button class="btn ghost" type="button" id="rclose">Đóng ✕</button>`;
   body.innerHTML='<div class="empty">Đang tải đề…</div>';box.hidden=false;
   loadLesson(code).then(L=>{body.innerHTML=(L._exam?reviewExam(L,r):reviewLesson(L,r))||'<div class="empty">Không có câu hỏi.</div>'}).catch(e=>{body.innerHTML=`<div class="empty">${esc(e.message)}</div>`});
 }

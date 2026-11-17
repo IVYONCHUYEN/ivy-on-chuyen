@@ -139,7 +139,7 @@ function sky(){
  </svg>`}
 function poseFor(L){
  const t=((L.title||"")+" "+(L.theoryTitle||"")).toLowerCase();
- if((L.practice||[]).some(s=>s.audio)||/listening|nghe/.test(t)) return "listen";
+ if(L.listening||(L.practice||[]).some(s=>s.audio||s.src)||/listening|nghe/.test(t)) return "listen";
  if(/chữa|mock|đề |đề$|sprint|bấm giờ|150 phút/.test(t)) return "timer";
  if(/ôn giai đoạn|tổng kết|làm lại|chiến lược/.test(t)) return "cheer";
  if(/bài luận|viết|writing/.test(t)) return "write";
