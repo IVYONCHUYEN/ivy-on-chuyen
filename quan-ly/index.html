@@ -4,7 +4,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Dashboard giáo viên · IVY GIFTED</title>
+<title>Quản lý · IVY GIFTED</title>
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
@@ -122,27 +122,44 @@ table.att{width:100%;min-width:0;padding:0;border-spacing:0;table-layout:auto;bo
 .ropts{display:grid;gap:4px;margin:4px 0}.ro{padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:#fff}.ro.key{border-color:#16a34a;background:#dcfce7}.ro.bad{border-color:#dc2626;background:#fee2e2}
 .ex{color:var(--muted);font-size:13px;margin-top:4px}.ai{background:#eef2ff;color:#3730a3;border-radius:8px;padding:4px 8px;margin:4px 0;font-size:13px}
 details.psg{margin:4px 0 8px}details.psg div{font-size:13px;background:#f7f8fa;padding:8px;border-radius:8px;margin-top:4px}
+.gtabs{display:grid;grid-template-columns:1fr 1fr;background:#f3f4f6;border-radius:12px;padding:4px;gap:4px}.gtabs button{border:0;background:transparent;border-radius:9px;padding:9px;font:inherit;font-weight:700;color:#4b5563;cursor:pointer}.gtabs button.on{background:#fff;color:var(--brand);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.ccard{margin-bottom:16px;padding:18px}.chead{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}.chead>div:first-child{flex:1;min-width:220px}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.btn.danger{color:#b91c1c}
+table.acc td,table.acc th{white-space:normal}table.acc code,.mbox code{background:#f3f4f6;border-radius:6px;padding:2px 6px;font-family:var(--mono)}
+.pubbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;position:sticky;top:64px;z-index:5;background:var(--paper);padding:10px 0;margin-bottom:8px}
+.pubg{margin-bottom:12px;padding:16px}.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:6px}
+.prow{display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;background:#fff}
+.prow.on{border-color:#86efac;background:#f0fdf4}.prow input{width:18px;height:18px;accent-color:#16a34a}.prow .pt{flex:1;min-width:0;font-size:14px}.prow .sw{font-size:12px;font-weight:800;color:#6b7280}.prow.on .sw{color:#15803d}
+.mbg{position:fixed;inset:0;z-index:90;background:rgba(17,24,39,.5);display:flex;align-items:flex-start;justify-content:center;padding:40px 12px;overflow:auto}
+.mbox{background:#fff;border-radius:18px;padding:22px;width:min(560px,100%);display:grid;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.mbox h2{margin:0}.mbox .fld{display:grid;gap:4px;font-weight:600;font-size:14px}.mbox input,.mbox textarea,.mbox select{font:inherit;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.mrow{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}.bigcode{font-family:var(--mono);font-size:30px;font-weight:800;letter-spacing:2px;text-align:center;background:var(--brand-soft);color:var(--brand);border-radius:14px;padding:16px}
 </style>
 </head>
 <body>
 <header class="top">
-  <a class="logo" href="../" title="Về trang học sinh"><span class="lg"><i>IVY</i>GIFTED</span><small>Dashboard giáo viên</small></a>
+  <a class="logo" href="../" title="Về trang học sinh"><span class="lg"><i>IVY</i>GIFTED</span><small id="whoami">Quản lý</small></a>
   <nav aria-label="Mục">
-    <button type="button" data-tab="hs" aria-pressed="true">Học sinh</button>
-    <button type="button" data-tab="buoi" aria-pressed="false">Theo buổi học</button>
-    <button type="button" data-tab="luan" aria-pressed="false">Bài luận đã nộp</button>
-    <button type="button" data-tab="ketnoi" aria-pressed="false">Kết nối</button>
+    <button type="button" data-tab="hs" aria-pressed="true">Tiến độ</button>
+    <button type="button" data-tab="buoi" aria-pressed="false">Theo buổi</button>
+    <button type="button" data-tab="luan" aria-pressed="false">Bài luận</button>
+    <button type="button" data-tab="lop" aria-pressed="false">Lớp & học sinh</button>
+    <button type="button" data-tab="pub" aria-pressed="false">Bài Public/Private</button>
+    <button type="button" data-tab="gv" aria-pressed="false" data-admin hidden>Giáo viên</button>
+    <button type="button" data-tab="ketnoi" aria-pressed="false" data-admin hidden>Kết nối</button>
   </nav>
   <div class="tright">
     <button class="btn ghost" id="reload" type="button">↻ Làm mới</button>
     <a class="btn ghost" id="sheetLink" href="#" target="_blank" rel="noopener" hidden>Mở Google Sheet ↗</a>
     <button class="btn" id="xlsx" type="button">⬇ Xuất Excel</button>
+    <button class="btn ghost" id="logout" type="button" hidden>Đăng xuất</button>
   </div>
 </header>
 
 <main class="wrap" id="app"></main>
 
 <div class="rview" id="rview" hidden><div class="rpanel" role="dialog" aria-modal="true"><div class="rhead" id="rhead"></div><div id="rbody"></div></div></div>
+<div class="mbg" id="mbg" hidden><form class="mbox" id="mbox"></form></div>
 <div class="drawer" id="drawer" hidden><div class="dpanel" id="dpanel" role="dialog" aria-modal="true"></div></div>
 
 <script src="../config.js"></script>
@@ -171,6 +188,7 @@ let EVENTS=[], DEMO=false, SHEET="", tab="hs", klass=store.get("t-class","all"),
 
 const today=new Date(); today.setHours(23,59,59,999);
 const DUE=C.lessons.filter(s=>s.date<=today).map(s=>s.code);
+const LESSONSET={};C.lessons.forEach(s=>LESSONSET[s.code]=1);
 
 /* ---------- dữ liệu mẫu ---------- */
 function demoEvents(){
@@ -200,6 +218,8 @@ function demoEvents(){
 /* ---------- tổng hợp ---------- */
 function aggregate(events){
   const st={};
+  const cname={},cpub={};(ACC.classes||[]).forEach(c=>{cname[c.id]=c.name;cpub[c.name]=c.pub||[]});
+  (ACC.students||[]).forEach(a=>{st[a.id]={sid:a.id,name:a.name,cls:cname[a.classId]||"",user:a.user,done:{},best:{},att:{},tries:{},last:null,first:null,skills:{},essays:[],opens:0}});
   events.slice().sort((a,b)=>new Date(a.t)-new Date(b.t)).forEach(e=>{
     if(!e.sid) return;
     const s=st[e.sid]||(st[e.sid]={sid:e.sid,name:e.name,cls:e.cls,done:{},best:{},att:{},tries:{},last:null,first:e.t,skills:{},essays:[],opens:0});
@@ -215,9 +235,10 @@ function aggregate(events){
   });
   return Object.values(st).map(s=>{
     const doneCodes=Object.keys(s.done).filter(c=>s.done[c]);
-    const doneDue=DUE.filter(c=>s.done[c]||s.best[c]!==undefined).length;
+    const due=cpub[s.cls]?cpub[s.cls].filter(c=>LESSONSET[c]):DUE;s.due=due.length;
+    const doneDue=due.filter(c=>s.done[c]||s.best[c]!==undefined).length;
     const bs=Object.values(s.best);
-    s.doneN=doneCodes.length; s.progress=DUE.length?doneDue/DUE.length:0; s.doneDue=doneDue;
+    s.doneN=doneCodes.length; s.progress=due.length?doneDue/due.length:0; s.doneDue=doneDue;
     s.avg=bs.length?bs.reduce((a,b)=>a+b,0)/bs.length:null;
     s.low=bs.filter(x=>x<.5).length; s.mid=bs.filter(x=>x>=.5&&x<.8).length; s.high=bs.filter(x=>x>=.8).length;
     s.attempts=Object.values(s.att).reduce((a,b)=>a+b,0);
@@ -232,23 +253,44 @@ function initials(n){const p=String(n||"?").trim().split(/\s+/);return (p[p.leng
 function color(id){let h=0;for(const ch of String(id))h=(h*31+ch.charCodeAt(0))>>>0;return COLORS[h%COLORS.length]}
 
 /* ---------- nạp dữ liệu ---------- */
+const MK="ivy-mgr";
+let ACC={user:null,teachers:[],classes:[],students:[]};
+async function api(action,payload){
+  const t=store.get(MK,null);
+  const r=await fetch(window.IVY_API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({action,token:t&&t.token},payload||{}))});
+  const j=await r.json(); if(!j.ok){const e=new Error(j.error||"Lỗi máy chủ");e.server=1;throw e} return j;
+}
 async function load(){
-  const api=window.IVY_API, key=store.get("t-key","");
-  if(!api){DEMO=true;EVENTS=demoEvents();render();return}
-  if(!key){renderLogin();return}
-  app.innerHTML='<div class="empty">Đang tải dữ liệu từ Google Sheet…</div>';
+  const api0=window.IVY_API;
+  if(!api0){DEMO=true;EVENTS=demoEvents();render();return}
+  if(!store.get(MK,null)){renderLogin();return}
+  if(!EVENTS.length) app.innerHTML='<div class="empty">Đang tải dữ liệu…</div>';
   try{
-    const r=await fetch(api+"?key="+encodeURIComponent(key)+"&_="+Date.now());
-    const j=await r.json();
-    if(!j.ok){store.set("t-key","");renderLogin(j.error||"Không đọc được dữ liệu");return}
+    const j=await api("data");
     DEMO=false; EVENTS=j.events||[]; SHEET=j.sheetUrl||"";
+    ACC={user:j.user,teachers:j.teachers||[],classes:j.classes||[],students:j.students||[]};
+    const isA=ACC.user.role==="admin";
+    document.querySelectorAll("[data-admin]").forEach(b=>b.hidden=!isA);
+    document.getElementById("whoami").textContent=(isA?"Quản trị · ":"Giáo viên · ")+ACC.user.name;
+    document.getElementById("logout").hidden=false;
     const sl=document.getElementById("sheetLink"); sl.hidden=!SHEET; sl.href=SHEET||"#";
+    if(!isA&&(tab==="gv"||tab==="ketnoi"))tab="hs";
     render();
-  }catch(e){app.innerHTML='<div class="empty">Không kết nối được máy chủ. Kiểm tra mạng rồi bấm “Làm mới”.</div>'}
+  }catch(e){
+    if(e.server){store.set(MK,null);renderLogin(e.message);return}
+    app.innerHTML='<div class="empty">Không kết nối được máy chủ. Kiểm tra mạng rồi bấm “Làm mới”.</div>';
+  }
 }
 function renderLogin(err){
-  app.innerHTML=`<form class="login" id="lf"><div style="display:flex;justify-content:center">${IVY_MASCOT.svg("wave","",'happy').replace('class="gifty"','style="width:120px"')}</div><h2 style="text-align:center">Đăng nhập giáo viên</h2><label class="muted" for="tk">Mã giáo viên</label><input id="tk" type="password" autocomplete="current-password" required>${err?`<div class="err">${esc(err)}</div>`:""}<button class="btn" type="submit" style="justify-content:center">Vào dashboard</button></form>`;
-  document.getElementById("lf").addEventListener("submit",e=>{e.preventDefault();store.set("t-key",document.getElementById("tk").value.trim());load()});
+  document.getElementById("logout").hidden=true;
+  app.innerHTML=`<form class="login" id="lf"><div style="display:flex;justify-content:center">${IVY_MASCOT.svg("wave","",'happy').replace('class="gifty"','style="width:120px"')}</div><h2 style="text-align:center">Đăng nhập trang Quản lý</h2>
+  <div class="gtabs"><button type="button" class="on" data-lr="t">Giáo viên</button><button type="button" data-lr="a">Quản trị</button></div>
+  <label class="muted" for="tk" id="tkl">Mã giáo viên (do quản trị cấp)</label><input id="tk" type="password" autocomplete="current-password" required>${err?`<div class="err">${esc(err)}</div>`:""}<button class="btn" type="submit" style="justify-content:center">Đăng nhập</button></form>`;
+  let role="t";
+  app.querySelectorAll("[data-lr]").forEach(b=>b.addEventListener("click",()=>{role=b.dataset.lr;app.querySelectorAll("[data-lr]").forEach(x=>x.classList.toggle("on",x===b));document.getElementById("tkl").textContent=role==="t"?"Mã giáo viên (do quản trị cấp)":"Mã quản trị"}));
+  document.getElementById("lf").addEventListener("submit",async e=>{e.preventDefault();const v=document.getElementById("tk").value.trim();
+    try{const r=await fetch(window.IVY_API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(role==="t"?{action:"login",role:"t",code:v}:{action:"login",role:"a",key:v})});const j=await r.json();
+      if(!j.ok){renderLogin(j.error);return} store.set(MK,{token:j.token,user:j.user}); tab="hs"; load();}catch(x){renderLogin("Không kết nối được máy chủ")}});
 }
 
 /* ---------- giao diện ---------- */
@@ -261,6 +303,9 @@ function render(){
   <div class="hrow"><h1>${tab==="hs"?"Dashboard":tab==="buoi"?"Theo buổi học":tab==="luan"?"Bài luận đã nộp":"Kết nối dữ liệu"}</h1>
   ${tab!=="ketnoi"?`<select class="sel" id="cls" aria-label="Chọn lớp"><option value="all">Tất cả lớp (${all.length} HS)</option>${classes(all).map(c=>`<option ${c===klass?"selected":""}>${esc(c)}</option>`).join("")}</select>`:""}
   <span class="muted">Hôm nay ${today.toLocaleDateString("vi-VN")} · ${DUE.length} buổi đã đến hạn</span></div>`;
+  if(tab==="lop"){app.innerHTML=viewClasses();window._S=S;return}
+  if(tab==="pub"){app.innerHTML=viewPublish();window._S=S;return}
+  if(tab==="gv"){app.innerHTML=viewTeachers();window._S=S;return}
   if(tab==="hs") app.innerHTML=head+viewStudents(S);
   else if(tab==="buoi") app.innerHTML=head+viewLessons(S);
   else if(tab==="luan") app.innerHTML=head+viewEssays(S);
@@ -293,9 +338,9 @@ function viewStudents(S){
     </div>
     <div class="tbl">${rows.length?`<table><thead><tr><th>Họ tên</th><th>Buổi đã học</th><th>Điểm TB luyện tập</th><th class="c">Cần chú ý<br><small>&lt;50%</small></th><th class="c">Đang tiến bộ<br><small>50–79%</small></th><th class="c">Thành thạo<br><small>≥80%</small></th><th>Bài luận</th><th>Hoạt động gần nhất</th><th>Trạng thái</th></tr></thead><tbody>
     ${rows.map(s=>`<tr class="r ${s.status}" data-sid="${esc(s.sid)}" tabindex="0"><td><div class="who"><span class="av" style="background:${color(s.sid)}">${esc(initials(s.name))}</span><span>${esc(s.name)}<small>${esc(s.cls||"")}</small></span></div></td>
-      <td>${s.doneDue} / ${DUE.length}<div class="prog"><i style="width:${Math.round(s.progress*100)}%"></i></div></td>
+      <td>${s.doneDue} / ${s.due}<div class="prog"><i style="width:${Math.round(s.progress*100)}%"></i></div></td>
       <td>${bar(s)}</td><td class="c">${bub(s.low,"o")}</td><td class="c">${bub(s.mid,"y")}</td><td class="c">${bub(s.high,"g")}</td>
-      <td>${s.essays.length}</td><td>${fmtDT(s.last)}${s.idle>7?`<br><small class="muted">${Math.floor(s.idle)} ngày trước</small>`:""}</td><td><span class="st ${s.status}">${STATUS[s.status]}</span></td></tr>`).join("")}
+      <td>${s.essays.length}</td><td>${fmtDT(s.last)}${s.last&&s.idle>7?`<br><small class="muted">${Math.floor(s.idle)} ngày trước</small>`:""}</td><td><span class="st ${s.status}">${STATUS[s.status]}</span></td></tr>`).join("")}
     </tbody></table>`:`<div class="empty">${S.length?"Không có học sinh khớp bộ lọc.":"Chưa có học sinh nào gửi tiến độ. Học sinh cần điền tên và lớp ở trang học."}</div>`}</div>
   </section>`;
 }
@@ -415,6 +460,99 @@ function exportXlsx(){
   ],`IVY-GIFTED_tien-do_${tag}_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}${DEMO?"_du-lieu-mau":""}.xlsx`);
 }
 
+/* ---------- QUẢN LÝ: lớp, học sinh, Public/Private, giáo viên ---------- */
+const isAdmin=()=>ACC.user&&ACC.user.role==="admin";
+let pubClass=store.get("t-pubclass",""), pubDraft=null;
+const ALL_ITEMS=(()=>{const L=[];C.PHASES.forEach(ph=>{C.sessions.filter(x=>x.phase===ph.n).forEach(x=>L.push({code:x.code,title:x.title,date:x.date,group:ph.short+" · "+ph.name,mt:x.mt}))});
+  Object.keys(window.IVY_LISTEN||{}).sort().forEach(c=>L.push({code:c,title:IVY_LISTEN[c].title,group:"Listening (làm trên web)",lis:1}));return L})();
+function tname(id){const t=(ACC.teachers||[]).find(x=>x.id===id);return t?t.name:(id?"":"Chưa giao giáo viên")}
+function viewClasses(){
+  const C2=ACC.classes||[], S2=ACC.students||[];
+  return `<div class="hrow"><h1>Lớp & tài khoản học sinh</h1><button class="btn" type="button" data-act="newClass">+ Tạo lớp</button></div>
+  <p class="muted" style="margin-top:-6px">Mỗi học sinh có <b>mã học sinh</b> và <b>mật khẩu</b> riêng để đăng nhập trang học. Mật khẩu chỉ hiện một lần khi tạo hoặc đặt lại – hãy tải Excel hoặc sao chép gửi học sinh.</p>
+  ${C2.length?C2.map(c=>{const ss=S2.filter(x=>x.classId===c.id);return `<section class="card ccard"><div class="chead"><div><h2 style="margin:0">${esc(c.name)}</h2><div class="muted">${isAdmin()?"Giáo viên: <b>"+esc(c.teacherName||tname(c.teacherId))+"</b> · ":""}${ss.length} học sinh · ${c.pub.length} bài đang Public</div></div>
+    <div class="acts"><button class="btn" type="button" data-act="addSt" data-id="${c.id}">+ Thêm học sinh</button><button class="btn ghost" type="button" data-act="goPub" data-id="${c.id}">Bài Public/Private</button><button class="btn ghost" type="button" data-act="renClass" data-id="${c.id}">Đổi tên</button>${isAdmin()?`<button class="btn ghost" type="button" data-act="assignClass" data-id="${c.id}">Đổi giáo viên</button>`:""}<button class="btn ghost danger" type="button" data-act="delClass" data-id="${c.id}">Xoá lớp</button></div></div>
+    ${ss.length?`<table class="att acc"><thead><tr><th>Họ tên</th><th>Mã học sinh</th><th>Trạng thái</th><th>Đăng nhập gần nhất</th><th></th></tr></thead><tbody>${ss.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td><code>${esc(x.user)}</code></td><td>${x.status==="active"?'<span class="st g">Hoạt động</span>':'<span class="st o">Đã khoá</span>'}</td><td>${x.last?fmtDT(x.last):'<span class="muted">Chưa đăng nhập</span>'}</td>
+      <td class="acts"><button class="btn ghost sm" type="button" data-act="reset" data-id="${x.id}">Đặt lại mật khẩu</button><button class="btn ghost sm" type="button" data-act="${x.status==="active"?"lockSt":"unlockSt"}" data-id="${x.id}">${x.status==="active"?"Khoá":"Mở khoá"}</button>${C2.length>1?`<button class="btn ghost sm" type="button" data-act="moveSt" data-id="${x.id}">Chuyển lớp</button>`:""}<button class="btn ghost sm danger" type="button" data-act="delSt" data-id="${x.id}">Xoá</button></td></tr>`).join("")}</tbody></table>`:'<div class="empty" style="padding:18px">Lớp chưa có học sinh. Bấm “+ Thêm học sinh”.</div>'}</section>`}).join(""):'<div class="empty">Chưa có lớp nào. Bấm “+ Tạo lớp” để bắt đầu.</div>'}`;
+}
+function viewPublish(){
+  const C2=ACC.classes||[];
+  if(!C2.length) return '<div class="hrow"><h1>Bài Public/Private</h1></div><div class="empty">Tạo lớp trước ở tab “Lớp & học sinh”, sau đó chọn bài Public cho lớp.</div>';
+  if(!C2.find(c=>c.id===pubClass)){pubClass=C2[0].id;pubDraft=null}
+  const cl=C2.find(c=>c.id===pubClass); if(!pubDraft) pubDraft=new Set(cl.pub);
+  const dirty=JSON.stringify([...pubDraft].sort())!==JSON.stringify(cl.pub.slice().sort());
+  const groups={};ALL_ITEMS.forEach(it=>(groups[it.group]=groups[it.group]||[]).push(it));
+  return `<div class="hrow"><h1>Bài Public/Private</h1><select class="sel" id="pubcls" aria-label="Chọn lớp">${C2.map(c=>`<option value="${c.id}" ${c.id===pubClass?"selected":""}>${esc(c.name)}${isAdmin()?" · "+esc(c.teacherName||""):""}</option>`).join("")}</select>
+  <span class="muted"><b>${pubDraft.size}</b> / ${ALL_ITEMS.length} bài Public</span></div>
+  <p class="muted" style="margin-top:-6px">Học sinh của lớp chỉ thấy và làm được bài <b>Public</b>. Bài <b>Private</b> bị ẩn khỏi mọi mục (Vào học, Lộ trình ngữ pháp, Listening, Từ vựng). Giáo viên luôn xem được tất cả.</p>
+  <div class="pubbar"><button class="btn ghost" type="button" data-act="pubDue">Public các buổi đã đến lịch</button><button class="btn ghost" type="button" data-act="pubAll">Public tất cả</button><button class="btn ghost" type="button" data-act="pubNone">Private tất cả</button>
+   <span style="flex:1"></span>${dirty?'<span class="muted">Có thay đổi chưa lưu</span>':""}<button class="btn" type="button" data-act="pubSave" ${dirty?"":"disabled"}>Lưu thay đổi</button></div>
+  ${Object.keys(groups).map(g=>{const its=groups[g],on=its.filter(i=>pubDraft.has(i.code)).length;return `<section class="card pubg"><div class="chead"><h3 style="margin:0">${esc(g)}</h3><span class="muted">${on}/${its.length} Public</span><span style="flex:1"></span><button class="btn ghost sm" type="button" data-act="pubGrp" data-g="${esc(g)}" data-on="1">Public cả nhóm</button><button class="btn ghost sm" type="button" data-act="pubGrp" data-g="${esc(g)}" data-on="0">Private cả nhóm</button></div>
+   <div class="plist">${its.map(i=>`<label class="prow ${pubDraft.has(i.code)?"on":""}"><input type="checkbox" data-pc="${i.code}" ${pubDraft.has(i.code)?"checked":""}><span class="tag">${i.code}</span><span class="pt">${esc(i.title)}${i.date?`<small class="muted"> · ${fmtD(i.date)}</small>`:""}</span><span class="sw">${pubDraft.has(i.code)?"Public":"Private"}</span></label>`).join("")}</div></section>`}).join("")}`;
+}
+function viewTeachers(){
+  const T=ACC.teachers||[];
+  return `<div class="hrow"><h1>Tài khoản giáo viên</h1><button class="btn" type="button" data-act="newT">+ Cấp mã giáo viên</button></div>
+  <p class="muted" style="margin-top:-6px">Giáo viên đăng nhập trang Quản lý và trang học bằng <b>mã giáo viên</b>. Mã chỉ hiện một lần khi cấp – bấm “Cấp mã mới” nếu giáo viên quên (mã cũ hết hiệu lực ngay).</p>
+  <div class="tbl">${T.length?`<table class="att acc"><thead><tr><th>Giáo viên</th><th>Mã (4 ký tự cuối)</th><th>Số lớp</th><th>Trạng thái</th><th>Ngày tạo</th><th></th></tr></thead><tbody>${T.map(t=>`<tr><td><b>${esc(t.name)}</b></td><td><code>…${esc(t.tail)}</code></td><td>${(ACC.classes||[]).filter(c=>c.teacherId===t.id).length}</td><td>${t.status==="active"?'<span class="st g">Hoạt động</span>':'<span class="st o">Đã khoá</span>'}</td><td>${fmtD(t.created)}</td>
+   <td class="acts"><button class="btn ghost sm" type="button" data-act="regenT" data-id="${t.id}">Cấp mã mới</button><button class="btn ghost sm" type="button" data-act="renT" data-id="${t.id}">Đổi tên</button><button class="btn ghost sm" type="button" data-act="${t.status==="active"?"lockT":"unlockT"}" data-id="${t.id}">${t.status==="active"?"Khoá":"Mở khoá"}</button><button class="btn ghost sm danger" type="button" data-act="delT" data-id="${t.id}">Xoá</button></td></tr>`).join("")}</tbody></table>`:'<div class="empty">Chưa có giáo viên nào. Bấm “+ Cấp mã giáo viên”.</div>'}</div>`;
+}
+/* hộp thoại */
+function dialog(html,onOk,okText){const bg=document.getElementById("mbg"),f=document.getElementById("mbox");
+  f.innerHTML=html+`<div class="err" id="mErr" hidden></div><div class="mrow"><button class="btn ghost" type="button" id="mCancel">${onOk?"Huỷ":"Đóng"}</button>${onOk?`<button class="btn" type="submit" id="mOk">${okText||"Lưu"}</button>`:""}</div>`;
+  bg.hidden=false;const first=f.querySelector("input,textarea,select");if(first)first.focus();
+  document.getElementById("mCancel").onclick=()=>{bg.hidden=true};
+  f.onsubmit=async e=>{e.preventDefault();if(!onOk){bg.hidden=true;return}const ok=document.getElementById("mOk");ok.disabled=true;ok.textContent="Đang lưu…";
+    try{await onOk(f)}catch(x){const er=document.getElementById("mErr");if(er){er.textContent=x.message||"Lỗi";er.hidden=false}ok.disabled=false;ok.textContent=okText||"Lưu"}};
+}
+function credsHTML(title,list,cls){
+  const txt=list.map(x=>`${x.name}\tMã: ${x.user}\tMật khẩu: ${x.pass}`).join("\n");
+  window._creds={list,cls,title};
+  return `<h2 style="margin:0">${esc(title)}</h2><p class="muted" style="margin:0">Mật khẩu chỉ hiện <b>một lần</b>. Tải Excel hoặc sao chép gửi học sinh ngay. Trang học: <b>${esc(location.origin+location.pathname.replace(/quan-ly\/?.*$/,""))}hoc-sinh/</b></p>
+  <table class="att"><thead><tr><th>Họ tên</th><th>Mã học sinh</th><th>Mật khẩu</th></tr></thead><tbody>${list.map(x=>`<tr><td>${esc(x.name)}</td><td><code>${esc(x.user)}</code></td><td><code>${esc(x.pass)}</code></td></tr>`).join("")}</tbody></table>
+  <textarea id="credTxt" readonly style="position:absolute;left:-9999px">${esc(txt)}</textarea>
+  <div class="mrow" style="justify-content:flex-start"><button class="btn ghost" type="button" data-act="credCopy">📋 Sao chép</button><button class="btn ghost" type="button" data-act="credXlsx">⬇ Tải Excel</button></div>`;
+}
+async function act(a,el){
+  const id=el.dataset.id, st=(ACC.students||[]).find(x=>x.id===id), cl=(ACC.classes||[]).find(x=>x.id===id), te=(ACC.teachers||[]).find(x=>x.id===id);
+  const done=async()=>{document.getElementById("mbg").hidden=true;await load()};
+  const tsel=()=>`<label class="fld">Giáo viên phụ trách<select id="fT"><option value="">— Chưa giao —</option>${(ACC.teachers||[]).map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("")}</select></label>`;
+  if(a==="newClass") return dialog(`<h2>Tạo lớp mới</h2><label class="fld">Tên lớp<input id="fN" required maxlength="60" placeholder="VD: Khoá 3 – Lớp A"></label>${isAdmin()?tsel():""}`,async f=>{await api("createClass",{name:f.querySelector("#fN").value,teacherId:isAdmin()?f.querySelector("#fT").value:undefined});await done()},"Tạo lớp");
+  if(a==="renClass") return dialog(`<h2>Đổi tên lớp</h2><label class="fld">Tên lớp<input id="fN" required maxlength="60" value="${esc(cl.name)}"></label>`,async f=>{await api("class",{id,op:"rename",name:f.querySelector("#fN").value});await done()});
+  if(a==="assignClass") return dialog(`<h2>Đổi giáo viên phụ trách</h2>${tsel()}`,async f=>{await api("class",{id,op:"teacher",teacherId:f.querySelector("#fT").value});await done()});
+  if(a==="delClass") return dialog(`<h2>Xoá lớp “${esc(cl.name)}”?</h2><p class="muted">Chỉ xoá được lớp không còn học sinh.</p>`,async()=>{await api("class",{id,op:"delete"});await done()},"Xoá lớp");
+  if(a==="goPub"){pubClass=id;pubDraft=null;store.set("t-pubclass",id);tab="pub";render();return}
+  if(a==="addSt") return dialog(`<h2>Thêm học sinh vào “${esc(cl.name)}”</h2><label class="fld">Họ tên học sinh – mỗi dòng một em<textarea id="fN" rows="8" required placeholder="Nguyễn Minh Anh&#10;Trần Bảo Ngọc"></textarea></label><p class="muted" style="margin:0">Hệ thống tự tạo mã học sinh và mật khẩu cho từng em.</p>`,async f=>{
+    const names=f.querySelector("#fN").value.split(/\n/).map(x=>x.trim()).filter(Boolean);const r=await api("addStudents",{classId:id,names});
+    await load();dialog(credsHTML(`Đã tạo ${r.students.length} tài khoản – ${r.className}`,r.students,r.className))},"Tạo tài khoản");
+  if(a==="reset") return dialog(`<h2>Đặt lại mật khẩu cho ${esc(st.name)}?</h2><p class="muted">Mật khẩu cũ hết hiệu lực ngay, em phải đăng nhập lại bằng mật khẩu mới.</p>`,async()=>{const r=await api("student",{id,op:"reset"});const c=(ACC.classes||[]).find(x=>x.id===st.classId);dialog(credsHTML("Mật khẩu mới",[{name:r.name,user:r.user,pass:r.pass}],c?c.name:""))},"Đặt lại");
+  if(a==="lockSt"||a==="unlockSt"){await api("student",{id,op:a==="lockSt"?"disable":"enable"});return load()}
+  if(a==="moveSt") return dialog(`<h2>Chuyển ${esc(st.name)} sang lớp</h2><label class="fld">Lớp mới<select id="fC">${(ACC.classes||[]).filter(c=>c.id!==st.classId).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select></label>`,async f=>{await api("student",{id,op:"move",classId:f.querySelector("#fC").value});await done()},"Chuyển");
+  if(a==="delSt") return dialog(`<h2>Xoá tài khoản ${esc(st.name)}?</h2><p class="muted">Em sẽ không đăng nhập được nữa. Kết quả học tập đã gửi vẫn giữ trong Google Sheet.</p>`,async()=>{await api("student",{id,op:"delete"});await done()},"Xoá");
+  if(a==="newT") return dialog(`<h2>Cấp mã giáo viên</h2><label class="fld">Họ tên giáo viên<input id="fN" required maxlength="80" placeholder="VD: Cô Nguyễn Thu Hà"></label>`,async f=>{const r=await api("createTeacher",{name:f.querySelector("#fN").value});await load();dialog(codeHTML(r.name,r.code))},"Cấp mã");
+  if(a==="regenT") return dialog(`<h2>Cấp mã mới cho ${esc(te.name)}?</h2><p class="muted">Mã cũ hết hiệu lực ngay.</p>`,async()=>{const r=await api("teacher",{id,op:"regen"});await load();dialog(codeHTML(te.name,r.code))},"Cấp mã mới");
+  if(a==="renT") return dialog(`<h2>Đổi tên giáo viên</h2><label class="fld">Họ tên<input id="fN" required maxlength="80" value="${esc(te.name)}"></label>`,async f=>{await api("teacher",{id,op:"rename",name:f.querySelector("#fN").value});await done()});
+  if(a==="lockT"||a==="unlockT"){await api("teacher",{id,op:a==="lockT"?"disable":"enable"});return load()}
+  if(a==="delT") return dialog(`<h2>Xoá giáo viên ${esc(te.name)}?</h2><p class="muted">Chỉ xoá được khi giáo viên không còn lớp.</p>`,async()=>{await api("teacher",{id,op:"delete"});await done()},"Xoá");
+  if(a==="credCopy"){const t=document.getElementById("credTxt");try{await navigator.clipboard.writeText(t.value)}catch(e){t.select();document.execCommand("copy")}el.textContent="✓ Đã sao chép";return}
+  if(a==="credXlsx"){const c=window._creds;IVY_XLSX.download([{name:"Tài khoản",rows:[["Họ tên","Lớp","Mã học sinh","Mật khẩu"]].concat(c.list.map(x=>[x.name,c.cls,x.user,x.pass])),widths:[28,22,16,14]}],`IVY-GIFTED_tai-khoan_${(c.cls||"lop").replace(/[^\p{L}\p{N}]+/gu,"-")}.xlsx`);return}
+  if(a==="codeCopy"){try{await navigator.clipboard.writeText(el.dataset.code)}catch(e){}el.textContent="✓ Đã sao chép";return}
+  // Public/Private
+  if(a==="pubAll"){ALL_ITEMS.forEach(i=>pubDraft.add(i.code));return render()}
+  if(a==="pubNone"){pubDraft.clear();return render()}
+  if(a==="pubDue"){const now=new Date();ALL_ITEMS.forEach(i=>{if(i.date&&i.date<=now)pubDraft.add(i.code)});return render()}
+  if(a==="pubGrp"){ALL_ITEMS.filter(i=>i.group===el.dataset.g).forEach(i=>el.dataset.on==="1"?pubDraft.add(i.code):pubDraft.delete(i.code));return render()}
+  if(a==="pubSave"){el.disabled=true;el.textContent="Đang lưu…";try{await api("setPublic",{classId:pubClass,codes:[...pubDraft]});pubDraft=null;await load()}catch(e){alertBox(e.message)}return}
+}
+function codeHTML(name,code){return `<h2 style="margin:0">Mã giáo viên của ${esc(name)}</h2><p class="muted" style="margin:0">Mã chỉ hiện một lần. Gửi cho giáo viên để đăng nhập trang Quản lý (<b>${esc(location.origin+location.pathname)}</b>) và trang học.</p><div class="bigcode">${esc(code)}</div><div class="mrow" style="justify-content:flex-start"><button class="btn ghost" type="button" data-act="codeCopy" data-code="${esc(code)}">📋 Sao chép mã</button></div>`}
+function alertBox(msg){dialog(`<h2>Không lưu được</h2><p>${esc(msg)}</p>`)}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;e.preventDefault();act(b.dataset.act,b).catch(x=>alertBox(x.message))});
+document.addEventListener("change",e=>{
+  if(e.target.id==="pubcls"){pubClass=e.target.value;store.set("t-pubclass",pubClass);pubDraft=null;render()}
+  const pc=e.target.dataset&&e.target.dataset.pc;if(pc){e.target.checked?pubDraft.add(pc):pubDraft.delete(pc);const y=window.scrollY;render();window.scrollTo(0,y)}
+});
+window.addEventListener("beforeunload",e=>{if(tab==="pub"&&pubDraft){const cl=(ACC.classes||[]).find(c=>c.id===pubClass);if(cl&&JSON.stringify([...pubDraft].sort())!==JSON.stringify(cl.pub.slice().sort())){e.preventDefault();e.returnValue=""}}});
+
 /* ---------- sự kiện ---------- */
 document.addEventListener("click",e=>{
   const t=e.target.closest("[data-tab]"); if(t){tab=t.dataset.tab;filt=null;render();return}
@@ -424,7 +562,7 @@ document.addEventListener("click",e=>{
   if(e.target.id==="rview"||e.target.id==="rclose"){document.getElementById("rview").hidden=true;return}
   const r=e.target.closest("tr[data-sid]"); if(r){openStudent(r.dataset.sid);return}
   if(e.target.id==="drawer"||e.target.id==="dclose"){document.getElementById("drawer").hidden=true;return}
-  if(e.target.id==="logout"){store.set("t-key","");load();return}
+  if(e.target.id==="logout"){store.set(MK,null);EVENTS=[];ACC={user:null,teachers:[],classes:[],students:[]};load();return}
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){const rv=document.getElementById("rview");if(!rv.hidden){rv.hidden=true;return}document.getElementById("drawer").hidden=true}const r=e.target.closest&&e.target.closest("tr[data-sid]");if(r&&e.key==="Enter")openStudent(r.dataset.sid)});
 document.addEventListener("change",e=>{if(e.target.id==="sort"){sortBy=e.target.value;store.set("t-sort",sortBy);render()}});

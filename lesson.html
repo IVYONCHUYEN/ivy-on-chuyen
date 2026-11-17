@@ -259,6 +259,7 @@ summary{color:#9b1c1c}
 <div class="wrap" id="app"><div class="err">Đang tải bài học…</div></div>
 <script src="config.js"></script>
 <script src="track.js"></script>
+<script src="auth.js"></script>
 <script src="ai-check.js"></script>
 <script src="mascot.js"></script>
 <script>
@@ -266,6 +267,8 @@ summary{color:#9b1c1c}
 const P=new URLSearchParams(location.search);
 const LIS=(P.get("l")||"").toUpperCase().replace(/[^A-Z0-9-]/g,"");
 const code=LIS||(P.get("b")||"B03").toUpperCase().replace(/[^A-Z0-9]/g,"");
+const AU=window.IVY_AUTH, AUU=AU&&AU.user();
+if(!AUU||!AU.canSee(code)){document.getElementById("app").innerHTML='<div class="err"><h2>🔒 Chưa mở bài</h2><p>'+(!AUU?'Em cần đăng nhập ở <a href="./" target="_top">trang chủ IVY GIFTED</a> trước khi vào bài.':'Bài này chưa được giáo viên mở (Public) cho lớp của em.')+'</p></div>';return}
 const s=document.createElement("script");
 s.src=LIS?"data/listening/"+LIS+".js":"data/"+code+".js";
 s.onload=()=>start(window.LESSON);

@@ -242,6 +242,16 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border
 .pvcard{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fff}
 .pvlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}
 .pv{display:flex;flex-direction:column;background:#9b1c1c;color:#fff;border-radius:10px;padding:8px 10px}.pv small{opacity:.85;font-size:12px}
+.gate{position:fixed;inset:0;z-index:200;background:linear-gradient(160deg,#fbeaea,#f3f4f6 60%);display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
+.gbox{background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px;width:min(420px,100%);display:grid;gap:12px;box-shadow:0 20px 50px rgba(16,24,40,.12)}
+.glogo{display:flex;justify-content:center}.glogo .lg{background:#9b1c1c;color:#fff;font-weight:800;padding:8px 14px;border-radius:10px;letter-spacing:.5px}.glogo .lg i{font-style:normal;background:#fff;color:#9b1c1c;padding:0 6px;border-radius:5px;margin-right:6px}
+#gArt{display:flex;justify-content:center}#gArt svg{width:110px;height:auto}
+.gbox h2{text-align:center;margin:0}
+.gtabs{display:grid;grid-template-columns:1fr 1fr;background:#f3f4f6;border-radius:12px;padding:4px;gap:4px}.gtabs button{border:0;background:transparent;border-radius:9px;padding:9px;font:inherit;font-weight:700;color:#4b5563;cursor:pointer}.gtabs button.on{background:#fff;color:#9b1c1c;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.gate .fld{display:grid;gap:4px;font-weight:600;font-size:14px}.gate .fld input{font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:10px}
+.gate .err{background:#fee2e2;color:#991b1b;border-radius:10px;padding:8px 12px;font-size:14px}
+.staffbar{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;border-radius:12px;padding:10px 14px;font-size:14px;font-weight:600}
+.lockedbox{text-align:center;padding:40px 20px}
 </style>
 </head>
 <body>
@@ -277,7 +287,7 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border
     <a href="#lich-su" data-view="lich-su"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg><span>Lịch sử làm bài</span></a>
   </nav>
   <div class="user">
-    <button class="urow" id="nameBtn" type="button" title="Đổi tên hiển thị">
+    <button class="urow" id="nameBtn" type="button" title="Tài khoản">
       <span class="avatar" aria-hidden="true">🧑‍🎓</span>
       <span class="uname" id="uname">Học viên IVY</span>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
@@ -414,18 +424,31 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border
     <div class="tbl"><table><thead><tr><th>Buổi</th><th>Bài</th><th>Số lần</th><th>Điểm các lần</th><th>Lần gần nhất</th><th>Trạng thái</th><th></th></tr></thead><tbody id="hist-body"></tbody></table></div>
   </section>
 
-  <footer>IVY GIFTED · Lộ trình 90 buổi ôn thi vào lớp 10 chuyên Anh. Các file Listening nằm trên Google Drive của trung tâm, học sinh cần được chia sẻ quyền xem mới mở được.</footer>
+  <footer>IVY GIFTED · Lộ trình 90 buổi ôn thi vào lớp 10 chuyên Anh.</footer>
 </div></main>
 
-<div class="modal" id="reg" hidden role="dialog" aria-modal="true" aria-labelledby="rTitle">
-  <form class="box" id="regForm">
-    <h2 id="rTitle">Thông tin học viên</h2>
-    <p class="meta" style="margin:0">Điền tên và lớp để giáo viên theo dõi được tiến độ và điểm luyện tập của em.</p>
-    <label class="fld">Họ và tên<input id="rName" required maxlength="60" placeholder="VD: Nguyễn Minh Anh"></label>
-    <label class="fld">Lớp<select id="rCls" required></select></label>
-    <label class="fld">Mã học sinh (nếu giáo viên cấp)<input id="rCode" maxlength="20" placeholder="Không bắt buộc"></label>
-    <div class="row"><button class="btn ghost" id="rLater" type="button">Để sau</button><button class="btn" type="submit">Lưu</button></div>
+<div class="gate" id="gate" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
+  <form class="gbox" id="gForm" autocomplete="on">
+    <div class="glogo"><span class="lg"><i>IVY</i>GIFTED</span></div>
+    <div id="gArt"></div>
+    <h2 id="gTitle">Đăng nhập để vào học</h2>
+    <div class="gtabs" role="tablist"><button type="button" class="on" data-role="s">Học sinh</button><button type="button" data-role="t">Giáo viên</button></div>
+    <div id="gS"><label class="fld">Mã học sinh<input id="gUser" autocomplete="username" placeholder="VD: hs12345" autocapitalize="off" spellcheck="false"></label>
+    <label class="fld">Mật khẩu<input id="gPass" type="password" autocomplete="current-password"></label>
+    <p class="meta" style="margin:0">Mã và mật khẩu do giáo viên cấp. Quên mật khẩu thì nhờ giáo viên đặt lại.</p></div>
+    <div id="gT" hidden><label class="fld">Mã giáo viên<input id="gCode" type="password" autocomplete="current-password" placeholder="GV-XXXX-XXXX"></label>
+    <p class="meta" style="margin:0">Giáo viên xem được toàn bộ bài học. Quản lý lớp, học sinh và bài Public/Private ở trang Quản lý.</p></div>
+    <div class="err" id="gErr" hidden></div>
+    <button class="btn" type="submit" id="gGo" style="justify-content:center">Đăng nhập</button>
   </form>
+</div>
+
+<div class="modal" id="acct" hidden role="dialog" aria-modal="true" aria-labelledby="aTitle">
+  <div class="box">
+    <h2 id="aTitle">Tài khoản</h2>
+    <div id="aInfo" class="meta"></div>
+    <div class="row"><button class="btn ghost" id="aClose" type="button">Đóng</button><button class="btn" id="aOut" type="button">Đăng xuất</button></div>
+  </div>
 </div>
 
 <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
@@ -439,12 +462,25 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border
 
 <script src="config.js"></script>
 <script src="track.js"></script>
+<script src="auth.js"></script>
 <script src="data/listening/index.js"></script>
 <script src="data/index.js"></script>
 <script src="mascot.js"></script>
 <script>
 
 (function(){
+/* ---------- ĐĂNG NHẬP ---------- */
+const AU=window.IVY_AUTH;
+if(!AU.user()){
+  const g=document.getElementById("gate");g.hidden=false;let role="s";
+  try{document.getElementById("gArt").innerHTML=IVY_MASCOT.svg("wave","","happy")}catch(e){}
+  g.querySelectorAll(".gtabs button").forEach(b=>b.addEventListener("click",()=>{role=b.dataset.role;g.querySelectorAll(".gtabs button").forEach(x=>x.classList.toggle("on",x===b));document.getElementById("gS").hidden=role!=="s";document.getElementById("gT").hidden=role!=="t"}));
+  document.getElementById("gForm").addEventListener("submit",async e=>{e.preventDefault();const er=document.getElementById("gErr"),go=document.getElementById("gGo");er.hidden=true;go.disabled=true;go.textContent="Đang đăng nhập…";
+    try{if(role==="s")await AU.login("s",document.getElementById("gUser").value,document.getElementById("gPass").value);else await AU.login("t",document.getElementById("gCode").value);location.reload()}
+    catch(x){er.textContent=x.server?x.message:"Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.";er.hidden=false;go.disabled=false;go.textContent="Đăng nhập"}});
+  return;
+}
+const ME=AU.user(), STAFF=AU.staff(), CAN=c=>STAFF||(!!c&&AU.canSee(c));
 const D = id => "https://drive.google.com/file/d/"+id+"/view";
 const G = id => "https://docs.google.com/document/d/"+id+"/edit";
 
@@ -681,12 +717,16 @@ TOPICS.forEach((t,i)=>{
   t.from=ls[0]?ls[0].date:null; t.to=ls.length?ls[ls.length-1].date:null;
 });
 
+/* ---------- CHỈ GIỮ BÀI PUBLIC (học sinh) ---------- */
+if(!STAFF){for(let i=sessions.length-1;i>=0;i--)if(!CAN(sessions[i].code))sessions.splice(i,1);for(let i=lessons.length-1;i>=0;i--)if(!CAN(lessons[i].code))lessons.splice(i,1)}
+const NOLES=!sessions.length;
+if(NOLES){const ph={code:"—",phase:0,title:"Chưa có bài nào được mở",task:"",mt:true,date:new Date(),week:-1,idx:0};sessions.push(ph)}
 /* ---------- STATE ---------- */
 let done={};
 try{done=JSON.parse(localStorage.getItem("ivy-done")||"{}")||{}}catch(e){done={}}
 function save(){try{localStorage.setItem("ivy-done",JSON.stringify(done))}catch(e){}}
 const today=new Date(); today.setHours(0,0,0,0);
-const next = lessons.find(s=>s.date>=today) || lessons[lessons.length-1];
+const next = lessons.find(s=>s.date>=today) || lessons[lessons.length-1] || sessions[sessions.length-1];
 let selected = next.code;
 
 /* ---------- RENDER HELPERS ---------- */
@@ -704,7 +744,7 @@ function sessionCard(s, heading){
   if(s.mt){
     h+=`<div class="task"><b>Chuẩn bị</b><div>Làm đề đủ 150 phút, không tra từ. Đánh dấu câu phân vân để chữa ở buổi sau.</div></div>`;
   } else {
-    h+=`<div class="task"><b>Nghe</b><div><strong>${esc(lis.name)}</strong><div class="meta">${esc(lis.part)}</div>${lisAvail(lis.code)?`<div class="links"><a class="chip audio" href="#nghe/${lis.code}">▶ Làm bài nghe trên web</a></div>`:linksHTML(lis.links)}</div></div>
+    h+=`<div class="task"><b>Nghe</b><div><strong>${esc(lis.name)}</strong><div class="meta">${esc(lis.part)}</div>${lisAvail(lis.code)&&CAN(lis.code)?`<div class="links"><a class="chip audio" href="#nghe/${lis.code}">▶ Làm bài nghe trên web</a></div>`:linksHTML(lis.links)}</div></div>
     <div class="task"><b>Vocab</b><div><strong>${esc(tp.n)}</strong> <span class="meta">· chủ đề của tuần</span>${tp.links.length?linksHTML(tp.links.slice(0,4).map(l=>({t:l[0],u:l[1]}))):'<div class="soon">Bài Wordwall đang được giáo viên soạn.</div>'}<div class="meta" style="margin-top:6px">Lexico ${ph.short}: ${esc(ph.lexico)}</div></div></div>`;
   }
   h+=`<div class="task"><b>Sổ lỗi</b><div>Ghi câu sai: dạng bài · lý do sai · kiến thức liên quan · ngày làm lại (sau 7–14 ngày).</div></div></div>
@@ -728,10 +768,12 @@ const GRAMMAR=[
 ];
 function attOf(code){try{return JSON.parse(localStorage.getItem("ivy-att-"+code)||"null")}catch(e){return null}}
 function renderSheet(){
-  const all=GRAMMAR.flatMap(g=>g.c);
+  const GR=GRAMMAR.map(g=>Object.assign({},g,{c:g.c.filter(c=>CAN(c))})).filter(g=>g.c.length);
+  const all=GR.flatMap(g=>g.c);
+  if(!all.length){document.getElementById("gram-sum").innerHTML='<div class="lockedbox"><h3>Chưa có bài ngữ pháp nào được mở</h3><p class="meta">Giáo viên sẽ mở dần các buổi theo lịch học.</p></div>';document.getElementById("gram").innerHTML="";return}
   const nDone=all.filter(c=>done[c]||(attOf(c)||{}).hist&&attOf(c).hist.length).length;
   document.getElementById("gram-sum").innerHTML=`<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center"><div><div class="eyebrow">Tiến độ ngữ pháp</div><h3 style="margin-top:4px">${nDone} / ${all.length} buổi đã học</h3></div><div class="meta">${GRAMMAR.length} chủ điểm</div></div><div class="gbar"><i style="width:${Math.round(nDone/all.length*100)}%"></i></div>`;
-  document.getElementById("gram").innerHTML=GRAMMAR.map((g,gi)=>`<div class="panel gsec"><div class="eyebrow">Chủ điểm ${gi+1}</div><h2 style="margin-top:4px">${esc(g.t)}</h2>${g.d?`<p class="meta" style="margin:4px 0 10px">${esc(g.d)}</p>`:""}<div class="glist">${g.c.map(c=>{const s=sessions.find(x=>x.code===c);if(!s)return"";const A=attOf(c),H=A&&A.hist||[];
+  document.getElementById("gram").innerHTML=GR.map((g,gi)=>`<div class="panel gsec"><div class="eyebrow">Chủ điểm ${gi+1}</div><h2 style="margin-top:4px">${esc(g.t)}</h2>${g.d?`<p class="meta" style="margin:4px 0 10px">${esc(g.d)}</p>`:""}<div class="glist">${g.c.map(c=>{const s=sessions.find(x=>x.code===c);if(!s)return"";const A=attOf(c),H=A&&A.hist||[];
     const best=H.length?Math.max(...H.map(x=>x.score)):null,tot=H.length?H[0].total:0;
     const st=A&&A.locked?`<span class="pill g">Hoàn thành · ${best}/${tot}</span>`:H.length?`<span class="pill y">Đã làm ${H.length}/3 · tốt nhất ${best}/${tot}</span>`:done[c]?'<span class="pill g">Đã học</span>':s.code===next.code?'<span class="pill y">Buổi tiếp theo</span>':'<span class="pill">Chưa học</span>';
     return `<a class="grow" href="#hoc/${c}"><span class="tag${done[c]?" done":""}">${c}</span><span class="gt"><b>${esc(s.title)}</b><small class="meta">${WD[s.date.getDay()]}, ${fmt(s.date)}/${s.date.getFullYear()}</small></span>${st}<span class="go">Vào học ›</span></a>`}).join("")}</div></div>`).join("");
@@ -743,17 +785,17 @@ function lisStatus(code){const A=attOf(code),H=A&&A.hist||[];if(!H.length)return
 function lisAvail(code){return !!(code&&window.IVY_LISTEN&&IVY_LISTEN[code])}
 function renderListening(){
   document.getElementById("lis-filter").innerHTML=LTYPES.map(t=>`<button aria-pressed="${t[0]===lisFilter}" data-lf="${t[0]}">${t[1]}</button>`).join("");
-  const rows=listeningRows.filter(r=>lisFilter==="all"||r.item.types.includes(lisFilter));
+  const rows=listeningRows.filter(r=>(lisFilter==="all"||r.item.types.includes(lisFilter))&&CAN(r.item.code));
   document.getElementById("lis-body").innerHTML=rows.map(r=>{
     const wl=lessons.find(s=>s.week===r.week);
     const cur = r.week===next.week, it=r.item, ok=lisAvail(it.code), X=ok?IVY_LISTEN[it.code]:null;
     return `<tr${cur?' style="background:var(--red-soft)"':''}><td class="num">${PHASES[r.phase].short}</td><td class="num">${wl?fmt(wl.date):""}${cur?" · tuần này":""}</td><td><strong>${esc(it.name)}</strong>${X?`<div class="meta">${X.n} câu · ${X.min} phút</div>`:""}</td><td>${esc(it.part)}</td><td>${ok?lisStatus(it.code):""}</td><td>${ok?`<a class="btn" href="#nghe/${it.code}" style="text-decoration:none;white-space:nowrap">▶ Làm bài</a>`:linksHTML(it.links)+'<div class="meta">Đề chưa có file nghe – mở bản PDF.</div>'}</td></tr>`;
-  }).join("") || '<tr><td colspan="6">Chưa có bài cho dạng này.</td></tr>';
+  }).join("") || `<tr><td colspan="6">${STAFF?"Chưa có bài cho dạng này.":"Chưa có bài nghe nào được giáo viên mở."}</td></tr>`;
 }
 let curLis=null;
 function openListening(code){
   const wrap=document.getElementById("lis-listwrap"),pl=document.getElementById("lis-player");
-  if(!code||!lisAvail(code)){curLis=null;pl.hidden=true;wrap.hidden=false;document.getElementById("lis-box").innerHTML="";renderListening();return}
+  if(!code||!lisAvail(code)||!CAN(code)){curLis=null;pl.hidden=true;wrap.hidden=false;document.getElementById("lis-box").innerHTML="";renderListening();return}
   wrap.hidden=true;pl.hidden=false;document.getElementById("lis-title").textContent=IVY_LISTEN[code].title;
   if(curLis===code)return;curLis=code;
   try{const k='ivy-open-'+code+'-'+new Date().toISOString().slice(0,10);if(!localStorage.getItem(k)){localStorage.setItem(k,'1');IVY_TRACK.send({type:'open',code})}}catch(e){}
@@ -765,12 +807,14 @@ function openListening(code){
 }
 const PV={"B40":{"sub":"Phrasal verb với 5 động từ hay ra nhất: <b>get, come, take, put, go</b>. Luyện kèm <b>Writing P2 – viết lại câu với từ khoá</b>.","v":[["get round to","rốt cuộc cũng làm (việc trì hoãn)"],["come across","tình cờ gặp/thấy"],["take up","bắt đầu (sở thích); chiếm (chỗ)"],["put off","hoãn lại"],["go through","trải qua"],["die out","tuyệt chủng"],["come up with","nghĩ ra"],["put up with","chịu đựng"],["take after","giống (người lớn trong nhà)"],["get over","vượt qua, hồi phục"]]},"B41":{"sub":"Học phrasal verb theo <b>nghĩa của tiểu từ</b>: up (hoàn toàn, tăng), out (hết, ra ngoài), off (rời, ngừng), down (giảm, ghi lại), round/over/through. Luyện kèm <b>Lexico P1</b>.","v":[["run out of","cạn kiệt"],["cut down","chặt hạ; cắt giảm"],["wipe out","xoá sổ"],["set off","khởi hành"],["break out","bùng phát"],["clean up","dọn sạch"],["slow down","chậm lại"],["carry out","tiến hành"],["give off","thải ra, toả ra"],["bring about","gây ra, mang lại"]]}};
 function renderPV(){
-  const cards=["B40","B41"].map(c=>{const s=sessions.find(x=>x.code===c),A=attOf(c),H=A&&A.hist||[];
+  const pvs=["B40","B41"].filter(c=>CAN(c));
+  if(!pvs.length){document.getElementById("pv-panel").innerHTML='<div class="eyebrow">Phrasal verbs</div><h2 style="margin-top:4px">Phrasal verbs</h2><p class="meta">Giáo viên chưa mở bài phrasal verbs.</p>';return}
+  const cards=pvs.map(c=>{const s=sessions.find(x=>x.code===c),A=attOf(c),H=A&&A.hist||[];
     const st=A&&A.locked?'<span class="pill g">Hoàn thành</span>':H.length?`<span class="pill y">Đã làm ${H.length}/3</span>`:done[c]?'<span class="pill g">Đã học</span>':'<span class="pill">Chưa học</span>';
     return `<div class="pvcard"><div class="meta"><span class="tag">${c}</span> ${s?WD[s.date.getDay()]+", "+fmt(s.date):""} ${st}</div><h3 style="margin:6px 0 8px">${esc(s?s.title:c)}</h3>
     <div class="pvlist">${PV[c].v.map(v=>`<span class="pv"><b>${esc(v[0])}</b><small>${esc(v[1])}</small></span>`).join("")}</div>
     <a class="btn" href="#hoc/${c}" style="margin-top:12px;display:inline-block;text-decoration:none">Học thẻ & luyện tập ›</a></div>`}).join("");
-  document.getElementById("pv-panel").innerHTML=`<div class="eyebrow">Phrasal verbs · 2 buổi · ${PV.B40.v.length+PV.B41.v.length} cụm động từ</div><h2 style="margin-top:4px">Phrasal verbs</h2><p class="meta" style="margin:4px 0 12px">Học theo động từ gốc (B40) và theo tiểu từ (B41). Mỗi buổi có thẻ lật có phát âm và bài luyện tập làm trên web.</p><div class="pvgrid">${cards}</div>`;
+  document.getElementById("pv-panel").innerHTML=`<div class="eyebrow">Phrasal verbs · ${pvs.length} buổi · ${pvs.reduce((a,c)=>a+PV[c].v.length,0)} cụm động từ</div><h2 style="margin-top:4px">Phrasal verbs</h2><p class="meta" style="margin:4px 0 12px">Học theo động từ gốc (B40) và theo tiểu từ (B41). Mỗi buổi có thẻ lật có phát âm và bài luyện tập làm trên web.</p><div class="pvgrid">${cards}</div>`;
 }
 function renderVocab(){
   renderPV();
@@ -792,6 +836,7 @@ function taskItem(s){
 }
 const EMPTY=`<div class="emptybox"><svg width="150" height="110" viewBox="0 0 150 110" fill="none" stroke="#b8bec8" stroke-width="2.5" stroke-linecap="round"><rect x="30" y="28" width="80" height="70" rx="6"/><path d="M30 44h80"/><circle cx="40" cy="36" r="2"/><circle cx="48" cy="36" r="2"/><circle cx="56" cy="36" r="2"/><circle cx="58" cy="66" r="2.5"/><circle cx="82" cy="66" r="2.5"/><path d="M60 84q10-8 20 0"/><path d="M14 30q4-10 12-14M8 34q6-18 20-24"/><circle cx="118" cy="26" r="16"/><path d="M110 24a8 8 0 0 1 14-3M126 28a8 8 0 0 1-14 3"/></svg><p style="margin:10px 0 0">__MSG__</p></div>`;
 function renderToday(){
+  if(NOLES){document.getElementById("next-card").innerHTML='<div class="lockedbox"><h2>Chưa có bài học nào được mở</h2><p class="lead" style="margin:10px auto">Giáo viên của em chưa mở bài nào. Khi giáo viên mở (Public) bài học, bài sẽ hiện ở đây.</p></div>';document.getElementById("tlist").innerHTML="";document.getElementById("today-title").textContent="Chưa có bài học nào được mở";return}
   document.getElementById("today-label").textContent = "Hôm nay · "+WD[today.getDay()]+", "+fmt(today)+"/"+today.getFullYear();
   document.getElementById("today-title").innerHTML = "Buổi tiếp theo: <b>"+next.code+" · "+esc(next.title)+"</b> ("+WD[next.date.getDay()]+", "+fmt(next.date)+")";
   document.getElementById("goNext").href="#hoc/"+next.code;
@@ -847,6 +892,7 @@ function renderList(){
 let curL=null;
 function fitFrame(f){try{const d=f.contentDocument;if(!d)return;const h=Math.max(d.documentElement.scrollHeight,d.body?d.body.scrollHeight:0);f.style.height=(h+4)+"px"}catch(e){}}
 function openLesson(code){
+  if(NOLES){document.getElementById("lbox").innerHTML='<div class="panel lockedbox"><h2>Chưa có bài học nào được mở</h2><p class="lead" style="margin:10px auto">Giáo viên sẽ mở (Public) từng bài khi đến buổi học. Em quay lại sau nhé.</p></div>';document.getElementById("lopen").hidden=true;renderList();return}
   const s=sessions.find(x=>x.code===code)||next; selected=s.code;
   const i=sessions.indexOf(s);
   renderList();
@@ -883,7 +929,7 @@ function doSearch(){
   const raw=qi.value.trim(); if(!raw){sres.hidden=true;return}
   const terms=fold(raw).split(/\s+/).filter(Boolean); const sc=scope.value; const out=[];
   if(sc!=="tu") sessions.forEach(s=>{const h=fold(s.code+" buoi "+parseInt(s.code.slice(1)||0,10)+" "+s.title+" "+s.task+" "+((IDX[s.code]||{}).p||""));if(terms.every(t=>h.includes(t)))out.push(`<a href="#hoc/${s.code}"><span class="c">${s.code}</span><span>${mark(s.title,terms)}<small>${esc(PHASES[s.phase].short)} · ${esc(s.task)}</small></span></a>`)});
-  if(sc!=="bai") Object.keys(IDX).sort().forEach(c=>{(IDX[c].w||[]).forEach(w=>{const f=fold(w);if(terms.every(t=>f.includes(t))){const s=sessions.find(x=>x.code===c);out.push(`<a href="#hoc/${c}"><span class="c">${c}</span><span>${mark(w,terms)}<small>Từ vựng · ${esc(s?s.title:"")}</small></span></a>`)}})});
+  if(sc!=="bai") Object.keys(IDX).sort().filter(c=>CAN(c)).forEach(c=>{(IDX[c].w||[]).forEach(w=>{const f=fold(w);if(terms.every(t=>f.includes(t))){const s=sessions.find(x=>x.code===c);out.push(`<a href="#hoc/${c}"><span class="c">${c}</span><span>${mark(w,terms)}<small>Từ vựng · ${esc(s?s.title:"")}</small></span></a>`)}})});
   sres.innerHTML=out.length?out.slice(0,40).join(""):'<div class="empty">Không tìm thấy kết quả.</div>';
   sres.hidden=false;
 }
@@ -893,19 +939,20 @@ document.getElementById("sform").addEventListener("submit",e=>{e.preventDefault(
 qi.addEventListener("keydown",e=>{if(e.key==="Escape"){sres.hidden=true;qi.blur()}});
 document.addEventListener("click",e=>{if(!e.target.closest("#sform"))sres.hidden=true;if(e.target.closest(".sres a"))sres.hidden=true});
 
-/* ---------- STUDENT PROFILE + REPORT ---------- */
-const un=document.getElementById("uname"), reg=document.getElementById("reg");
-const rCls=document.getElementById("rCls");
-rCls.innerHTML='<option value="">— Chọn lớp —</option>'+(window.IVY_CLASSES||[]).map(c=>`<option>${esc(c)}</option>`).join("")+'<option value="Khác">Khác</option>';
-function showMe(){const m=window.IVY_TRACK&&IVY_TRACK.me();un.textContent=m&&m.name?m.name:"Học viên IVY";document.getElementById("ucls").textContent=m&&m.cls?m.cls:"Chưa đăng ký lớp";
- const n=IVY_TRACK?IVY_TRACK.pending():0;document.getElementById("usync").textContent=!m?"":!window.IVY_API?"Tiến độ được lưu trên máy này":n?`Đang chờ gửi ${n} kết quả…`:"✓ Đã gửi tiến độ cho giáo viên"}
-function openReg(){const m=IVY_TRACK.me()||{};document.getElementById("rName").value=m.name||"";rCls.value=m.cls||"";document.getElementById("rCode").value=m.code||"";reg.hidden=false;document.getElementById("rName").focus()}
-document.getElementById("nameBtn").addEventListener("click",openReg);
-document.getElementById("rLater").addEventListener("click",()=>{reg.hidden=true;try{sessionStorage.setItem("ivy-reg-later","1")}catch(e){}});
-document.getElementById("regForm").addEventListener("submit",e=>{e.preventDefault();const v=IVY_TRACK.setMe({name:document.getElementById("rName").value,cls:rCls.value,code:document.getElementById("rCode").value});IVY_TRACK.send({type:"join",code:""});
- Object.keys(done).forEach(c=>IVY_TRACK.send({type:"done",code:c,score:1,total:1}));reg.hidden=true;showMe()});
+/* ---------- TÀI KHOẢN + BÁO LỖI ---------- */
+const un=document.getElementById("uname"), acct=document.getElementById("acct");
+function showMe(){const u=AU.user()||{};un.textContent=u.name||"Học viên IVY";
+ document.getElementById("ucls").textContent=u.role==="student"?(u.className||""):u.role==="teacher"?"Giáo viên · xem toàn bộ bài":"Quản trị viên";
+ const n=IVY_TRACK?IVY_TRACK.pending():0;document.getElementById("usync").textContent=u.role!=="student"?"":n?`Đang chờ gửi ${n} kết quả…`:"✓ Đã gửi tiến độ cho giáo viên"}
+document.getElementById("nameBtn").addEventListener("click",()=>{const u=AU.user()||{};
+ document.getElementById("aInfo").innerHTML=`<p style="margin:0 0 6px"><b>${esc(u.name||"")}</b></p>${u.role==="student"?`<p style="margin:0">Mã học sinh: <b>${esc(u.user||"")}</b><br>Lớp: ${esc(u.className||"")}${u.teacherName?" · GV "+esc(u.teacherName):""}<br>Số bài đã mở: ${(u.pub||[]).length}</p>`:`<p style="margin:0">${u.role==="teacher"?"Giáo viên":"Quản trị viên"} – xem được toàn bộ bài học.<br>Quản lý lớp, học sinh và bài Public/Private: <a href="quan-ly/">trang Quản lý</a></p>`}`;acct.hidden=false});
+document.getElementById("aClose").addEventListener("click",()=>acct.hidden=true);
+acct.addEventListener("click",e=>{if(e.target===acct)acct.hidden=true});
+document.getElementById("aOut").addEventListener("click",()=>{AU.logout();location.href=location.pathname});
 showMe(); setInterval(showMe,4000);
-(function(){let later=false;try{later=sessionStorage.getItem("ivy-reg-later")}catch(e){} if(!IVY_TRACK.me()&&!later) setTimeout(openReg,800)})();
+if(STAFF){const m=document.querySelector("main .stack, main section");document.querySelectorAll("main section.stack").forEach(sec=>sec.insertAdjacentHTML("afterbegin",'<div class="staffbar">👩‍🏫 Chế độ giáo viên: đang xem toàn bộ bài học (kể cả bài Private). Học sinh chỉ thấy bài đã Public cho lớp của mình.</div>'))}
+// cập nhật danh sách bài Public khi giáo viên thay đổi
+AU.refresh().then(u=>{if(!u){location.reload();return}const a=JSON.stringify((ME.pub||[]).slice().sort()),b=JSON.stringify((u.pub||[]).slice().sort());if(!STAFF&&a!==b)location.reload()});
 const modal=document.getElementById("modal"), mText=document.getElementById("mText");
 document.getElementById("reportBtn").addEventListener("click",()=>{mText.value=`[IVY GIFTED] Báo lỗi – ${location.hash.startsWith("#hoc")?selected:"trang chủ"}\nHọc sinh: ${un.textContent} (${document.getElementById("ucls").textContent})\nMô tả: `;modal.hidden=false;mText.focus()});
 document.getElementById("mClose").addEventListener("click",()=>modal.hidden=true);

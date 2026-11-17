@@ -20,7 +20,8 @@ function flush(){
 function send(ev){
   const p=me(); if(!p) return false;
   const q=get(K_Q,[]);
-  q.push(Object.assign({t:new Date().toISOString(),sid:p.sid,name:p.name,cls:p.code?p.cls+" · "+p.code:p.cls},ev));
+  let tok="";try{tok=(JSON.parse(localStorage.getItem("ivy-auth")||"null")||{}).token||""}catch(e){}
+  q.push(Object.assign({t:new Date().toISOString(),sid:p.sid,name:p.name,cls:p.code?p.cls+" · "+p.code:p.cls,tok},ev));
   set(K_Q,q.slice(-500)); flush(); return true;
 }
 window.addEventListener("online",flush);
