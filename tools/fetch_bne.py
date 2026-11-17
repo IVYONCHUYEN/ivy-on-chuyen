@@ -105,7 +105,8 @@ def load_old():
 
 def main():
     old = load_old()
-    items = {x["id"]: x for x in old.get("items", [])}
+    before = json.dumps(old.get("items", []), sort_keys=True)  # ảnh chụp trước khi sửa
+    items = {x["id"]: json.loads(json.dumps(x)) for x in old.get("items", [])}
     home = get(BASE)
     news = lessons_from_home(home)
     if not news:
@@ -161,7 +162,7 @@ def main():
     js = ("/* Tự động tạo bởi tools/fetch_bne.py – không sửa tay. Nguồn: https://breakingnewsenglish.com/ */\n"
           "window.IVY_DAILY=" + json.dumps(data, ensure_ascii=False, indent=1) + ";\n")
     # chỉ ghi khi nội dung bài thay đổi (bỏ qua dòng giờ cập nhật) để không tạo commit thừa
-    if json.dumps(old.get("items"), sort_keys=True) == json.dumps(keep, sort_keys=True):
+    if before == json.dumps(keep, sort_keys=True):
         print("Không có bài mới")
         return 0
     open(OUT, "w", encoding="utf-8").write(js)
