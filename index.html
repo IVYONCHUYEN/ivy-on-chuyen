@@ -387,8 +387,8 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border
   <section id="v-nghe" class="stack" hidden>
     <div>
       <div class="eyebrow">Làm bài nghe trực tiếp trên web</div>
-      <h1 style="margin-top:6px">Listening theo lộ trình</h1>
-      <p class="lead">Bài nghe xếp theo giai đoạn, từ dễ đến khó. Bấm “Làm bài” để nghe và làm ngay trên web: mỗi bài làm tối đa 3 lần, đáp án và lời thoại hiện sau lần thứ 3.</p>
+      <h1 style="margin-top:6px">Listening Practice 1–33</h1>
+      <p class="lead">33 bài luyện nghe (Part 2 điền từ, Part 4 trắc nghiệm; từ bài 23 có thêm Đúng/Sai B1), xếp theo tuần học. Bấm “Làm bài” để nghe và làm ngay trên web: mỗi bài làm tối đa 3 lần, đáp án và lời thoại hiện sau lần thứ 3.</p>
     </div>
     <div id="lis-listwrap" class="stack">
     <div class="filters" id="lis-filter" role="group" aria-label="Lọc theo dạng bài"></div>
@@ -618,77 +618,13 @@ const lessons = sessions.filter(s=>!s.mt);
 const fmt = d => d.getDate()+"/"+(d.getMonth()+1);
 const WD = ["CN","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
 
-/* ---------- LISTENING MATERIALS ---------- */
-const B2 = {
- 1:{gf:"1ZJ8TmVfAQ5hTJigGjA5nCxLWAOqswuZwrLpjCiHw_K0"},
- 9:{gf:"13IAEm1vhbWZ1IfdS9fK-jDyAfV1kx3gAVk6ttyFX_7Y",kgf:"1Zf5nEZHRz25EvzuRwTt07uBbhFqz4QPX2xPltvXR0MA"},
- 10:{mcq:"1wit8C9nV_VNMF6553rmwCsTYhF9aoAxj366em6sgAEk",kmcq:"1pU6sR5zw_lLr719MhWzpqRG9fM0Ml8xkx7BFr986JJ0",kgf:"1fqG34WHoJMXx1r4c9QyQ6ByM854IYw4VrfQ7iN6a2Ug"},
- 17:{gf:"1_dJ3M_CCSPPRL7SM5H3YXBUS2hVujUfOt7GglWPGNQc",mcq:"1Xzai4YiDKIIqPbbqLp2vaPwTwVSAaCSoHYCMZz2fD7U",kgf:"1uNjWC6aJFr0KEpFVmlYqsj1GxBxs8pz57T12mDROsUE",kmcq:"15qWnj8-bM04KXa3sE3SwUORr5mR9RhZl0kB2chignvI"},
- 18:{gf:"1jH-2keNQpvIrPjsfNC--sQR8kH7bCao7MAv6PKImDqQ",mcq:"1JarXcV4XZITnj6ODi2KZibHEaAbICKw00lFyFWdIGJo",kgf:"1_9MkHS_T6RH7CH6-ZbGKhuELqZ4_MjH70XnW8Jo_zr4",kmcq:"1KymTEuCxoV2LaPNNDz44oJlQYWYTlsXTVJfFHh0fg7U"},
- 19:{gf:"1GJrLvZu1BmPFKpCDqLN-2dpTQnazJ866_r0WkxEjMEQ",mcq:"1bO9geCI9j6J6PX6DYL8fN3diPWFYgn-l4XhUh9UNMYQ",kgf:"1UQexrim7yBED9_HEb3JSwkhDWnJ_Xyo3y6O6nTGr8qc",kmcq:"1qmCYUmgVsYEiFohtw-NUcz_x2PDYh5tdTJ_zI9xUdA4"},
- 20:{gf:"1q1lBH22aQHDV-OobiBcOv-wPXPZgDXNd77KuY95gLkE",mcq:"1VAEMTxU_-A8VxUBmgMda7J6BkgNBmE_D_KlTKO6V0sg",kgf:"1YpDam7DdOCkNO009-7BXIcgJAkHZdFU6CQSyCSc7MZ4",kmcq:"1r52HUk3mJU1Nh4r6Uh3jyeXBBXyYhG_LAcSdzvZu87s"},
- 21:{gf:"1t59jfgqscrRmoVsdB-jz94y7xGZAVpwLtGVriMnr408",mcq:"1i59bdIbLCC3GRABfpPhr--Np1JwtjRaZwc6eMS61XMI",kgf:"1hnzmhTL2tjBHII27t5kBc3kKbB0gLcysvGn0n1CCXK4",kmcq:"1Jsya6D9hf75yr5-GcrRnYJxBRTr-BqTZ34qfcQBrl20"},
- 22:{gf:"1qS4yieKSJ9GtkrVJp3C4Yk7SnDgUrnjaoVa8lMMKoWo",mcq:"1St7miFIAh8L-X2FsHuAb0yT7iFREu5yrt5cSLFPhFz8",kgf:"1oSj4w4AoLtsP16cfBsgX0Yo2LeEZv_qQtokFyE-0oRs",kmcq:"1y494anm2d9G2XCz4XoHZpCjaP1HWjBW76DV0ZQMuWVY"},
- 23:{gf:"1oNb4jqUr6pKH4OqVHmHCwqogsUBtwsfmEOplxthYQtI",mcq:"1BZsN0Iar98cfZA6bYGyD5xsnFB4fY_JYh9kjnw0_5A8",kgf:"1sFOF9cFXr8TkjJO0c1bje1OUpU8bW0BmyXH_wtRBqNA",kmcq:"1RZ2eE83qmbMty8uLWh9hmTLh7DVzzNR8qBKqkYgBmVU"},
- 24:{gf:"1XGtGDr-YCqvZNFX1Zz5EBE3KUK3Sjq5ujSb0qfvcjPE",mcq:"1bc5ZaPQo76MJhhZrp5h-rRYXZQPEMFmk2JFHPJH4whw",kgf:"1Y2MXotqgmMmodz2E_Un-NQoidGP3HZSV22hpDTjXI2w",kmcq:"1mPnmNkpSd9VCIhBRuXHK-gQQmSc9AhGpANZEEc04xvE"},
- 25:{gf:"1DlCMxpCO8ObtkW123rVyvWIEWcwbsDb0j3sICDS3eQM",mcq:"1ahs4poM__eYjHcjhXXAIzMBfjCyXWDxHhY32FSODlEo",kgf:"1Gs_IAV-_4NVaz6aEmbYTrrwfK8T93iyqN599MVUoLqU",kmcq:"1TkagIbCcB3Uy_kXP52xO9tGX38aKUj-65wLx8XjVqXA"},
- 26:{gf:"1Zvo1LL64Q9jCDlAL88EHwkmwafyscdqzv2C7mVQU4F0",mcq:"1qPL2D1dZo0aFMPUmeghI7bGrKbL22J5TAlL4tfV0od0",kgf:"1Up-WkU71LTwxZr0QmJFq1ekm8_LzkRrfZIX-YTsKRnA",kmcq:"1Y-rjqsxmWLECNlX3GbeOp4NHARPdg9ZoDqpOvBnr4w0"},
- 27:{gf:"1RGD8Qd_Adpm-te7BWK3mN9lDlxbICrB4VvW98GXj_uM",mcq:"1fntea1hZ6J5LjkvND9o54Ziz6p9-lf-73Tf0XZstFTQ",kgf:"1b03dQc5yAWhNTHyz6IOAIE1YiB_gFiX-XkDh6Z4cyO8",kmcq:"1PvTKgqG-zFSyPc_0Raorrw6D6Jhf0fJ9kJQanDOXpho"},
- 28:{gf:"1VZ5TcgWpReeZIw4eEezY3oxRNtrL97wmDAsWRv7fY3I",mcq:"1t-ztIzgBmxgTtgErhTuwK8vfX850b1vF0U9iSWZEPxo",kgf:"1Aex5Bv6DsgVfGK-1E12zGEBsvOmmXWG2yKyIF5v_iZk",kmcq:"1zIcjvyySSDWON0q1NBYeBes7iGNnyVsfTPL5OSI_wts"},
- 29:{gf:"1YoG99jLo9GH2zMVjRcIZe5ICZ4NzzQxMPqp01wNZ85Y",mcq:"14bxebzCXczoBMwhNMEG_iRHTqVLSZIVt8ntqQKi0t3A",kgf:"1crZKEqZRx_FG4r7ywPXuesnuTKi2TwVAxdmCYx4nVUI",kmcq:"1k7QUEt11e-McmyzS3pI02VAdBTlJ_lbsQwb96CnxIeQ"},
- 30:{gf:"1N-8MSlg3uN-HyGBiQoIUEj1fri2BFvNY6J6vWnfGswg",mcq:"1ZE4rq6gQwcGDruLrjlf4sWALgkNb-zuy8a8FjwCJF60",kgf:"1BZP3HWZe6BpNnA-qk79zfh509zSTc2sF8vxI-NFRfrg",kmcq:"1UbNQmJAqeKM3QEn0Ie04_a6RrWdxqAzlBfjyp_UD0I8"},
- 31:{gf:"1Oa27oL8sjT3tPWb5Pf5Fhv-Bst1vTZX9IOQT8nflaHI",mcq:"1eQrmyO0co6XOvhqlsFhfuhgaj_bj08m3ZyyHpliQbiU",kgf:"1-sbcszdSksJOTTt9l_ygL-iuhqcoV5urwaMzJkN31ps",kmcq:"1WDkoE0M5JAtIsIQr6PIVAggpHZVhWh4UV4S4eL0wjaE"},
- 32:{gf:"1K4UccPKyLl50lmYrjkYVLVJGGvdNBbyoHijZtz0C3xs",mcq:"1Fks37nJxtverzoKgE_He5ugWyapGPsvk6F3k7ZGQbZU",kgf:"10vaYU9ufDBjJMmlQ0we7e6RXyxazoTdU7YoCnGt0AYE",kmcq:"19YzUnBHwS0hXaEvEd9No439cWBr1CtV_7wX6b7FneWQ"},
- 33:{gf:"1UjT_vmWaf-z-9g82X6wxISPBcfXTPqXH6o0ZuSxZNrs",mcq:"1nmfSkYN5bOn6J240JHt3zIjpBlWprZW2ZEn-H1G1ps4",kgf:"1FMbqurMdI6WfNwdbVbNXpOUy9PZd13g5O1S48Q_eJrI",kmcq:"1dfGoa6HVCDRIWN7VjigDXhCYRNOuIq2GVZwxyLx-HW0"}
-};
-function b2Item(n){
-  const x=B2[n], L=[];
-  if(x.gf) L.push({t:"Gap filling",u:G(x.gf)});
-  if(x.mcq) L.push({t:"MCQ",u:G(x.mcq)});
-  if(x.kgf) L.push({t:"KEY Gap filling",u:G(x.kgf),key:1});
-  if(x.kmcq) L.push({t:"KEY MCQ",u:G(x.kmcq),key:1});
-  const types=[]; if(x.gf||x.kgf) types.push("gf"); if(x.mcq||x.kmcq) types.push("mcq");
-  return {code:"LB2-"+String(n).padStart(2,"0"), name:"B2-Practice "+n, types, part:(types.includes("gf")?"P2 điền ≤ 3 từ":"")+(types.length>1?" · ":"")+(types.includes("mcq")?"P3 trắc nghiệm":""), links:L};
-}
-const DICT = [
- ["Dictation – Gold B1 Unit 2","1VA5NH6S-Zpu2C0238L9oRgzdIYjL7Xti"],
- ["Dictation – Gold B1 Unit 3","147FSGfWIoiPWrjSjTuaVhxmlzkf_xXNn"],
- ["Dictation – Gold B1 Unit 4","1IRpwq_b876PQbRiZvSxhSzhaDxQxYVD8"],
- ["Dictation – Gold B1 Unit 5","1GXG4jeL562VFVbRysjck9yppJVNZX6ai"],
- ["Dictation – Gold B1 Unit 8","1mhVVWpdZo8sXhlp5407Wk2LMgmjxgzpP"],
- ["Dictation – Gold B1 Unit 9","1UxhP9apm3tLN8rFA44tZ-JiRiSIifC5a"],
- ["Dictation – Gold Experience B2 Unit 5","1K3Z6WbbS2Q9JKABOxPn5tC99_WqDSqyi"]
-].map((d,i)=>({code:"LD-"+(i+1),name:d[0],types:["dict"],part:"Nền cho P1–P2 (chép chính tả)",links:[{t:"Nghe audio",u:D(d[1]),audio:1}]}));
-const ONEWORD = {code:"L1W",name:"Listening: ONE WORD ONLY",types:["gf"],part:"P1 hoàn thành bảng ≤ 1 từ",links:[{t:"Bài tập",u:G("1wcawRpn4yfjsQveZy2lIAj950HxEDHnV9u1AKnstvyo")}]};
-const TF = {code:"LB1-11",name:"B1-Practice 11: True/False",types:["tf"],part:"P4 True/False/Not Given",links:[{t:"Bài tập",u:G("1L7GXUOEIAcImYonjeVum-kVywEOuofrG7zwrYru3-FA")},{t:"KEY",u:G("10ys57Ka5lgQa5Tx3Pzcmscl6KYywYabB8ZEMKyIxStA"),key:1}]};
-const FULL = [
- {code:"LFULL-1",name:"Đề đầu vào Chuyên 1",types:["full"],part:"Đủ 4 phần Listening",links:[{t:"Đề",u:D("1VJ2wkJD_iPy1YHZwIfdHWNOBd9BwHuqW")},{t:"Audio",u:D("1VmJ1-rtZMVMzsm6v0Scqck8GcldlhDJY"),audio:1},{t:"Đáp án",u:D("1znCnc7MGr4fzIiAC0v5m_GaNXH7k6Rs5"),key:1}]},
- {code:"LFULL-2",name:"Đề đầu vào Chuyên 2",types:["full"],part:"Đủ 4 phần Listening",links:[{t:"Đề",u:D("12dW041xFnyDgh3PzQRfPKlomc9LRCgmO")},{t:"Audio",u:D("1eX9PGZpkILq6sSZXr6Y3f4dNc3S7qRma"),audio:1},{t:"Đáp án",u:D("1JMUGqdz0zjlqNj2vqrEvN0OSgQiK7EOt"),key:1}]},
- {name:"Đề chuyên Anh Hưng Yên 2026–2027",types:["full"],part:"Đề chính thức, đủ 4 phần",links:[{t:"Đề",u:D("1-jsiR3Jf01W3PeGGD2Lf5k4PdUplx0TB")},{t:"Đáp án tham khảo",u:D("1Izjv1H1I9NlaWsulQaETmp7kvbB2hcjp"),key:1}]}
-];
-// listening plan per phase, spread across that phase's weeks
-const LPLAN = {
- 0:[ONEWORD, DICT[0]],
- 1:[b2Item(1),DICT[1],b2Item(9),DICT[2],b2Item(10),TF,b2Item(17),DICT[3],b2Item(18),DICT[4],b2Item(19),DICT[5]],
- 2:[b2Item(20),b2Item(21),DICT[6],b2Item(22),b2Item(23),b2Item(24),b2Item(25),b2Item(26),FULL[0]],
- 3:[b2Item(27),b2Item(28),b2Item(29),b2Item(30),b2Item(31),b2Item(32),b2Item(33),FULL[1]],
- 4:[FULL[2],FULL[0],FULL[1]]
-};
-// weeks per phase
-const phaseWeeks={}; lessons.forEach(s=>{(phaseWeeks[s.phase]=phaseWeeks[s.phase]||[]).includes(s.week)||phaseWeeks[s.phase].push(s.week)});
+/* ---------- LISTENING PRACTICE 1–33 ---------- */
+const LIS_ITEMS = Object.keys(window.IVY_LISTEN||{}).sort().map(c=>({code:c,name:IVY_LISTEN[c].title,types:IVY_LISTEN[c].types||[],part:IVY_LISTEN[c].part||"",links:[]}));
+// rải đều 33 bài theo các tuần học (trừ tuần thi thử)
+const lisWeeks=[]; lessons.forEach(s=>{if(!s.mt&&!lisWeeks.some(w=>w.week===s.week))lisWeeks.push({week:s.week,phase:s.phase})});
 const listeningForWeek={}, listeningRows=[];
-Object.keys(LPLAN).forEach(p=>{
-  const wk=phaseWeeks[p], items=LPLAN[p];
-  items.forEach((it,i)=>{
-    const w = wk[Math.min(wk.length-1, Math.floor(i*wk.length/items.length))];
-    listeningRows.push({phase:+p,week:w,item:it});
-  });
-  wk.forEach(w=>{
-    // latest item whose start week <= w
-    let pick=null; listeningRows.filter(r=>r.phase==p).forEach(r=>{if(r.week<=w) pick=r.item});
-    listeningForWeek[w]=pick||items[0];
-  });
-});
+LIS_ITEMS.forEach((it,i)=>{const w=lisWeeks[Math.min(lisWeeks.length-1,Math.floor(i*lisWeeks.length/LIS_ITEMS.length))]||{week:0,phase:0};listeningRows.push({phase:w.phase,week:w.week,item:it})});
+lisWeeks.forEach(w=>{let pick=null;listeningRows.forEach(r=>{if(r.week<=w.week)pick=r.item});listeningForWeek[w.week]=pick||LIS_ITEMS[0]});
 
 /* ---------- VOCAB ---------- */
 const WW = u=>u;
@@ -735,6 +671,7 @@ function linksHTML(L){return '<div class="links">'+L.map(l=>`<a class="chip${l.k
 function sessionCard(s, heading){
   const ph=PHASES[s.phase];
   const lis = s.mt? null : listeningForWeek[s.week];
+  const lisOK = lis && lisAvail(lis.code) && CAN(lis.code);
   const tp = s.mt? null : TOPICS[topicIndexForWeek(s.week)];
   const isDone=!!done[s.code];
   let h = `<div class="meta"><span class="tag${s.mt?" mt":""}${isDone?" done":""}">${s.code}</span><span>${WD[s.date.getDay()]}, ${fmt(s.date)}/${s.date.getFullYear()}</span><span>· ${ph.short} ${esc(ph.name)}</span></div>
@@ -744,7 +681,7 @@ function sessionCard(s, heading){
   if(s.mt){
     h+=`<div class="task"><b>Chuẩn bị</b><div>Làm đề đủ 150 phút, không tra từ. Đánh dấu câu phân vân để chữa ở buổi sau.</div></div>`;
   } else {
-    h+=`<div class="task"><b>Nghe</b><div><strong>${esc(lis.name)}</strong><div class="meta">${esc(lis.part)}</div>${lisAvail(lis.code)&&CAN(lis.code)?`<div class="links"><a class="chip audio" href="#nghe/${lis.code}">▶ Làm bài nghe trên web</a></div>`:linksHTML(lis.links)}</div></div>
+    h+=(lisOK?`<div class="task"><b>Nghe</b><div><strong>${esc(lis.name)}</strong><div class="meta">${esc(lis.part)}</div><div class="links"><a class="chip audio" href="#nghe/${lis.code}">▶ Làm bài nghe trên web</a></div></div></div>`:"")+`
     <div class="task"><b>Vocab</b><div><strong>${esc(tp.n)}</strong> <span class="meta">· chủ đề của tuần</span>${tp.links.length?linksHTML(tp.links.slice(0,4).map(l=>({t:l[0],u:l[1]}))):'<div class="soon">Bài Wordwall đang được giáo viên soạn.</div>'}<div class="meta" style="margin-top:6px">Lexico ${ph.short}: ${esc(ph.lexico)}</div></div></div>`;
   }
   h+=`<div class="task"><b>Sổ lỗi</b><div>Ghi câu sai: dạng bài · lý do sai · kiến thức liên quan · ngày làm lại (sau 7–14 ngày).</div></div></div>
@@ -779,7 +716,7 @@ function renderSheet(){
     return `<a class="grow" href="#hoc/${c}"><span class="tag${done[c]?" done":""}">${c}</span><span class="gt"><b>${esc(s.title)}</b><small class="meta">${WD[s.date.getDay()]}, ${fmt(s.date)}/${s.date.getFullYear()}</small></span>${st}<span class="go">Vào học ›</span></a>`}).join("")}</div></div>`).join("");
 }
 let lisFilter="all";
-const LTYPES=[["all","Tất cả"],["gf","Điền từ (P1–P2)"],["mcq","Trắc nghiệm (P3)"],["tf","True/False (P4)"],["dict","Chép chính tả"],["full","Đề đầy đủ"]];
+const LTYPES=[["all","Tất cả"],["gf","Điền từ (Part 2)"],["mcq","Trắc nghiệm A, B, C"],["tf","Đúng / Sai (YES / NO)"]];
 function lisStatus(code){const A=attOf(code),H=A&&A.hist||[];if(!H.length)return A&&A.cur?'<span class="pill y">Đang làm</span>':'<span class="meta">Chưa làm</span>';
   const best=Math.max(...H.map(x=>x.score)),tot=H[0].total;return `<span class="pill ${A.locked?"g":"y"}">${A.locked?"Xong":"Lần "+H.length+"/3"} · ${best}/${tot}</span>`}
 function lisAvail(code){return !!(code&&window.IVY_LISTEN&&IVY_LISTEN[code])}
