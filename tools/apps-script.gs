@@ -150,6 +150,7 @@ function api_(b) {
   if (a === 'login') return login_(b);
   const u = verify_(b.token);
   if (a === 'me') { need_(u, ['a', 't', 's']); return { ok: true, user: profile_(u) }; }
+  if (a === 'honors') { need_(u, ['a', 't', 's']); return honorsFor_(u); }
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
     if (a === 'data') { need_(u, ['a', 't']); return data_(u); }
@@ -160,6 +161,7 @@ function api_(b) {
     if (a === 'setPublic') { need_(u, ['a', 't']); return setPublic_(u, b); }
     if (a === 'addStudents') { need_(u, ['a', 't']); return addStudents_(u, b); }
     if (a === 'student') { need_(u, ['a', 't']); return studentOp_(u, b); }
+    if (a === 'honor') { need_(u, ['a', 't']); return honorOp_(u, b); }
     return { ok: false, error: 'Không rõ thao tác' };
   } finally { lock.releaseLock(); }
 }
@@ -200,7 +202,8 @@ function data_(u) {
     teachers: u.r === 'a' ? T.map(t => ({ id: t.id, name: t.name, tail: t.tail, status: t.status, created: t.created })) : [],
     classes: myC.map(c => ({ id: c.id, name: c.name, teacherId: c.teacherId, teacherName: tn[c.teacherId] || (c.teacherId ? '' : 'Quản trị viên'), pub: c.pub, created: c.created })),
     students: myS.map(s => ({ id: s.id, name: s.name, classId: s.classId, user: s.user, status: s.status, created: s.created, last: s.last })),
-    events: ev
+    events: ev,
+    honors: honors_().filter(h => u.r === 'a' || cid[h.classId]).map(h => ({ id: h.id, sid: h.sid, code: h.code, t: h.t }))
   };
 }
 
@@ -392,4 +395,66 @@ function kiemTraAI() {
   const t0 = Date.now();
   const r = grade_({ q: 'Without her advice, I would have bought the wrong size.', h: 'But...', a: JSON.stringify(['But for her advice, I would have bought the wrong size.']), r: 'But for the advice she gave me, I would have bought the wrong size.' });
   Logger.log(JSON.stringify(r) + ' · ' + (Date.now() - t0) + ' ms');
+}
+
+
+/* ===================== VINH DANH BÀI LUẬN XUẤT SẮC =====================
+   Giáo viên chọn bài luận đã nộp (tab "Bài luận" ở trang Quản lý) → chấm theo 4 tiêu chí, trích câu hay
+   (bắt buộc là câu có thật trong bài) và nhận xét. Học sinh đã đăng nhập xem ở cột phải trang học. */
+const H_HEAD = ['Mã', 'Ngày duyệt', 'Mã HS', 'Tên hiển thị', 'Lớp', 'Mã lớp', 'Buổi', 'Thời gian nộp', 'Số từ',
+  'Điểm (/10)', 'Tiêu chí (JSON)', 'Trích dẫn (JSON)', 'Nhận xét', 'Giáo viên', 'Phạm vi', 'Đề bài', 'Bài viết'];
+const H_CRIT = ['nd', 'bc', 'tv', 'ng']; // Nội dung · Bố cục & liên kết · Từ vựng · Ngữ pháp
+
+function honors_() {
+  return rows_('Vinh danh', H_HEAD).filter(r => r[0]).map(r => {
+    const j = x => { try { return JSON.parse(x || 'null'); } catch (e) { return null; } };
+    const iso = x => x instanceof Date ? x.toISOString() : String(x || '');
+    return { id: String(r[0]), approved: iso(r[1]), sid: String(r[2]), name: r[3], cls: r[4], classId: String(r[5]), code: r[6],
+      t: iso(r[7]), words: Number(r[8]) || 0, score: Number(r[9]) || 0, crit: j(r[10]) || {}, quotes: j(r[11]) || [],
+      comment: r[12], teacher: r[13], scope: r[14] || 'all', prompt: r[15], text: r[16] };
+  });
+}
+
+function honorsFor_(u) {
+  const cache = CacheService.getScriptCache();
+  let list; const hit = cache.get('honors');
+  if (hit) list = JSON.parse(hit);
+  else {
+    list = honors_().sort((x, y) => (y.approved > x.approved ? 1 : -1)).slice(0, 40);
+    try { cache.put('honors', JSON.stringify(list), 600); } catch (e) {}
+  }
+  if (u.r === 's') { const st = studentById_(u.id); list = list.filter(h => h.scope !== 'class' || (st && h.classId === st.classId)); }
+  return { ok: true, honors: list.map(h => { const o = Object.assign({}, h); delete o.classId; return o; }) };
+}
+
+function honorOp_(u, b) {
+  const op = b.op;
+  if (op === 'remove') {
+    const r = findRow_('Vinh danh', H_HEAD, b.id); if (!r) throw new Error('Không tìm thấy bài vinh danh');
+    const cls = String(r.sh.getRange(r.row, 6).getValue()); if (u.r === 't') ownClass_(u, cls);
+    r.sh.deleteRow(r.row); CacheService.getScriptCache().remove('honors'); return { ok: true };
+  }
+  const st = studentById_(b.sid); if (!st) throw new Error('Không tìm thấy học sinh');
+  const c = ownClass_(u, st.classId);
+  // Lấy bài từ dữ liệu đã nộp (không tin nội dung trình duyệt gửi lên)
+  const ev = events_().filter(e => e.type === 'essay' && String(e.sid) === st.id && e.code === b.code && e.t === b.t)[0];
+  if (!ev) throw new Error('Không tìm thấy bài luận đã nộp');
+  const text = String(ev.text || '');
+  const crit = {}; H_CRIT.forEach(k => { const v = Number((b.crit || {})[k]); if (!(v >= 0 && v <= 10)) throw new Error('Điểm tiêu chí phải từ 0 đến 10'); crit[k] = Math.round(v * 4) / 4; });
+  const score = b.score !== undefined && b.score !== '' ? Math.round(Number(b.score) * 4) / 4 : Math.round(H_CRIT.reduce((s, k) => s + crit[k], 0) / 4 * 4) / 4;
+  if (!(score >= 0 && score <= 10)) throw new Error('Điểm tổng phải từ 0 đến 10');
+  const norm = x => String(x).replace(/[’‘]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, ' ').trim();
+  const nt = norm(text);
+  const quotes = (b.quotes || []).slice(0, 3).map(q => ({ q: norm(q.q || '').slice(0, 400), note: String(q.note || '').slice(0, 200) })).filter(q => q.q);
+  if (!quotes.length) throw new Error('Cần ít nhất 1 câu trích dẫn từ bài làm làm bằng chứng');
+  quotes.forEach(q => { if (nt.indexOf(q.q) < 0) throw new Error('Câu trích không có trong bài: “' + q.q.slice(0, 60) + '…”'); });
+  const teacher = u.r === 'a' ? 'Quản trị viên' : ((teachers_().filter(x => x.id === u.id)[0] || {}).name || '');
+  const row = [b.id || nid_('VD'), new Date(), st.id, String(b.name || st.name).slice(0, 60), c.name, c.id, ev.code, new Date(ev.t), Number(ev.score) || (text.match(/\S+/g) || []).length,
+    score, JSON.stringify(crit), JSON.stringify(quotes), String(b.comment || '').slice(0, 600), teacher, b.scope === 'class' ? 'class' : 'all',
+    String(b.prompt || '').slice(0, 600), text.slice(0, 20000)];
+  const sh = tab_('Vinh danh', H_HEAD);
+  const old = b.id ? findRow_('Vinh danh', H_HEAD, b.id) : null;
+  if (old) sh.getRange(old.row, 1, 1, H_HEAD.length).setValues([row]); else sh.appendRow(row);
+  CacheService.getScriptCache().remove('honors');
+  return { ok: true, id: row[0] };
 }

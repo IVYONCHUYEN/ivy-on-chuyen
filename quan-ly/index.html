@@ -99,6 +99,16 @@ tr.r:hover td{filter:brightness(.98)}
 details.essay{background:#fff;border-radius:12px;padding:10px 14px;margin:8px 0}
 details.essay summary{cursor:pointer;font-weight:700}
 details.essay p{white-space:pre-wrap;margin:10px 0 0;font-weight:500}
+details.essay summary .hbtn{float:right;margin-left:8px}
+.hbtn{border:1px solid #f3d27a;background:var(--y-soft);color:#7a5200;border-radius:99px;padding:3px 10px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.hbtn.on{background:#fef3c7;border-color:#f6b91c;color:#92400e}
+.mbox{max-height:calc(100vh - 40px);overflow:auto}
+.mbox.wide{width:min(760px,100%)}
+.crit{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:620px){.crit{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.esrc{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px 12px;max-height:200px;overflow:auto;font-size:14px;font-weight:500}
+.qrow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:8px}
+@media (max-width:620px){.qrow{grid-template-columns:1fr}}
 /* login */
 .login{max-width:440px;margin:80px auto;background:#fff;border-radius:18px;padding:26px;box-shadow:0 10px 30px rgba(16,24,40,.08);display:grid;gap:12px}
 .login input{border:1px solid var(--line);border-radius:10px;padding:11px 12px}
@@ -268,7 +278,7 @@ async function load(){
   try{
     const j=await api("data");
     DEMO=false; EVENTS=j.events||[]; SHEET=j.sheetUrl||"";
-    ACC={user:j.user,teachers:j.teachers||[],classes:j.classes||[],students:j.students||[]};
+    ACC={user:j.user,teachers:j.teachers||[],classes:j.classes||[],students:j.students||[],honors:j.honors||[]};
     const isA=ACC.user.role==="admin";
     document.querySelectorAll("[data-admin]").forEach(b=>b.hidden=!isA);
     document.getElementById("whoami").textContent=(isA?"Quản trị · ":"Giáo viên · ")+ACC.user.name;
@@ -357,7 +367,37 @@ function viewLessons(S){
 function viewEssays(S){
   const list=[];S.forEach(s=>s.essays.forEach(e=>list.push({s,e})));
   list.sort((a,b)=>new Date(b.e.t)-new Date(a.e.t));
-  return list.length?list.map(({s,e})=>`<details class="essay"><summary><span class="tag">${esc(e.code)}</span> ${esc(s.name)} · <span class="muted">${esc(s.cls||"")} · ${fmtDT(e.t)} · ${e.words||0} từ</span></summary><p>${esc(e.text)}</p></details>`).join(""):'<div class="card empty">Chưa có bài luận nào được nộp.</div>';
+  window._ess=list;
+  const intro=list.length&&!DEMO?`<p class="muted" style="margin:0 0 10px">Bấm <b>🏆 Vinh danh</b> để chọn bài xuất sắc: chấm 4 tiêu chí, trích câu hay làm bằng chứng và nhận xét. Bài được vinh danh hiện ở cột phải trang học của học sinh.</p>`:"";
+  return list.length?intro+list.map(({s,e},i)=>{const h=honorOf(s.sid,e);return `<details class="essay"><summary>${DEMO?"":`<button type="button" class="hbtn${h?" on":""}" data-act="honor" data-k="${i}">${h?"🏆 Đã vinh danh · Sửa":"🏆 Vinh danh"}</button>`}<span class="tag">${esc(e.code)}</span> ${esc(s.name)} · <span class="muted">${esc(s.cls||"")} · ${fmtDT(e.t)} · ${e.words||0} từ</span></summary><p>${esc(e.text)}</p></details>`}).join(""):'<div class="card empty">Chưa có bài luận nào được nộp.</div>';
+}
+function honorOf(sid,e){return (ACC.honors||[]).find(h=>h.sid===sid&&h.code===e.code&&h.t===e.t)||null}
+const CRIT=[["nd","Nội dung"],["bc","Bố cục & liên kết"],["tv","Từ vựng"],["ng","Ngữ pháp"]];
+async function honorDialog(k){
+  const {s,e}=window._ess[+k]; const h=honorOf(s.sid,e);
+  let full=null; if(h){try{const r=await api("honors");full=(r.honors||[]).find(x=>x.id===h.id)||null}catch(x){}}
+  let prompt=""; try{const L=await loadLesson(e.code);prompt=((L.writing&&L.writing.prompt)||"").replace(/<[^>]+>/g,"").trim()}catch(x){}
+  const q=(full&&full.quotes)||[], cr=(full&&full.crit)||{};
+  const qrow=i=>`<div class="qrow"><label class="fld">Câu trích ${i+1}${i?" (không bắt buộc)":""}<textarea rows="2" data-q="${i}" ${i?"":"required"} placeholder="Dán nguyên văn một câu hay trong bài">${esc((q[i]||{}).q||"")}</textarea></label><label class="fld">Vì sao hay<textarea rows="2" data-n="${i}" placeholder="VD: Câu chủ đề rõ, dùng cấu trúc đảo ngữ">${esc((q[i]||{}).note||"")}</textarea></label></div>`;
+  dialog(`<h2>🏆 Vinh danh bài luận</h2>
+  <div class="muted"><span class="tag">${esc(e.code)}</span> <b>${esc(s.name)}</b> · ${esc(s.cls||"")} · ${fmtDT(e.t)} · ${e.words||0} từ</div>
+  ${prompt?`<div class="muted"><b>Đề:</b> ${esc(prompt)}</div>`:""}
+  <div class="esrc">${esc(e.text)}</div>
+  <div class="crit">${CRIT.map(([c,n])=>`<label class="fld">${n} (/10)<input type="number" min="0" max="10" step="0.25" required data-c="${c}" value="${cr[c]!=null?cr[c]:""}"></label>`).join("")}</div>
+  <label class="fld">Điểm tổng (/10) – để trống thì lấy trung bình 4 tiêu chí<input type="number" min="0" max="10" step="0.25" id="hScore" value="${full?full.score:""}"></label>
+  ${[0,1,2].map(qrow).join("")}
+  <label class="fld">Nhận xét của giáo viên<textarea rows="3" id="hCmt" maxlength="600" placeholder="Điểm mạnh nổi bật của bài">${esc(full?full.comment:"")}</textarea></label>
+  <div class="qrow"><label class="fld">Tên hiển thị<input id="hName" maxlength="60" value="${esc(full?full.name:s.name)}"></label>
+  <label class="fld">Ai được xem<select id="hScope"><option value="all">Tất cả học sinh IVY</option><option value="class"${full&&full.scope==="class"?" selected":""}>Chỉ lớp ${esc(s.cls||"của em")}</option></select></label></div>
+  ${h?`<button type="button" class="btn ghost" data-act="unhonor" data-id="${esc(h.id)}" style="justify-self:start">Gỡ vinh danh</button>`:""}`,
+  async f=>{
+    const crit={};f.querySelectorAll("[data-c]").forEach(x=>crit[x.dataset.c]=+x.value);
+    const quotes=[0,1,2].map(i=>({q:f.querySelector(`[data-q="${i}"]`).value.trim(),note:f.querySelector(`[data-n="${i}"]`).value.trim()})).filter(x=>x.q);
+    const sc=f.querySelector("#hScore").value;
+    await api("honor",{op:"save",id:h?h.id:undefined,sid:s.sid,code:e.code,t:e.t,crit,score:sc===""?undefined:+sc,quotes,comment:f.querySelector("#hCmt").value,name:f.querySelector("#hName").value,scope:f.querySelector("#hScope").value,prompt});
+    document.getElementById("mbg").hidden=true; await load();
+  },h?"Lưu thay đổi":"Vinh danh");
+  document.getElementById("mbox").classList.add("wide");
 }
 function viewSetup(){
   const url=window.IVY_API;
@@ -498,7 +538,7 @@ function viewTeachers(){
    <td class="acts"><button class="btn ghost sm" type="button" data-act="regenT" data-id="${t.id}">Cấp mã mới</button><button class="btn ghost sm" type="button" data-act="renT" data-id="${t.id}">Đổi tên</button><button class="btn ghost sm" type="button" data-act="${t.status==="active"?"lockT":"unlockT"}" data-id="${t.id}">${t.status==="active"?"Khoá":"Mở khoá"}</button><button class="btn ghost sm danger" type="button" data-act="delT" data-id="${t.id}">Xoá</button></td></tr>`).join("")}</tbody></table>`:'<div class="empty">Chưa có giáo viên nào. Bấm “+ Cấp mã giáo viên”.</div>'}</div>`;
 }
 /* hộp thoại */
-function dialog(html,onOk,okText){const bg=document.getElementById("mbg"),f=document.getElementById("mbox");
+function dialog(html,onOk,okText){const bg=document.getElementById("mbg"),f=document.getElementById("mbox");f.classList.remove("wide");
   f.innerHTML=html+`<div class="err" id="mErr" hidden></div><div class="mrow"><button class="btn ghost" type="button" id="mCancel">${onOk?"Huỷ":"Đóng"}</button>${onOk?`<button class="btn" type="submit" id="mOk">${okText||"Lưu"}</button>`:""}</div>`;
   bg.hidden=false;const first=f.querySelector("input,textarea,select");if(first)first.focus();
   document.getElementById("mCancel").onclick=()=>{bg.hidden=true};
@@ -537,6 +577,8 @@ async function act(a,el){
   if(a==="credCopy"){const t=document.getElementById("credTxt");try{await navigator.clipboard.writeText(t.value)}catch(e){t.select();document.execCommand("copy")}el.textContent="✓ Đã sao chép";return}
   if(a==="credXlsx"){const c=window._creds;IVY_XLSX.download([{name:"Tài khoản",rows:[["Họ tên","Lớp","Mã học sinh","Mật khẩu"]].concat(c.list.map(x=>[x.name,c.cls,x.user,x.pass])),widths:[28,22,16,14]}],`IVY-GIFTED_tai-khoan_${(c.cls||"lop").replace(/[^\p{L}\p{N}]+/gu,"-")}.xlsx`);return}
   if(a==="codeCopy"){try{await navigator.clipboard.writeText(el.dataset.code)}catch(e){}el.textContent="✓ Đã sao chép";return}
+  if(a==="honor") return honorDialog(el.dataset.k);
+  if(a==="unhonor"){await api("honor",{op:"remove",id:el.dataset.id});return done()}
   // Public/Private
   if(a==="pubAll"){ALL_ITEMS.forEach(i=>pubDraft.add(i.code));return render()}
   if(a==="pubNone"){pubDraft.clear();return render()}

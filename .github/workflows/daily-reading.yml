@@ -1,0 +1,22 @@
+name: Bài đọc hôm nay (Breaking News English)
+on:
+  schedule:
+    - cron: '7 23 * * *'   # 06:07 sáng giờ Việt Nam
+    - cron: '7 11 * * *'   # 18:07 giờ Việt Nam (bắt bài đăng muộn)
+  workflow_dispatch:
+  push:
+    paths: ['tools/fetch_bne.py']
+permissions:
+  contents: write
+concurrency: daily-reading
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/fetch_bne.py
+      - run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/daily-reading.js
+          git commit -m "Bài đọc hôm nay: cập nhật từ Breaking News English" || exit 0
+          git pull --rebase && git push

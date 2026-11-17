@@ -252,6 +252,78 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border
 .gate .err{background:#fee2e2;color:#991b1b;border-radius:10px;padding:8px 12px;font-size:14px}
 .staffbar{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;border-radius:12px;padding:10px 14px;font-size:14px;font-weight:600}
 .lockedbox{text-align:center;padding:40px 20px}
+
+/* ---------- CỘT PHẢI: VINH DANH BÀI LUẬN ---------- */
+:root{--rail:340px;--gold:#b7791f;--gold-soft:#fdf6e3;--gold-line:#f1dfb0}
+.rail{position:fixed;top:var(--top);right:0;bottom:0;width:var(--rail);background:#fff;border-left:1px solid var(--line);display:flex;flex-direction:column;z-index:45}
+.rail-h{padding:18px 18px 12px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+.rail-h .ic{width:38px;height:38px;border-radius:10px;background:var(--gold-soft);border:1px solid var(--gold-line);display:grid;place-items:center;font-size:20px;flex:none}
+.rail-h h2{font-size:17px;line-height:1.25}
+.rail-h p{margin:2px 0 0;color:var(--muted);font-size:12.5px;line-height:1.4}
+.rail-h .x{margin-left:auto;border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;color:var(--muted);padding:4px 6px;display:none}
+.rail-list{flex:1;overflow:auto;padding:14px 14px calc(var(--daily-h,0px) + 18px);display:grid;gap:14px;align-content:start}
+.hcard{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;display:grid;gap:10px;position:relative}
+.hcard::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;border-radius:14px 14px 0 0;background:linear-gradient(90deg,#d69e2e,#f6d365)}
+.hc-top{display:flex;gap:10px;align-items:center}
+.hc-av{width:38px;height:38px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
+.hc-who{min-width:0;flex:1}
+.hc-who b{display:block;font-size:15px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hc-who small{color:var(--muted);font-size:12px}
+.hc-score{flex:none;text-align:center;background:var(--gold-soft);border:1px solid var(--gold-line);border-radius:10px;padding:4px 8px;color:var(--gold);line-height:1}
+.hc-score b{font-size:20px;font-variant-numeric:tabular-nums}.hc-score small{display:block;font-size:10px;font-weight:700;margin-top:2px}
+.hc-topic{font-size:13px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hc-topic .tag{font-size:11px;padding:2px 6px;margin-right:4px}
+.hc-crit{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px}
+.hc-crit div{font-size:11.5px;color:var(--muted);font-weight:600}
+.hc-crit div span{float:right;color:var(--ink);font-variant-numeric:tabular-nums}
+.hc-crit i{display:block;height:5px;border-radius:9px;background:var(--line);margin-top:3px;overflow:hidden}
+.hc-crit i em{display:block;height:100%;background:var(--gold);border-radius:9px}
+.hc-q{margin:0;border-left:3px solid var(--gold);background:var(--gold-soft);border-radius:0 10px 10px 0;padding:8px 10px;font-size:13.5px;line-height:1.45}
+.hc-q p{margin:0;font-style:italic}
+.hc-q small{display:block;margin-top:4px;color:#8a5a12;font-size:12px;font-weight:600}
+.hc-cmt{font-size:13px;color:var(--muted);margin:0}
+.hc-cmt b{color:var(--ink)}
+.hc-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.hc-foot button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;font-weight:700;font-size:12.5px;cursor:pointer;color:var(--brand)}
+.hc-foot button:hover{border-color:var(--brand)}
+.rail-empty{border:1px dashed var(--gold-line);background:var(--gold-soft);border-radius:14px;padding:16px;font-size:13.5px;color:#7a5a1f;display:grid;gap:6px}
+.trophy{display:none}
+@media (min-width:1360px){ .main{margin-right:var(--rail)} }
+@media (max-width:1359px){
+  .rail{transform:translateX(100%);transition:transform .25s ease;box-shadow:none;z-index:60;width:min(var(--rail),100vw)}
+  .rail.open{transform:none;box-shadow:-12px 0 32px rgba(16,24,40,.18)}
+  .rail-h .x{display:block}
+  .rail-list{padding-bottom:18px}
+  .trophy{display:grid}
+}
+@media (max-width:700px){ .rail{bottom:64px} }
+.hview .box{width:min(720px,100%);max-height:calc(100vh - 40px);overflow:auto}
+.hview .essay-text{white-space:pre-wrap;line-height:1.7;font-size:15px;background:#fafafa;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.hview mark{background:#fde68a;border-radius:3px;padding:0 2px}
+
+/* ---------- BÀI ĐỌC HÔM NAY (góc dưới bên phải) ---------- */
+.daily{position:fixed;right:16px;bottom:16px;width:calc(var(--rail) - 32px);z-index:55;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 32px rgba(16,24,40,.14);overflow:hidden}
+.daily-h{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#123b5c;color:#fff}
+.daily-h .lbl{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.daily-h button{border:0;background:rgba(255,255,255,.14);color:#fff;width:26px;height:26px;border-radius:7px;cursor:pointer;font-size:14px;display:grid;place-items:center;padding:0}
+.daily-h button:hover{background:rgba(255,255,255,.28)}
+.daily-h button:disabled{opacity:.35;cursor:default}
+.daily-b{padding:10px 14px 12px;display:grid;gap:7px}
+.daily-b .when{font-size:12px;color:var(--muted);font-weight:600;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.daily-b .new{background:#e7f6ec;color:#15803d;border-radius:99px;padding:1px 8px;font-size:11px;font-weight:700}
+.daily-b h3{font-size:16px;line-height:1.3}
+.daily-b h3 a{color:var(--ink);text-decoration:none}.daily-b h3 a:hover{color:var(--brand);text-decoration:underline}
+.daily-b p{margin:0;font-size:13px;line-height:1.5;color:#374151;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.daily-b .more{font-size:12.5px;font-weight:700}
+.daily-b .lv{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.daily-b .lv a{font-size:11.5px;font-weight:700;text-decoration:none;border:1px solid var(--line);border-radius:99px;padding:2px 9px;color:#123b5c}
+.daily-b .lv a:hover{border-color:#123b5c;background:#eef5fb}
+.daily-b .src{font-size:11px;color:var(--muted)}.daily-b .src a{color:inherit}
+.daily.min{width:auto;border-radius:99px}
+.daily.min .daily-b,.daily.min [data-dn]{display:none}
+.daily.min .daily-h{border-radius:99px;padding:8px 10px 8px 14px;cursor:pointer}
+@media (max-width:1359px){ .daily{width:min(320px,calc(100vw - 32px))} }
+@media (max-width:700px){ .daily{bottom:76px;right:12px} }
 </style>
 </head>
 <body>
@@ -273,6 +345,7 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border
   </form>
   <div class="tright">
     <a class="iconbtn" href="#hom-nay" aria-label="Nhiệm vụ 7 ngày tới" title="Nhiệm vụ 7 ngày tới"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-2 2v1h18v-1z"/></svg><span class="badge" id="bell" hidden></span></a>
+    <button class="iconbtn trophy" id="trophyBtn" type="button" aria-label="Vinh danh bài luận" title="Vinh danh bài luận xuất sắc" aria-controls="rail" aria-expanded="false"><span style="font-size:22px" aria-hidden="true">🏆</span><span class="badge" id="hcount" hidden></span></button>
     <button class="report" id="reportBtn" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M8.5 16a4.5 4.5 0 0 1 7 0"/></svg><span>Báo lỗi</span></button>
   </div>
 </header>
@@ -426,6 +499,27 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border
 
   <footer>IVY GIFTED · Lộ trình 90 buổi ôn thi vào lớp 10 chuyên Anh.</footer>
 </div></main>
+
+<aside class="rail" id="rail" aria-labelledby="railTitle">
+  <div class="rail-h">
+    <span class="ic" aria-hidden="true">🏆</span>
+    <div><h2 id="railTitle">Vinh danh bài luận</h2><p>Bài viết xuất sắc do giáo viên chọn, kèm điểm từng tiêu chí và câu trích làm bằng chứng.</p></div>
+    <button class="x" id="railClose" type="button" aria-label="Đóng">×</button>
+  </div>
+  <div class="rail-list" id="railList"><div class="rail-empty">Đang tải…</div></div>
+</aside>
+
+<section class="daily" id="daily" aria-label="Bài đọc hôm nay" hidden>
+  <div class="daily-h">
+    <span aria-hidden="true">📰</span><span class="lbl" id="dLbl">Bài đọc hôm nay</span>
+    <button type="button" data-dn="-1" aria-label="Bài trước" title="Bài trước">‹</button>
+    <button type="button" data-dn="1" aria-label="Bài sau" title="Bài sau">›</button>
+    <button type="button" id="dMin" aria-label="Thu gọn" title="Thu gọn">–</button>
+  </div>
+  <div class="daily-b" id="dBody"></div>
+</section>
+
+<div class="modal hview" id="hview" hidden role="dialog" aria-modal="true" aria-labelledby="hvTitle"><div class="box" id="hvBox"></div></div>
 
 <div class="gate" id="gate" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
   <form class="gbox" id="gForm" autocomplete="on">
@@ -932,6 +1026,114 @@ document.addEventListener("click",e=>{
 });
 window.addEventListener("hashchange",show);
 renderAll(); show();
+})();
+</script>
+<script>
+/* ---------- VINH DANH BÀI LUẬN (cột phải) + BÀI ĐỌC HÔM NAY (góc dưới) ---------- */
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const fmtD=t=>{const d=new Date(t);return isNaN(d)?"":d.toLocaleDateString("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric"})};
+const today=()=>new Date(Date.now()+7*36e5).toISOString().slice(0,10); // ngày theo giờ Việt Nam
+const wide=()=>window.matchMedia("(min-width:1360px)").matches;
+
+/* ===== Vinh danh ===== */
+const CRIT=[["nd","Nội dung"],["bc","Bố cục & liên kết"],["tv","Từ vựng"],["ng","Ngữ pháp"]];
+const rail=$("rail"),list=$("railList");
+let HON=ls.get("ivy-honors",[]);
+const initials=n=>String(n||"?").trim().split(/\s+/).slice(-2).map(w=>w[0]).join("").toUpperCase();
+const n10=x=>(Math.round(x*100)/100).toString().replace(".",",");
+function topicOf(h){const ix=window.IVY_INDEX&&IVY_INDEX[h.code];return (ix&&ix.t)||h.prompt||""}
+function card(h,i){
+  const q=(h.quotes||[])[0];
+  return `<article class="hcard">
+    <div class="hc-top"><span class="hc-av" aria-hidden="true">${esc(initials(h.name))}</span>
+      <div class="hc-who"><b>${esc(h.name)}</b><small>${esc(h.cls||"")}${h.cls?" · ":""}${fmtD(h.t)}</small></div>
+      <div class="hc-score" title="Điểm giáo viên chấm"><b>${n10(h.score)}</b><small>/10</small></div></div>
+    <div class="hc-topic"><span class="tag">${esc(h.code)}</span>${esc(topicOf(h))}</div>
+    <div class="hc-crit">${CRIT.map(([k,n])=>{const v=+((h.crit||{})[k]||0);return `<div>${n}<span>${n10(v)}</span><i><em style="width:${Math.max(0,Math.min(10,v))*10}%"></em></i></div>`}).join("")}</div>
+    ${q?`<blockquote class="hc-q"><p>“${esc(q.q)}”</p>${q.note?`<small>→ ${esc(q.note)}</small>`:""}</blockquote>`:""}
+    ${h.comment?`<p class="hc-cmt"><b>${esc(h.teacher||"Giáo viên")}:</b> ${esc(h.comment)}</p>`:""}
+    <div class="hc-foot"><span>${h.words||0} từ${(h.quotes||[]).length>1?` · ${h.quotes.length} câu trích`:""}</span><button type="button" data-hv="${i}">Đọc toàn bài</button></div>
+  </article>`;
+}
+function renderRail(err){
+  const b=$("hcount");b.textContent=HON.length;b.hidden=!HON.length;
+  if(!HON.length){list.innerHTML=`<div class="rail-empty"><b>Chưa có bài được vinh danh</b><span>${err?esc(err):"Bài luận em nộp ở mục “Viết bài luận” có thể được giáo viên chọn vinh danh tại đây – kèm điểm 4 tiêu chí và câu hay nhất của em."}</span></div>`;return}
+  list.innerHTML=HON.map(card).join("");
+}
+function markQuotes(text,quotes){
+  let h=esc(text);
+  (quotes||[]).forEach(q=>{
+    const pat=esc(q.q).split(/\s+/).map(w=>w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/'/g,"['’‘]").replace(/&quot;/g,"(?:&quot;|“|”)")).join("\\s+");
+    try{h=h.replace(new RegExp(pat),m=>`<mark>${m}</mark>`)}catch(e){}
+  });
+  return h;
+}
+function openFull(i){
+  const h=HON[+i];if(!h)return;
+  $("hvBox").innerHTML=`<div style="display:flex;gap:12px;align-items:center"><span class="hc-av" aria-hidden="true">${esc(initials(h.name))}</span><div style="flex:1;min-width:0"><h2 id="hvTitle" style="font-size:20px">${esc(h.name)}</h2><div class="meta">${esc(h.cls||"")} · ${esc(h.code)} · nộp ${fmtD(h.t)} · ${h.words||0} từ</div></div><div class="hc-score"><b>${n10(h.score)}</b><small>/10</small></div></div>
+  ${h.prompt?`<div style="font-size:14px;color:var(--muted)"><b style="color:var(--ink)">Đề bài:</b> ${esc(h.prompt)}</div>`:""}
+  <div class="hc-crit">${CRIT.map(([k,n])=>{const v=+((h.crit||{})[k]||0);return `<div>${n}<span>${n10(v)}/10</span><i><em style="width:${v*10}%"></em></i></div>`}).join("")}</div>
+  <div class="essay-text">${markQuotes(h.text||"",h.quotes)}</div>
+  ${(h.quotes||[]).map(q=>`<blockquote class="hc-q"><p>“${esc(q.q)}”</p>${q.note?`<small>→ ${esc(q.note)}</small>`:""}</blockquote>`).join("")}
+  ${h.comment?`<p class="hc-cmt"><b>Nhận xét của ${esc(h.teacher||"giáo viên")}:</b> ${esc(h.comment)}</p>`:""}
+  <p class="meta" style="margin:0">Phần tô vàng là câu được giáo viên trích làm bằng chứng. Vinh danh ngày ${fmtD(h.approved)}.</p>
+  <div class="row" style="display:flex;justify-content:flex-end"><button class="btn ghost" type="button" id="hvClose">Đóng</button></div>`;
+  $("hview").hidden=false;$("hvClose").focus();
+}
+async function loadHonors(){
+  const AU=window.IVY_AUTH;renderRail();
+  if(!AU||!AU.user()||!window.IVY_API)return;
+  try{const j=await AU.call("honors");HON=j.honors||[];ls.set("ivy-honors",HON);renderRail()}
+  catch(e){renderRail()}
+}
+function setRail(open){rail.classList.toggle("open",open);$("trophyBtn").setAttribute("aria-expanded",open)}
+$("trophyBtn").addEventListener("click",()=>setRail(!rail.classList.contains("open")));
+$("railClose").addEventListener("click",()=>setRail(false));
+document.addEventListener("click",e=>{
+  const v=e.target.closest("[data-hv]");if(v){openFull(v.dataset.hv);return}
+  if(e.target.id==="hview"||e.target.id==="hvClose"){$("hview").hidden=true;return}
+  if(rail.classList.contains("open")&&!wide()&&!e.target.closest("#rail,#trophyBtn,#hview"))setRail(false);
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("hview").hidden)$("hview").hidden=true;else setRail(false)}});
+
+/* ===== Bài đọc hôm nay (Breaking News English) ===== */
+const daily=$("daily");let ITEMS=[],cur=0,first=0;
+function renderDaily(){
+  const it=ITEMS[cur];if(!it)return;
+  const isToday=it.date===today(),d=it.date.split("-");
+  $("dLbl").textContent=(cur===first?"Bài đọc hôm nay":"Bài đọc trước")+" · "+(+d[2])+"/"+(+d[1]);
+  daily.querySelector('[data-dn="-1"]').disabled=cur>=ITEMS.length-1;
+  daily.querySelector('[data-dn="1"]').disabled=cur<=first;
+  const lv=it.levels||{};
+  $("dBody").innerHTML=`<div class="when">${isToday?'<span class="new">Mới hôm nay</span>':""}<span>Đăng ${(+d[2])}/${(+d[1])}/${d[0]}${it.topic?" · "+esc(it.topic):""}${it.words?" · ~"+Math.max(1,Math.round(it.words/130))+" phút đọc":""}</span></div>
+    <h3><a href="${esc(lv[it.level||4]||it.url)}" target="_blank" rel="noopener">${esc(it.title)}</a></h3>
+    ${it.excerpt?`<p>${esc(it.excerpt)}</p>`:""}
+    <div class="lv">${["4","5","6"].filter(k=>lv[k]).map(k=>`<a href="${esc(lv[k])}" target="_blank" rel="noopener">Level ${k}</a>`).join("")}${it.listen?`<a href="${esc(it.listen)}" target="_blank" rel="noopener">🎧 Nghe</a>`:""}</div>
+    <div class="src">Nguồn: <a href="https://breakingnewsenglish.com/" target="_blank" rel="noopener">breakingnewsenglish.com</a> · tự cập nhật mỗi ngày</div>`;
+  fit();
+}
+function setMin(m){daily.classList.toggle("min",m);$("dMin").textContent=m?"+":"–";$("dMin").setAttribute("aria-label",m?"Mở rộng":"Thu gọn");$("dMin").title=m?"Mở rộng":"Thu gọn";ls.set("ivy-daily-min",m?(ITEMS[first]||{}).id||"":"");fit()}
+function fit(){list.style.setProperty("--daily-h",wide()&&!daily.hidden?daily.offsetHeight+"px":"0px")}
+function initDaily(){
+  const D=window.IVY_DAILY;if(!D||!D.items||!D.items.length)return;
+  ITEMS=D.items.slice().sort((a,b)=>a.date<b.date?1:-1);
+  const t=today();first=Math.max(0,ITEMS.findIndex(x=>x.date<=t));cur=first;
+  daily.hidden=false;renderDaily();
+  const m=ls.get("ivy-daily-min",null);
+  // thu gọn nếu em đã thu gọn đúng bài này; bài mới thì tự mở lại. Màn hình điện thoại mặc định thu gọn.
+  setMin(m===null?window.innerWidth<700:m===ITEMS[first].id);
+}
+daily.addEventListener("click",e=>{
+  const n=e.target.closest("[data-dn]");if(n){cur=Math.min(ITEMS.length-1,Math.max(first,cur-(+n.dataset.dn)));renderDaily();return}
+  if(e.target.id==="dMin"){setMin(!daily.classList.contains("min"));return}
+  if(daily.classList.contains("min")&&e.target.closest(".daily-h"))setMin(false);
+});
+window.addEventListener("resize",fit);
+const sc=document.createElement("script");sc.src="data/daily-reading.js?d="+today();sc.onload=initDaily;document.body.appendChild(sc);
+loadHonors();
 })();
 </script>
 </body>
