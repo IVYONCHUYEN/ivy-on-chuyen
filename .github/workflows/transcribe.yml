@@ -8,10 +8,13 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - run: pip install -q google-genai
-      - run: python3 tools/transcribe.py
+      - run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          timeout 2400 python3 tools/transcribe.py
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       - run: |
