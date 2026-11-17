@@ -366,7 +366,7 @@ function reviewLesson(L,rec){
     if(sec.type==="dict"){const acc=rec.acc&&rec.acc[id];body=`<div>HS: <b>${ans(v)}</b></div><div>Câu gốc: <b>${esc(it[0])}</b></div>`}
     if(sec.type==="rewrite"){const exact=it[2].some(x=>tnorm(x)===tnorm(v));const why=rec.why&&rec.why[id];
       body=`${it[1]?`<div class="muted">${it[1]}</div>`:""}<div>HS: <b>${ans(v)}</b></div>${ok&&!exact?'<div class="ai">🤖 Khác đáp án mẫu – AI chấm đúng nghĩa và ngữ pháp'+(why?": "+esc(why):"")+'</div>':""}${!ok&&why?'<div class="ai">🤖 '+esc(why)+'</div>':""}<div>Đáp án mẫu: <b>${esc(it[2][0])}</b></div><div class="ex">${it[3]||""}</div>`}
-    const stem=sec.type==="fix"?it[0].replace(/\[([^\]]+)\]/g,(m,t,o)=>`<u>${t}</u>`):it[0];
+    const stem=sec.type==="dict"?"Đoạn "+(qi+1):sec.type==="fix"?it[0].replace(/\[([^\]]+)\]/g,(m,t,o)=>`<u>${t}</u>`):it[0];
     return `<div class="rq ${ok?"ok":"no"}"><div class="rqh"><span class="n">${n}</span><span class="stem">${stem}</span>${mark(ok)}</div>${body}</div>`}).join("")}</div>`).join("");
 }
 function reviewExam(D,rec){
