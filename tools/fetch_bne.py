@@ -12,7 +12,7 @@ BASE = "https://breakingnewsenglish.com/"
 OUT = os.path.join(os.path.dirname(__file__), "..", "data", "daily-reading.js")
 UA = "Mozilla/5.0 (compatible; IVY-GIFTED-daily-reading/1.0; +https://ivyonchuyen.github.io/ivy-on-chuyen/)"
 KEEP = 60          # số bài giữ trong lịch sử
-MAX_FETCH = 12     # số trang bài học tải mỗi lần chạy
+MAX_FETCH = 20     # số trang bài học tải mỗi lần chạy
 VN = timezone(timedelta(hours=7))
 
 
@@ -119,33 +119,40 @@ def main():
             "date": f"20{n['ymd'][:2]}-{n['ymd'][2:4]}-{n['ymd'][4:]}",
             "title": n["title"] or it.get("title") or n["slug"].replace("-", " ").capitalize(),
             "url": url + ".html",
-            "levels": {"4": url + "-4.html", "5": url + "-5.html", "6": url + ".html"},
-            "listen": url + "-4l.html",
+            "base": url,
         })
         items[lid] = it
     fetched = 0
     for it in sorted(items.values(), key=lambda x: x["date"], reverse=True):
-        if it.get("excerpt") or fetched >= MAX_FETCH:
+        if (it.get("excerpt") and it.get("kind")) or fetched >= MAX_FETCH or not it.get("base"):
             continue
-        for lv in ("4", "5", "6"):
+        url = it["base"]
+        # Bài "Harder": Level 4 (-4), 5 (-5), 6 (gốc). Bài "Easier": Level 0–2 (-0…-2), 3 (gốc).
+        for kind, lv, u in (("harder", 4, url + "-4.html"), ("easier", 3, url + ".html")):
             try:
-                page = get(it["levels"][lv])
+                page = get(u)
             except Exception as e:
-                print("lỗi tải", it["levels"][lv], e, file=sys.stderr)
+                print("lỗi tải", u, e, file=sys.stderr)
                 continue
             topic, body = article(page)
+            if not body:
+                continue
             if len(it["title"].split()) < 4:  # tiêu đề trang chủ thiếu → lấy tiêu đề h2/h3 đầu tiên của bài
                 for h in re.findall(r"(?is)<h[23]\b[^>]*>(.*?)</h[23]>", page):
                     h = text(h)
                     if len(h.split()) >= 4 and not h.lower().startswith("the reading"):
                         it["title"] = h
                         break
-            if body:
-                it["topic"] = topic
-                it["level"] = int(lv)
-                it["excerpt"] = excerpt(body)
-                it["words"] = len(body.split())
-                break
+            m = re.search(r"(?i)level\s*(\d)", page[page.lower().find("the reading"):][:300])
+            lv = int(m.group(1)) if m else lv
+            if kind == "harder":
+                it["levels"] = {"4": url + "-4.html", "5": url + "-5.html", "6": url + ".html"}
+                it["listen"] = url + "-4l.html"
+            else:
+                it["levels"] = {"2": url + "-2.html", "3": url + ".html"}
+                it.pop("listen", None)
+            it.update(kind=kind, level=lv, topic=topic, excerpt=excerpt(body), words=len(body.split()))
+            break
         fetched += 1
         time.sleep(1.5)
     keep = sorted(items.values(), key=lambda x: x["date"], reverse=True)[:KEEP]

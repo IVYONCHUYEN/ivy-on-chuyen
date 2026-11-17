@@ -1109,9 +1109,9 @@ function renderDaily(){
   daily.querySelector('[data-dn="1"]').disabled=cur<=first;
   const lv=it.levels||{};
   $("dBody").innerHTML=`<div class="when">${isToday?'<span class="new">Mới hôm nay</span>':""}<span>Đăng ${(+d[2])}/${(+d[1])}/${d[0]}${it.topic?" · "+esc(it.topic):""}${it.words?" · ~"+Math.max(1,Math.round(it.words/130))+" phút đọc":""}</span></div>
-    <h3><a href="${esc(lv[it.level||4]||it.url)}" target="_blank" rel="noopener">${esc(it.title)}</a></h3>
+    <h3><a href="${esc(lv[it.level]||it.url)}" target="_blank" rel="noopener">${esc(it.title)}</a></h3>
     ${it.excerpt?`<p>${esc(it.excerpt)}</p>`:""}
-    <div class="lv">${["4","5","6"].filter(k=>lv[k]).map(k=>`<a href="${esc(lv[k])}" target="_blank" rel="noopener">Level ${k}</a>`).join("")}${it.listen?`<a href="${esc(it.listen)}" target="_blank" rel="noopener">🎧 Nghe</a>`:""}</div>
+    <div class="lv">${Object.keys(lv).sort().map(k=>`<a href="${esc(lv[k])}" target="_blank" rel="noopener">Level ${k}</a>`).join("")}${it.listen?`<a href="${esc(it.listen)}" target="_blank" rel="noopener">🎧 Nghe</a>`:""}</div>
     <div class="src">Nguồn: <a href="https://breakingnewsenglish.com/" target="_blank" rel="noopener">breakingnewsenglish.com</a> · tự cập nhật mỗi ngày</div>`;
   fit();
 }
