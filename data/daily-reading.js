@@ -1,8 +1,15 @@
 /* Tự động tạo bởi tools/fetch_bne.py – không sửa tay. Nguồn: https://breakingnewsenglish.com/ */
 window.IVY_DAILY={
  "source": "Breaking News English (breakingnewsenglish.com)",
- "updated": "2026-11-17 16:57",
+ "updated": "2026-11-19 06:50",
  "items": [
+  {
+   "id": "261119-gta",
+   "date": "2026-11-19",
+   "title": "Grand Theft Auto 6 is released worldwide",
+   "url": "https://breakingnewsenglish.com/2611/261119-gta.html",
+   "base": "https://breakingnewsenglish.com/2611/261119-gta"
+  },
   {
    "id": "261116-ground-stop-at-us-airports",
    "date": "2026-11-16",
